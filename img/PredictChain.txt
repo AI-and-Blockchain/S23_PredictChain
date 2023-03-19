@@ -1,0 +1,57 @@
+title PredictChain
+
+actor Betting User
+actor Dataset User
+actor Query User
+participant Smart Contract
+participant Blockchain
+participant Oracle
+participant Model Node
+database Database
+
+activate Blockchain
+activate Oracle
+Dataset User->Smart Contract: Add dataset txn
+Smart Contract->>Blockchain: Add dataset txn\n(to oracle)
+
+Query User->Smart Contract: Query model txn
+Smart Contract->>Blockchain: Query model txn\n(to oracle)
+
+
+loop forever
+Oracle->Blockchain: Listen for new txn
+alt New dataset txn
+
+activate Oracle
+Oracle->>Database: Save dataset
+Oracle->>Model Node: Train selected
+activate Model Node
+Model Node->Database: Get model
+
+Model Node->Model Node: Train model
+Model Node->Database: Store model parameters
+Model Node-->>Oracle: Return confirmation
+deactivate Model Node
+Oracle->>Blockchain: Add confirmation txn\n(to contract)
+deactivate Oracle
+
+else New query txn
+
+activate Oracle
+Oracle->>Model Node: Query model
+activate Model Node
+Model Node->Database: Get model
+Model Node->Model Node: Run model
+Model Node-->>Oracle: Return prediction
+deactivate Model Node
+Oracle->>Blockchain: Add result txn\n(to contract)
+deactivate Oracle
+
+end
+end
+
+Dataset User->Smart Contract: Get dataset\nconfirmation txn
+Smart Contract->>Blockchain: Get dataset\nconfirmation txn
+Query User->Smart Contract: Get query\nresult txn
+Smart Contract->>Blockchain: Get query\nresult txn
+

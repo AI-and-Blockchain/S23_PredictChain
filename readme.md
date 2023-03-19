@@ -5,7 +5,7 @@ to train predictive models, or submit queries to those models.  These various mo
 operated by a central node or nodes with computing resources available. A variety of models will be 
 made available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful. 
 This will allow for a large variety of predictive abilities for both simple and complex patterns.
-All of the past predictions form these models will be stored on the blockchain for public viewing.
+All the past predictions form these models will be stored on the blockchain for public viewing.
 
 ## Model Classes
 

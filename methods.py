@@ -5,7 +5,7 @@ from constants import *
 
 def add_dataset():
     oracle_addr = Addr(ORACLE_ADDRESS)
-    Txn.
+    Txn.ar
 
 
 def query_model():

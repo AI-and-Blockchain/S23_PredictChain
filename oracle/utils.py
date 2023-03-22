@@ -1,5 +1,4 @@
-from constants import *
-import base64, json
+from oracle.constants import *
 from algosdk import account, mnemonic
 from algosdk.transaction import PaymentTxn
 
@@ -56,5 +55,3 @@ def create_wallet():
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
     print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
-
-create_wallet()

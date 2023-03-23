@@ -48,7 +48,7 @@ Betting users would stake some amount on one of the possible outcomes of an even
 of the model.  Winning users will be rewarded with their original stake in addition to part of the
 stake of any incorrect users.
 
-## User Interface
+## User Interface Wireframes
 
 ![UIWireframe](img/PredictChainLanding.png)
 

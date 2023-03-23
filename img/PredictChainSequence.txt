@@ -1,6 +1,5 @@
 title PredictChain
 
-# actor Betting User
 actor User
 participant Blockchain
 participant Oracle
@@ -14,6 +13,8 @@ activate User
 par Manual actions
   alt Upload dataset
       User->Blockchain: Add dataset txn
+  else Train model
+      User->Blockchain: Train model txn
   else Query model
       User->Blockchain: Query model txn
   end
@@ -34,6 +35,11 @@ loop forever
 
       activate Oracle
       Oracle->>Database: Save dataset
+      Database-->>Oracle: Return confirmation
+      Oracle->>Blockchain: Add confirmation txn
+      deactivate Oracle
+    else New train txn
+      activate Oracle
       Oracle->>Model Node: Train selected
       activate Model Node
       Model Node->Database: Get model
@@ -44,7 +50,7 @@ loop forever
       Model Node->Database: Store model parameters
       Model Node-->>Oracle: Return confirmation
       deactivate Model Node
-      Oracle->>Blockchain: Add confirmation txn\n(to contract)
+      Oracle->>Blockchain: Add confirmation txn
       deactivate Oracle
 
 	else New query txn
@@ -56,7 +62,7 @@ loop forever
       Model Node->Model Node: Run model
       Model Node-->>Oracle: Return prediction
       deactivate Model Node
-      Oracle->>Blockchain: Add result txn\n(to contract)
+      Oracle->>Blockchain: Add result txn
       deactivate Oracle
 
   	end

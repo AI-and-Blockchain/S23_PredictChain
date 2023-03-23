@@ -1,4 +1,7 @@
-from oracle.constants import *
+import json
+import abc
+import threading
+from constants import *
 from algosdk import account, mnemonic
 from algosdk.transaction import PaymentTxn
 
@@ -41,7 +44,7 @@ def wait_for_confirmation(txn_id: str, timeout: int):
     raise Exception('pending tx not found in timeout rounds, timeout value = : {}'.format(timeout))
 
 
-def get_transaction(txn_id: str):
+def get_txn_confirmation(txn_id: str):
     try:
         confirmed_txn = wait_for_confirmation(txn_id, 4)
     except Exception as err:
@@ -55,3 +58,57 @@ def create_wallet():
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
     print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
+
+
+def get_current_state():
+    # TODO: extract current state from latest transactions
+    INDEXER_CLIENT.search_transactions(limit=2)
+    return {}
+
+
+def base_op_price(op: str, model_complexity: float, ):
+    ...
+
+
+def search_transactions(**kwargs):
+    transactions = []
+    next_token = ""
+    has_results = True
+    page = 0
+
+    # loop using next_page to paginate until there are
+    # no more transactions in the response
+    while has_results:
+        response = INDEXER_CLIENT.search_transactions(**kwargs, next_page=next_token)
+
+        has_results = len(response["transactions"]) > 0
+
+        if has_results:
+            next_token = response["next-token"]
+            print(f"Transaction on page {page}: " + json.dumps(response, indent=2))
+            transactions.append(response)
+
+        page += 1
+
+    return transactions
+
+
+class TransactionMonitor:
+    last_round = 0
+    halt = False
+
+    def __init__(self, address: str):
+        self.last_round = get_current_state()["round"]
+        self.address = address
+
+    @abc.abstractmethod
+    def process_incoming(self, txn):
+        raise NotImplementedError("Subclass this monitor to handle!")
+
+    def monitor(self):
+        def inner_mon():
+            while not self.halt:
+                transactions = search_transactions(address=self.address, address_role="receiver")
+                [self.process_incoming(txn) for txn in transactions]
+
+        threading.Thread(target=inner_mon, args=())

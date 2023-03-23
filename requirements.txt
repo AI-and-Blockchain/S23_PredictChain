@@ -1,2 +1,4 @@
 pyteal
 flask
+requests
+torch

@@ -50,6 +50,10 @@ stake of any incorrect users.
 
 ## User Interface
 
+![UIWireframe](img/PredictChainLanding.png)
+
+![UIWireframe](img/PredictChainPortfolio.png)
+
 ## Diagrams
 
 ### Sequence Diagram

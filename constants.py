@@ -14,6 +14,7 @@ ORACLE_SERVER_ADDRESS = ""
 
 @dataclasses.dataclass
 class OpCodes:
+    """Valid op codes to be included in transactions"""
     UP_DATASET = "<UP_DATASET>"
     QUERY_MODEL = "<QUERY_MODEL>"
     UPDATE_PRICE = "<UPDATE_PRICE>"

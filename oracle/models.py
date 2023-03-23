@@ -94,3 +94,5 @@ input_sequence = torch.Tensor(list(range(10, 20))).view(10, 1, -1)
 output = model(input_sequence)
 prediction = output[-1].item()
 print(f'Predicted next number: {prediction:.4f}')
+
+# TODO: Add more basic models

@@ -7,11 +7,13 @@ from algosdk.transaction import PaymentTxn
 
 
 def check_balance(address: str):
+    """Returns the current balance of the given address"""
     account_info = ALGOD_CLIENT.account_info(address)
     return account_info.get('amount')
 
 
 def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: str = None):
+    """Creats a transaction and sends it to the blockchain"""
     params = ALGOD_CLIENT.suggested_params()
     # params.flat_fee = True
     # params.fee = 1000
@@ -55,22 +57,19 @@ def get_txn_confirmation(txn_id: str):
 
 
 def create_wallet():
+    """Creates an algorand wallet"""
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
     print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
 
 
-def get_current_state():
-    # TODO: extract current state from latest transactions
-    INDEXER_CLIENT.search_transactions(limit=2)
-    return {}
-
-
 def base_op_price(op: str, model_complexity: float, ):
+    """Calculates the base price of the given operation"""
     ...
 
 
 def search_transactions(**kwargs):
+    """Searches the blockchain for recent transactions matching some given criteria"""
     transactions = []
     next_token = ""
     has_results = True
@@ -94,6 +93,8 @@ def search_transactions(**kwargs):
 
 
 class TransactionMonitor:
+    """Polling monitor that periodically checks the blockchain to recent transactions"""
+    # TODO: Change to being based on the last transaction time
     last_round = 0
     halt = False
 

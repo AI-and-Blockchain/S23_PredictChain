@@ -1,55 +1,52 @@
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
+# https://www.simplilearn.com/tutorials/machine-learning-tutorial/decision-tree-in-python
+from sklearn.tree import DecisionTreeClassifier
 
 
 # Define the model
 class LSTM(nn.Module):
+    # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
+
     def __init__(self, input_size, hidden_size, output_size):
         super(LSTM, self).__init__()
 
-        # LSTM layer
+        # LSTM
         self.lstm = nn.LSTM(input_size, hidden_size)
         # Fully connected layer
         self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        x, _ = self.lstm(x)
-        x = self.fc(x)
-        return x
+        out, _ = self.lstm(x)
+        out = self.fc(out)
+        return out
 
 
 class RNN(nn.Module):
-    def __init__(self, input_size, output_size, hidden_dim, n_layers):
+    # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
+
+    def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
         super(RNN, self).__init__()
 
+        # Number of hidden dimensions
         self.hidden_dim = hidden_dim
-        self.n_layers = n_layers
+        # Number of hidden layers
+        self.layer_dim = layer_dim
 
-        # RNN layer
-        self.rnn = nn.RNN(input_size, hidden_dim, n_layers, batch_first=True)
-        # Fully connected layer
-        self.fc = nn.Linear(hidden_dim, output_size)
+        # RNN
+        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, batch_first=True, nonlinearity='relu')
+        # Fully connected
+        self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        batch_size = x.size(0)
+        # Initialize hidden state with zeros
+        h0 = Variable(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim))
 
-        # Initializing hidden state for first input using method defined below
-        hidden = self.init_hidden(batch_size)
-
-        # Passing in the input and hidden state into the model and obtaining outputs
-        out, hidden = self.rnn(x, hidden)
-
-        # Reshaping the outputs such that it can be fit into the fully connected layer
-        out = out.contiguous().view(-1, self.hidden_dim)
-        out = self.fc(out)
-
-        return out, hidden
-
-    def init_hidden(self, batch_size):
-        # This method generates the first hidden state of zeros which we'll use in the forward pass
-        # We'll send the tensor holding the hidden state to the device we specified earlier as well
-        hidden = torch.zeros(self.n_layers, batch_size, self.hidden_dim)
-        return hidden
+        # One time step
+        out, hn = self.rnn(x, h0)
+        out = self.fc(out[:, -1, :])
+        return out
 
 
 # Train the model
@@ -80,19 +77,26 @@ def test(model, data, loss_fn):
     return total_loss / len(data)
 
 
-# Setup the model, data, loss function and optimizer
-model = NextNumberPredictor(1, 32, 1)
-data = [(list(range(10)), list(range(1, 11))), (list(range(10, 20)), list(range(11, 21)))]
-loss_fn = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters())
+def test_LSTM():
+    # Set up the model, data, loss function and optimizer
+    model = LSTM(1, 32, 1)
+    data = [(list(range(10)), list(range(1, 11))), (list(range(10, 20)), list(range(11, 21)))]
+    loss_fn = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters())
 
-# Train the model
-train(model, data, loss_fn, optimizer, num_epochs=100)
+    # Train the model
+    train(model, data, loss_fn, optimizer, num_epochs=100)
 
-# Use the model to make predictions
-input_sequence = torch.Tensor(list(range(10, 20))).view(10, 1, -1)
-output = model(input_sequence)
-prediction = output[-1].item()
-print(f'Predicted next number: {prediction:.4f}')
+    # Use the model to make predictions
+    input_sequence = torch.Tensor(list(range(10, 20))).view(10, 1, -1)
+    output = model(input_sequence)
+    prediction = output[-1].item()
+    print(f'Predicted next number: {prediction:.4f}')
+
+
+def test_decision_tree():
+    tree = DecisionTreeClassifier(criterion="entropy", random_state=100, max_depth=3, min_samples_leaf=5)
+    tree.fit(x, y)
+    prediction = tree.predict(x)
 
 # TODO: Add more basic models

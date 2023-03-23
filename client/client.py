@@ -10,6 +10,12 @@ with open(".creds/client_creds", "r") as file:
     SECRET = file.readline()
 
 
+def get_dataset_upload_price(size: int):
+    """Retrieves the upload price from the oracle.  This can be verified with the returned txn_id"""
+    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?size={size}"))
+    return resp.json()
+
+
 def get_model_train_price(raw_model: str, data_size: int):
     """Retrieves the model price from the oracle.  This can be verified with the returned txn_id"""
     resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS,
@@ -23,7 +29,13 @@ def get_model_query_price(trained_model: str):
     return resp.json()
 
 
-def add_dataset(link: str, dataset_name: str, raw_model: str, data_size: int):
+def add_dataset(link: str, dataset_name: str, data_size: int):
+    """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
+    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, data_size),
+                          note=f"{utils.OpCodes.UP_DATASET}<ARG>:{link}<ARG>:{dataset_name}")
+
+
+def train_model(dataset_name: str, raw_model: str):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, data_size),
                           note=f"{utils.OpCodes.UP_DATASET}<ARG>:{link}<ARG>:{dataset_name}")

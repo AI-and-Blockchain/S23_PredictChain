@@ -2,3 +2,4 @@ pyteal
 flask
 requests
 torch
+scikit-learn

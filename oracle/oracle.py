@@ -4,12 +4,14 @@ from flask import Flask, request
 import os
 import json
 import copy
+import models
 sys.path.append("../")
 import utils
 
 
 with open(".creds/oracle_creds", "r") as file:
     SECRET = file.readline()
+
 
 # NOTE: Maybe split database uploading and model training into two different operations
 class Pricing:
@@ -20,14 +22,15 @@ class Pricing:
         mult, txn_id = self.get_price_multiplier(utils.OpCodes.UP_DATASET)
         return size * mult, txn_id
 
-    def calc_model_train_price(self, raw_model: str, data_size: str):
+    def calc_model_train_price(self, raw_model: str, **kwargs):
         """Calculates and returns the latest price and the txn_id where it was changed"""
-        # TODO: Pricing logic
-
-        return 0
+        mult, txn_id = self.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
+        model = models.get_raw_model(raw_model, **kwargs)
+        return model.model_complexity * mult, txn_id
 
     def calc_model_query_price(self, model: str):
         """Calculates and returns the latest price and the txn_id where it was changed"""
+        mult, txn_id = self.get_price_multiplier(utils.OpCodes.QUERY_MODEL)
         # TODO: Pricing logic
         return 0
 

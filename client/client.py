@@ -35,7 +35,7 @@ def add_dataset(link: str, dataset_name: str, data_size: int):
                           note=f"{utils.OpCodes.UP_DATASET}<ARG>:{link}<ARG>:{dataset_name}")
 
 
-def train_model(dataset_name: str, raw_model: str):
+def train_model(dataset_name: str, raw_model: str, num_epochs: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, data_size),
                           note=f"{utils.OpCodes.UP_DATASET}<ARG>:{link}<ARG>:{dataset_name}")

@@ -1,3 +1,5 @@
+import dataclasses
+
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -17,6 +19,8 @@ class LSTM(nn.Module):
         # Fully connected layer
         self.fc = nn.Linear(hidden_size, output_size)
 
+        self.model_complexity = input_size+hidden_size+output_size
+
     def forward(self, x):
         out, _ = self.lstm(x)
         out = self.fc(out)
@@ -26,18 +30,20 @@ class LSTM(nn.Module):
 class RNN(nn.Module):
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
-    def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
+    def __init__(self, input_size, hidden_size, layers, output_size):
         super(RNN, self).__init__()
 
         # Number of hidden dimensions
-        self.hidden_dim = hidden_dim
+        self.hidden_dim = hidden_size
         # Number of hidden layers
-        self.layer_dim = layer_dim
+        self.layer_dim = layers
 
         # RNN
-        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, batch_first=True, nonlinearity='relu')
+        self.rnn = nn.RNN(input_size, hidden_size, layers, batch_first=True, nonlinearity='relu')
         # Fully connected
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.fc = nn.Linear(hidden_size, output_size)
+
+        self.model_complexity = input_size + hidden_size * layers + output_size
 
     def forward(self, x):
         # Initialize hidden state with zeros
@@ -47,6 +53,23 @@ class RNN(nn.Module):
         out, hn = self.rnn(x, h0)
         out = self.fc(out[:, -1, :])
         return out
+
+
+class DecisionTree(DecisionTreeClassifier):
+    def __init__(self, *args, **kwargs):
+        super(DecisionTree, self).__init__(*args, **kwargs)
+
+        self.model_complexity = self.get_n_leaves() + self.get_depth()
+
+
+def get_raw_model(raw_model: str, **kwargs):
+    match raw_model:
+        case "RNN":
+            return RNN(**kwargs)
+        case "LSTM":
+            return LSTM(**kwargs)
+        case "DTree":
+            return DecisionTree(**kwargs)
 
 
 # Train the model
@@ -95,7 +118,7 @@ def test_LSTM():
 
 
 def test_decision_tree():
-    tree = DecisionTreeClassifier(criterion="entropy", random_state=100, max_depth=3, min_samples_leaf=5)
+    tree = DecisionTree(criterion="entropy", random_state=100, max_depth=3, min_samples_leaf=5)
     tree.fit(x, y)
     prediction = tree.predict(x)
 

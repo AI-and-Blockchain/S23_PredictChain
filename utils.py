@@ -1,6 +1,8 @@
 import json
 import abc
 import threading
+import time
+
 from constants import *
 from algosdk import account, mnemonic
 from algosdk.transaction import PaymentTxn
@@ -63,11 +65,6 @@ def create_wallet():
     print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
 
 
-def base_op_price(op: str, model_complexity: float, ):
-    """Calculates the base price of the given operation"""
-    ...
-
-
 def search_transactions(**kwargs):
     """Searches the blockchain for recent transactions matching some given criteria"""
     transactions = []
@@ -95,11 +92,12 @@ def search_transactions(**kwargs):
 class TransactionMonitor:
     """Polling monitor that periodically checks the blockchain to recent transactions"""
     # TODO: Change to being based on the last transaction time
-    last_round = 0
+    last_txn_time = 0
     halt = False
+    pause_duration = 10
 
     def __init__(self, address: str):
-        self.last_round = get_current_state()["round"]
+        self.last_txn_time = search_transactions(limit=1)[0]["timestamp"]
         self.address = address
 
     @abc.abstractmethod
@@ -109,7 +107,11 @@ class TransactionMonitor:
     def monitor(self):
         def inner_mon():
             while not self.halt:
-                transactions = search_transactions(address=self.address, address_role="receiver")
+                transactions = search_transactions(address=self.address, address_role="receiver",
+                                                   start_time=self.last_txn_time)
                 [self.process_incoming(txn) for txn in transactions]
+                self.last_txn_time = transactions[-1]["timestamp"]
+
+                time.sleep(self.pause_duration)
 
         threading.Thread(target=inner_mon, args=())

@@ -3,3 +3,4 @@ flask
 requests
 torch
 scikit-learn
+redis

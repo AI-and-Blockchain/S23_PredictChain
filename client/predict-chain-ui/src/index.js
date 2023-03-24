@@ -10,5 +10,3 @@ root.render(
     <HomePage/>
   </React.StrictMode>
 );
-
-// ADD COMPONENTS FOR RESPECTIVE PAGES/PARTS OF WEBPAGE

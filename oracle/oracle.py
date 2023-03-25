@@ -16,7 +16,6 @@ with open(".creds/oracle_creds", "r") as file:
     SECRET = file.readline()
 
 
-# NOTE: Maybe split database uploading and model training into two different operations
 class Pricing:
     mult_cache = {}
 
@@ -32,28 +31,29 @@ class Pricing:
         dataset = database.database.get(dataset_name)
         return model.model_complexity * mult * dataset["size"], txn_id
 
-    def calc_model_query_price(self, model: str):
+    def calc_model_query_price(self, model_name: str):
         """Calculates and returns the latest price and the txn_id where it was changed"""
         mult, txn_id = self.get_price_multiplier(utils.OpCodes.QUERY_MODEL)
-        model = models.PredictModel.create(raw_model, **kwargs)
-        # TODO: Pricing logic
-        return 0
+        model = models.get_trained_model(model_name)
+        return model.model_complexity * mult, txn_id
 
     def get_price_multiplier(self, op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the txn_id where it was last changed"""
         if not self.mult_cache.get(op):
             # get price from database
-            self.mult_cache[op] = db_mult
 
-        return self.mult_cache[op], txn_id
+            self.mult_cache[op] = database.database.get("<PRICE>"+op)
 
-    def set_price_multiplier(self, op: str):
+        return self.mult_cache[op]["mul"], self.mult_cache[op]["txn_id"]
+
+    def set_price_multiplier(self, op: str, new_mul: float):
         """Sends an update txn.  Stores txn_id and the new price multiplier in the database"""
         txn = utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
-                       note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:train<ARG>:{dataset_name}")
+                             note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:{op}<ARG>:{new_mul}")
 
+        self.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
         # Save txn_id to database
-        ...
+        database.database.set("<PRICE>"+op, {"op": op, "mul": new_mul, "txn_id": txn["id"]})
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):

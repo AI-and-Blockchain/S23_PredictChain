@@ -1,10 +1,15 @@
 import dataclasses
 from algosdk.v2client import algod, indexer
 
-ALGOD_API_ADDRESS = "http://localhost:4001"
-INDEXER_API_ADDRESS = "http://localhost:8980"
-ALGOD_TOKEN = "a" * 64
-INDEXER_TOKEN = "a" * 64
+
+with open(".creds/api_key", "r") as file:
+    API_KEY = file.readline()
+
+
+ALGOD_API_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"
+INDEXER_API_ADDRESS = "https://testnet-algorand.api.purestake.io/idx2"
+ALGOD_TOKEN = API_KEY
+INDEXER_TOKEN = API_KEY
 ALGOD_CLIENT = algod.AlgodClient(ALGOD_TOKEN, ALGOD_API_ADDRESS)
 INDEXER_CLIENT = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_API_ADDRESS)
 

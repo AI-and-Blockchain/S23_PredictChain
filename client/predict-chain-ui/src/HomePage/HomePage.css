@@ -39,3 +39,17 @@ a:hover{
 .container p{
     line-height: 200px; /* Create scrollbar to test positioning */
 }
+
+.containertext {
+    display: flex;
+    align-items: top;
+    justify-content: center
+}
+
+.img {
+    margin-top: 20px;
+    margin-left: 100px;
+    margin-right: 40px;
+    max-width: 100%;
+    max-height:100%;
+}

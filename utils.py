@@ -91,7 +91,7 @@ def search_transactions(**kwargs):
 
 class TransactionMonitor:
     """Polling monitor that periodically checks the blockchain to recent transactions"""
-    # TODO: Change to being based on the last transaction time
+
     last_txn_time = 0
     halt = False
     pause_duration = 10

@@ -1,6 +1,6 @@
 import abc
 import dataclasses
-import database
+import dataManager
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -16,11 +16,37 @@ class PredictModel:
     def __init__(self, **kwargs):
         raise NotImplementedError("Base PredictModel class cannot be instantiated!")
 
+    @staticmethod
+    def get_loss_fn(name: str):
+        match name.lower():
+            case "l1" | "mae":
+                return torch.nn.L1Loss()
+            case "mse":
+                return torch.nn.MSELoss()
+            case "ce" | "crossentropy":
+                return torch.nn.CrossEntropyLoss()
+
+    @staticmethod
+    def get_optimizer(name: str):
+        match name.lower():
+            case "adam":
+                return torch.optim.Adam
+            case "sgd":
+                return torch.optim.SGD
+
     @classmethod
     def create(cls, model_name: str, **kwargs):
         for sub in cls.__subclasses__():
             if sub.__name__ == model_name or sub.base_model_name == model_name:
                 return sub(**kwargs)
+
+    @abc.abstractmethod
+    def train_model(self, **kwargs):
+        ...
+
+    @abc.abstractmethod
+    def eval_model(self, **kwargs):
+        ...
 
     @abc.abstractmethod
     def save(self, save_location) -> dict:
@@ -50,6 +76,24 @@ class LSTM(nn.Module, PredictModel):
         out, _ = self.lstm(x)
         out = self.fc(out)
         return out
+
+    def train_model(self, dataset, loss_fn_name: str, optimizer_name: str, num_epochs: int, learning_rate: float):
+        loss_fn = self.get_loss_fn(loss_fn_name)
+        optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            for input_sequence, target in dataset:
+                input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
+                target = torch.Tensor(target).view(len(target), -1)
+
+                # Forward pass
+                output = self.forward(input_sequence)
+                loss = loss_fn(output, target)
+
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
@@ -88,6 +132,24 @@ class RNN(nn.Module, PredictModel):
         out = self.fc(out[:, -1, :])
         return out
 
+    def train_model(self, dataset, loss_fn_name: str, optimizer_name: str, num_epochs: int, learning_rate: float):
+        loss_fn = self.get_loss_fn(loss_fn_name)
+        optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            for input_sequence, target in dataset:
+                input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
+                target = torch.Tensor(target).view(len(target), -1)
+
+                # Forward pass
+                output = self.forward(input_sequence)
+                loss = loss_fn(output, target)
+
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
         model_attribs = {"base_model_name": self.base_model_name, "kwargs": self.kwargs}
@@ -104,6 +166,10 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
         self.model_complexity = self.get_n_leaves() + self.get_depth()
         self.base_model_name = "DTree"
 
+    def train_model(self, **kwargs):
+        # TODO: Train tree logic
+        ...
+
     def save(self, save_location):
         # TODO: Save tree params
         model_attribs = {"base_model_name": self.base_model_name, "kwargs": self.kwargs}
@@ -115,7 +181,7 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
 
 
 def get_trained_model(model_name: str):
-    model_attribs = database.database.get("<MODEL>" + model_name)
+    model_attribs = dataManager.database.get("<MODEL>" + model_name)
     model = PredictModel.create(model_name, **model_attribs["kwargs"])
     model.load(model_attribs["save_location"])
     return model
@@ -123,7 +189,7 @@ def get_trained_model(model_name: str):
 
 def save_trained_model(model: PredictModel, save_location: str):
     model_attribs = model.save(save_location)
-    database.database.set("<MODEL>"+model.base_model_name, {"save_location": save_location, **model_attribs})
+    dataManager.database.set("<MODEL>"+model.base_model_name, {"save_location": save_location, **model_attribs})
 
 
 # Train the model

@@ -53,8 +53,8 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 if __name__ == "__main__":
 
     with open(".creds/test_client_creds", "r") as file:
-        ADDRESS = file.readline()
-        SECRET = file.readline()
+        ADDRESS = file.readline().strip("\n")
+        SECRET = file.readline().strip("\n")
 
     if os.path.isdir("client"):
         os.chdir("client")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     monitor = ClientTransactionMonitor(ADDRESS)
     monitor.monitor()
 
-    help_menu = """
+    help_menu = """\
         h, ?: Help menu
         q: Quit
     """
@@ -70,7 +70,12 @@ if __name__ == "__main__":
     command = ""
     while command != "q":
         command = input("Command: ")
-        if command in ["h", "?"]:
-            print(help_menu)
+        match command:
+            case "h" | "?":
+                print(help_menu)
+            case "txn":
+                print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
+                               note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
 
+    monitor.halt()
     print("Client stop")

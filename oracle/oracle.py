@@ -1,6 +1,8 @@
 import abc
 import dataclasses
 import sys
+import time
+import base64
 from flask import Flask, request
 import os
 import json
@@ -56,6 +58,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction"""
+        txn["note"] = base64.b64decode(txn["note"]).decode()
         # Split into OP and ARGS
         op = txn["note"].split("<ARG>:")[0]
         args = txn["note"].split("<ARG>:")[1:]

@@ -66,23 +66,22 @@ def create_account():
     print("Mnemonic: {}".format(mnemonic.from_private_key(private_key)))
 
 
-def search_transactions(**kwargs):
+def search_transactions(limit=10, **kwargs):
     """Searches the blockchain for recent transactions matching some given criteria"""
     transactions = []
     next_token = ""
     has_results = True
     page = 0
-
+    batch_size = 10 if limit > 10 else limit
     # loop using next_page to paginate until there are
     # no more transactions in the response
-    while has_results:
-        response = INDEXER_CLIENT.search_transactions(**kwargs, next_page=next_token)
+    while has_results and len(transactions) < limit:
+        response = INDEXER_CLIENT.search_transactions(**kwargs, next_page=next_token, limit=batch_size)
 
         has_results = len(response["transactions"]) > 0
 
         if has_results:
             next_token = response["next-token"]
-            print(f"Transaction on page {page}: " + json.dumps(response, indent=2))
             transactions.extend(response["transactions"])
 
         page += 1
@@ -93,28 +92,32 @@ def search_transactions(**kwargs):
 class TransactionMonitor:
     """Polling monitor that periodically checks the blockchain to recent transactions"""
 
-    last_txn_time = 0
-    halt = False
+    last_round_checked = 0
+    _halt = False
     pause_duration = 10
 
     def __init__(self, address: str):
-        self.last_txn_time = search_transactions(limit=1)[0]["timestamp"]
+        self.last_round_checked = search_transactions(limit=1)[-1]["confirmed-round"]
         self.address = address
 
     @abc.abstractmethod
     def process_incoming(self, txn):
         raise NotImplementedError("Subclass this monitor to handle!")
 
+    def halt(self):
+        self._halt = True
+
     def monitor(self):
         print("Starting monitor...")
 
         def inner_mon():
-            while not self.halt:
+            while not self._halt:
                 transactions = search_transactions(address=self.address, address_role="receiver",
-                                                   start_time=self.last_txn_time)
+                                                   min_round=self.last_round_checked, limit=10)
                 [self.process_incoming(txn) for txn in transactions]
-                self.last_txn_time = transactions[-1]["timestamp"]
+                self.last_round_checked = transactions[-1]["confirmed-round"]
 
                 time.sleep(self.pause_duration)
 
-        threading.Thread(target=inner_mon, args=())
+        thread = threading.Thread(target=inner_mon, args=())
+        thread.start()

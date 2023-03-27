@@ -1,6 +1,10 @@
 import dataclasses
+import os
+import algosdk.mnemonic
 from algosdk.v2client import algod, indexer
 
+if os.path.isdir("../.creds"):
+    os.chdir("..")
 
 with open(".creds/api_key", "r") as file:
     API_KEY = file.readline()
@@ -8,13 +12,12 @@ with open(".creds/api_key", "r") as file:
 
 ALGOD_API_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"
 INDEXER_API_ADDRESS = "https://testnet-algorand.api.purestake.io/idx2"
-ALGOD_TOKEN = API_KEY
-INDEXER_TOKEN = API_KEY
-ALGOD_CLIENT = algod.AlgodClient(ALGOD_TOKEN, ALGOD_API_ADDRESS)
-INDEXER_CLIENT = indexer.IndexerClient(INDEXER_TOKEN, INDEXER_API_ADDRESS)
+ALGOD_CLIENT = algod.AlgodClient(API_KEY, ALGOD_API_ADDRESS)
+INDEXER_CLIENT = indexer.IndexerClient(API_KEY, INDEXER_API_ADDRESS, headers={"X-API-Key": API_KEY})
 
 ORACLE_ALGO_ADDRESS = ""
-ORACLE_SERVER_ADDRESS = ""
+ORACLE_SERVER_HOST, ORACLE_SERVER_PORT = "localhost", 5000
+ORACLE_SERVER_ADDRESS = f"{ORACLE_SERVER_HOST}:{ORACLE_SERVER_PORT}"
 
 
 @dataclasses.dataclass

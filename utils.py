@@ -58,11 +58,12 @@ def get_txn_confirmation(txn_id: str):
     return confirmed_txn
 
 
-def create_wallet():
+def create_account():
     """Creates an algorand wallet"""
     private_key, address = account.generate_account()
-    print("My address: {}".format(address))
-    print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
+    print("Address: {}".format(address))
+    print("Secret key:", private_key)
+    print("Mnemonic: {}".format(mnemonic.from_private_key(private_key)))
 
 
 def search_transactions(**kwargs):
@@ -82,7 +83,7 @@ def search_transactions(**kwargs):
         if has_results:
             next_token = response["next-token"]
             print(f"Transaction on page {page}: " + json.dumps(response, indent=2))
-            transactions.append(response)
+            transactions.extend(response["transactions"])
 
         page += 1
 
@@ -105,6 +106,8 @@ class TransactionMonitor:
         raise NotImplementedError("Subclass this monitor to handle!")
 
     def monitor(self):
+        print("Starting monitor...")
+
         def inner_mon():
             while not self.halt:
                 transactions = search_transactions(address=self.address, address_role="receiver",

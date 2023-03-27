@@ -12,10 +12,6 @@ sys.path.append("../")
 import utils
 
 
-with open(".creds/oracle_creds", "r") as file:
-    SECRET = file.readline()
-
-
 class Pricing:
     mult_cache = {}
 
@@ -104,6 +100,14 @@ def report_model_query_price():
 
 
 if __name__ == '__main__':
+
+    with open(".creds/test_oracle_creds", "r") as file:
+        SECRET = file.readline()
+
     if os.path.isdir("oracle"):
         os.chdir("oracle")
-    app.run()
+
+    monitor = OracleTransactionMonitor(utils.ORACLE_ALGO_ADDRESS)
+    monitor.monitor()
+
+    app.run(host=utils.ORACLE_SERVER_HOST, port=utils.ORACLE_SERVER_PORT)

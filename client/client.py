@@ -5,11 +5,6 @@ sys.path.append("../")
 import utils
 
 
-with open(".creds/client_creds", "r") as file:
-    ADDRESS = file.readline()
-    SECRET = file.readline()
-
-
 def get_dataset_upload_price(size: int):
     """Retrieves the upload price from the oracle.  This can be verified with the returned txn_id"""
     resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?size={size}"))
@@ -52,4 +47,30 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
     def process_incoming(self, txn):
         """Processes the latest incoming transactions to the user"""
         # TODO: Alert user of incoming transaction
-        ...
+        print("Incoming transaction: ", txn)
+
+
+if __name__ == "__main__":
+
+    with open(".creds/test_client_creds", "r") as file:
+        ADDRESS = file.readline()
+        SECRET = file.readline()
+
+    if os.path.isdir("client"):
+        os.chdir("client")
+
+    monitor = ClientTransactionMonitor(ADDRESS)
+    monitor.monitor()
+
+    help_menu = """
+        h, ?: Help menu
+        q: Quit
+    """
+
+    command = ""
+    while command != "q":
+        command = input("Command: ")
+        if command in ["h", "?"]:
+            print(help_menu)
+
+    print("Client stop")

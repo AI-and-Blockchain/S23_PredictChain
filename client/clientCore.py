@@ -74,6 +74,7 @@ def command_line():
 app = Flask(__name__)
 # TODO: Client endpoints for communicating with front end
 
+
 if __name__ == "__main__":
 
     with open(".creds/test_client_creds", "r") as file:

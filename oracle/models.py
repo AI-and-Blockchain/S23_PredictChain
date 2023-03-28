@@ -9,13 +9,17 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 class PredictModel:
+    """Interface for unifying behavior of different predictive models"""
     model_complexity = 0.0
     base_model_name = ""
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+        """Init function used mainly as constructor"""
         ...
 
     def init(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+        """Used to init unique values"""
+        # NOTE: __init__() is not used due to multiple inheritance problems with torch.nn models
         self.model_name = model_name
         self.data_handler = data_handler
         self.loss_fn_name = loss_fn_name
@@ -24,6 +28,7 @@ class PredictModel:
 
     @staticmethod
     def get_loss_fn(name: str):
+        """Gets a loss function by name"""
         match name.lower():
             case "l1" | "mae":
                 return torch.nn.L1Loss()
@@ -34,6 +39,7 @@ class PredictModel:
 
     @staticmethod
     def get_optimizer(name: str):
+        """Gets an optimizer by name"""
         match name.lower():
             case "adam":
                 return torch.optim.Adam
@@ -41,32 +47,48 @@ class PredictModel:
                 return torch.optim.SGD
 
     @classmethod
+    def subclass_walk(cls, target_cls):
+        """Recursively gathers all subclasses of a particular class"""
+        all_subs = []
+        subs = target_cls.__subclasses__()
+        all_subs.extend(subs)
+        for sub in subs:
+            all_subs.extend(cls.subclass_walk(sub))
+        return all_subs
+
+    @classmethod
     def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
-        for sub in cls.__subclasses__():
+        """Creates a model based off of a model name, returning an instance based off other provided parameters"""
+        for sub in cls.subclass_walk(cls):
             if sub.__name__ == base_model_name or sub.base_model_name == base_model_name:
                 return sub(new_model_name, data_handler, loss_fn_name, **kwargs)
 
     @abc.abstractmethod
     def train_model(self, **kwargs):
+        """Trains the model using the given parameters"""
         ...
 
     @abc.abstractmethod
-    def eval_model(self, **kwargs):
+    def eval_model(self):
+        """Evaluates the model"""
         ...
 
     @abc.abstractmethod
     def save(self, save_location) -> dict:
+        """Saves the model to disk and returns a dict of its attributes"""
         ...
 
     @abc.abstractmethod
     def load(self, save_location):
+        """Loads the model from disk, reapplying all of its loaded attributes"""
         ...
 
 
-class NN(nn.Module, PredictModel):
+class BaseNN(nn.Module, PredictModel):
+    """Parent class encapsulating the behaviour of other neural network classes"""
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, output_size=0, **kwargs):
-        super(NN, self).__init__()
+        super(BaseNN, self).__init__()
         self.init(model_name, data_handler, loss_fn_name, input_size=input_size, output_size=output_size, **kwargs)
 
     def train_model(self, optimizer_name: str, num_epochs: int, learning_rate: float):
@@ -114,7 +136,8 @@ class NN(nn.Module, PredictModel):
 
 
 # Define the model
-class LSTM(NN):
+class LSTM(BaseNN):
+    """LSTM implementation"""
     # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
 
     base_model_name = "LSTM"
@@ -135,7 +158,8 @@ class LSTM(NN):
         return out
 
 
-class RNN(NN):
+class RNN(BaseNN):
+    """RNN implementation"""
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
     base_model_name = "RNN"
@@ -166,6 +190,7 @@ class RNN(NN):
 
 
 class DecisionTree(DecisionTreeClassifier, PredictModel):
+    """Decision tree implementation"""
 
     base_model_name = "DTree"
 
@@ -202,7 +227,11 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
         ...
 
 
+# TODO: Add more basic models
+
+
 def get_trained_model(model_name: str):
+    """Gets a trained model by name and returns the model along with transaction and user metadata"""
     model_attribs = dataManager.database.hgetall("<MODEL>" + model_name)
     model = PredictModel.create(model_attribs["base_model_name"], model_name,
                                 model_attribs["dataset_name"], model_attribs["loss_fn_name"], **model_attribs["kwargs"])
@@ -211,12 +240,11 @@ def get_trained_model(model_name: str):
 
 
 def save_trained_model(model: PredictModel, save_location: str, txn_id: str, user_id: str):
+    """Saves a model to disk and to the database along with user and metadata information"""
     model_attribs = model.save(save_location)
     dataset_attribs = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
 
-    dataManager.database.set("<MODEL>"+model.model_name, {"save_location": save_location,
+    dataManager.database.hset("<MODEL>"+model.model_name, mapping={"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id,
                             "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]})
 
-
-# TODO: Add more basic models

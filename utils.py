@@ -27,7 +27,6 @@ def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: 
     return ALGOD_CLIENT.send_transaction(signed_txn)
 
 
-# utility for waiting on a transaction confirmation
 def wait_for_confirmation(txn_id: str, timeout: int):
     """Wait until the transaction is confirmed or rejected, or until 'timeout'
     number of rounds have passed."""

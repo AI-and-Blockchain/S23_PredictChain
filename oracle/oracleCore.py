@@ -20,11 +20,13 @@ class Pricing:
 
     @classmethod
     def calc_ds_usage_incentive(cls, size: int, loss: float):
+        """Calculates and returns the reward for a database being used in a model"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.DS_INCENTIVE)
         return int(size * mult / loss), txn_id
 
     @classmethod
     def calc_model_usage_incentive(cls, loss: float):
+        """Calculates and returns the reward for a model being used"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.MODEL_INCENTIVE)
         return int(mult / loss), txn_id
 
@@ -53,9 +55,7 @@ class Pricing:
     def get_price_multiplier(cls, op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the txn_id where it was last changed"""
         if not cls.mult_cache.get(op):
-            # get price from database
-
-            cls.mult_cache[op] = dataManager.database.get("<PRICE>" + op)
+            cls.mult_cache[op] = dataManager.database.hgetall("<PRICE>" + op)
 
         return cls.mult_cache[op]["mul"], cls.mult_cache[op]["txn_id"]
 
@@ -67,7 +67,7 @@ class Pricing:
 
         cls.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
         # Save txn_id to database
-        dataManager.database.set("<PRICE>"+op, {"op": op, "mul": new_mul, "txn_id": txn["id"]})
+        dataManager.database.hset("<PRICE>"+op, mapping={"op": op, "mul": new_mul, "txn_id": txn["id"]})
 
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
@@ -83,6 +83,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         match op:
             case utils.OpCodes.UP_DATASET:
                 return dataManager.save_dataset(args[0], args[1], txn["id"], txn["sender"])
+
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(args[0])
                 out = model(args[1])
@@ -97,7 +98,9 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
                 return out
             case utils.OpCodes.UPDATE_PRICE:
+                # Handle any additional price change logic here if needed
                 ...
+
             case utils.OpCodes.TRAIN_MODEL:
                 handler, dataset_attribs = dataManager.load_dataset(args[2])
                 model = models.PredictModel.create(args[0], args[1], handler)

@@ -21,28 +21,34 @@ class DataHandler:
 
     @classmethod
     def create(cls, env: str, dataset_name: str):
+        """Creates a handler based off of the environment name"""
         for sub in cls.__subclasses__():
             if sub.__name__ == env or sub.env == env:
                 return sub(dataset_name)
 
     @abc.abstractmethod
     def start(self, mode: int):
+        """Performs any initialization operations before saving or loading"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def save_chunk(self, data: bytes):
+        """Saves a partial chunk to the environment"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def save_all(self, data: bytes):
+        """Saves the entirety of the data to the environment"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def get_data_loader(self) -> Generator:
+        """Returns a generator that generates the data in the dataset"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def finish(self):
+        """Performs any finalization operations before saving or loading"""
         raise NotImplementedError()
 
 
@@ -57,6 +63,7 @@ class LocalDataHandler(DataHandler):
         self.file: io.FileIO = None
         self.file_path = f"data/{dataset_name}"
         self.mode = None
+        """Locks the handler into one mode until finalization to avoid unexpected behavior"""
 
     def start(self, mode: int):
         self.mode = mode
@@ -88,6 +95,7 @@ class LocalDataHandler(DataHandler):
             raise AttributeError("Cannot perform load operation when not in load mode!")
 
         def gen():
+            """A generator to sequentially yield all the data in the set"""
             line = self.file.readline()
             while line:
                 yield line
@@ -113,7 +121,7 @@ def save_dataset(dataset_name: str, link: str, txn_id: str, user_id: str):
             handler.save_chunk(chunk)
 
     handler.finish()
-    database.hset("<DS>"+handler.dataset_name, {"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id})
+    database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id})
 
 
 def load_dataset(dataset_name: str):

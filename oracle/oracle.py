@@ -15,6 +15,7 @@ import utils
 
 
 class Pricing:
+    """Class to keep track and modify the pricing of transactions"""
     mult_cache = {}
 
     def calc_dataset_upload_price(self, size: int):
@@ -55,6 +56,7 @@ class Pricing:
 
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
+    """Keeps the oracle updated on incoming transactions from users, real world events"""
 
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction"""
@@ -73,9 +75,11 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
             case utils.OpCodes.UPDATE_PRICE:
                 ...
             case utils.OpCodes.TRAIN_MODEL:
-                model = models.PredictModel.create(args[0], )
+                model = models.PredictModel.create(args[0], ...)
                 handler = dataManager.LocalDataHandler(args[1])
-                dataset = dataManager.load_dataset(handler)
+                data_loader = dataManager.load_dataset(handler)
+                model.train_model(data_loader, ...)
+                model.save("models")
 
 
 app = Flask(__name__)

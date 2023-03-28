@@ -1,5 +1,6 @@
 import sys, os
 import requests
+from flask import Flask, request
 import threading
 sys.path.append("../")
 import utils
@@ -43,12 +44,35 @@ def query_model(trained_model: str, input):
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):
-
+    """Class to keep the user updated on incoming transactions or responses from the oracle"""
     def process_incoming(self, txn):
         """Processes the latest incoming transactions to the user"""
         # TODO: Alert user of incoming transaction
         print("Incoming transaction: ", txn)
 
+
+def command_line():
+    help_menu = """\
+            h, ?: Help menu
+            q: Quit
+        """
+
+    command = ""
+    while command != "q":
+        command = input("Command: ")
+        match command:
+            case "h" | "?":
+                print(help_menu)
+            case "txn":
+                print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
+                                     note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
+
+    monitor.halt()
+    print("Client stop")
+
+
+app = Flask(__name__)
+# TODO: Client endpoints for communicating with front end
 
 if __name__ == "__main__":
 
@@ -62,20 +86,6 @@ if __name__ == "__main__":
     monitor = ClientTransactionMonitor(ADDRESS)
     monitor.monitor()
 
-    help_menu = """\
-        h, ?: Help menu
-        q: Quit
-    """
+    app.run(host="localhost", port=utils.CLIENT_SERVER_PORT)
 
-    command = ""
-    while command != "q":
-        command = input("Command: ")
-        match command:
-            case "h" | "?":
-                print(help_menu)
-            case "txn":
-                print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
-                               note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
-
-    monitor.halt()
-    print("Client stop")
+    # command_line()

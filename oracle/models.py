@@ -59,12 +59,12 @@ class PredictModel:
 
 class NN(nn.Module, PredictModel):
 
-    def train_model(self, dataset, loss_fn_name: str, optimizer_name: str, num_epochs: int, learning_rate: float):
+    def train_model(self, data_loader, loss_fn_name: str, optimizer_name: str, num_epochs: int, learning_rate: float):
         loss_fn = self.get_loss_fn(loss_fn_name)
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
         for epoch in range(num_epochs):
-            for input_sequence, target in dataset:
+            for input_sequence, target in data_loader:
                 input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
                 target = torch.Tensor(target).view(len(target), -1)
 
@@ -77,11 +77,11 @@ class NN(nn.Module, PredictModel):
                 loss.backward()
                 optimizer.step()
 
-    def eval_model(self, dataset, loss_fn_name: str):
+    def eval_model(self, data_loader, loss_fn_name: str):
         loss_fn = self.get_loss_fn(loss_fn_name)
         total_loss = 0
         total_correct = 0
-        for input_sequence, target in dataset:
+        for input_sequence, target in data_loader:
             input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
             target = torch.Tensor(target).view(len(target), -1)
 
@@ -90,7 +90,7 @@ class NN(nn.Module, PredictModel):
             if output == target:
                 total_correct += 1
             total_loss += loss_fn(output, target).item()
-        return total_correct / len(dataset), total_loss / len(dataset)
+        return total_correct / len(data_loader), total_loss / len(data_loader)
 
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
@@ -158,21 +158,21 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
         self.model_complexity = self.get_n_leaves() + self.get_depth()
         self.base_model_name = "DTree"
 
-    def train_model(self, dataset):
-        for input_sequence, target in dataset:
+    def train_model(self, data_loader):
+        for input_sequence, target in data_loader:
             self.fit(input_sequence, target)
 
-    def eval_model(self, dataset, loss_fn_name: str):
+    def eval_model(self, data_loader, loss_fn_name: str):
         loss_fn = self.get_loss_fn(loss_fn_name)
         total_loss = 0
         total_correct = 0
-        for input_sequence, target in dataset:
+        for input_sequence, target in data_loader:
             output = self.predict(input_sequence)
 
             if output == target:
                 total_correct += 1
             total_loss += loss_fn(output, target).item()
-        return total_correct / len(dataset), total_loss / len(dataset)
+        return total_correct / len(data_loader), total_loss / len(data_loader)
 
     def save(self, save_location):
         # TODO: Save tree params

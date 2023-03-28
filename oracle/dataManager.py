@@ -1,15 +1,16 @@
+import io
+
 import redis
 import abc
 import requests
 import os
+from typing import Generator
 
 database = redis.Redis()
-database.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
-database.get("Bahamas")
-database.save()
 
 
 class DataHandler:
+    """Manages the saving and usage of datasets"""
 
     SAVE_MODE = 0
     LOAD_MODE = 1
@@ -31,11 +32,7 @@ class DataHandler:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def load_chunk(self, chunk_size=1024):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def load_all(self):
+    def get_data_loader(self) -> Generator:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -44,12 +41,13 @@ class DataHandler:
 
 
 class LocalDataHandler(DataHandler):
+    """DataLoader specifically for files stored in the local environment"""
 
     def __init__(self, dataset_name):
         super().__init__(dataset_name)
         self.env = "local"
         self.dataset_name = dataset_name
-        self.file = None
+        self.file: io.FileIO = None
         self.file_path = f"data/{dataset_name}"
         self.mode = None
 
@@ -63,24 +61,33 @@ class LocalDataHandler(DataHandler):
             self.file = open(self.file_path, "rb")
 
     def save_chunk(self, data: bytes):
-        if self.mode != self.SAVE_MODE:
+        if self.mode is None:
+            self.start(self.SAVE_MODE)
+        elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
     def save_all(self, data: bytes):
-        if self.mode != self.SAVE_MODE:
+        if self.mode is None:
+            self.start(self.SAVE_MODE)
+        elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
-    def load_chunk(self, chunk_size=1024):
-        if self.mode != self.LOAD_MODE:
+    def get_data_loader(self):
+        if self.mode is None:
+            self.start(self.LOAD_MODE)
+        elif self.mode != self.LOAD_MODE:
             raise AttributeError("Cannot perform load operation when not in load mode!")
-        return self.file.read(chunk_size)
 
-    def load_all(self):
-        if self.mode != self.LOAD_MODE:
-            raise AttributeError("Cannot perform load operation when not in load mode!")
-        return self.file.read()
+        def gen():
+            line = self.file.readline()
+            while line:
+                yield line
+                line = self.file.readline()
+            self.file.close()
+
+        return gen()
 
     def finish(self):
         self.file.close()
@@ -88,8 +95,8 @@ class LocalDataHandler(DataHandler):
         self.mode = None
 
 
-def save_dataset(handler: DataHandler, link: str):
-    handler.start(handler.SAVE_MODE)
+def save_dataset(handler: DataHandler, link: str, txn_id: str):
+    """Saves a dataset using the given data handler and appends an entry into the database"""
     size = 0
     with requests.get(link, stream=True) as r:
         r.raise_for_status()
@@ -98,17 +105,13 @@ def save_dataset(handler: DataHandler, link: str):
             handler.save_chunk(chunk)
 
     handler.finish()
-    database.set("<DS>"+handler.dataset_name, {"env": handler.env, "size": size})
+    database.set("<DS>"+handler.dataset_name, {"env": handler.env, "size": size, "txn_id": txn_id})
 
 
 def load_dataset(handler: DataHandler):
+    """Loads dataset information from both the handler and the database"""
     handler.start(handler.LOAD_MODE)
-    data = b''
-    chunk = handler.load_chunk()
-    while chunk:
-        data += chunk
-        chunk = handler.load_chunk()
-
+    loader = handler.get_data_loader()
     handler.finish()
     dataset = database.get("<DS>"+handler.dataset_name)
-    return {**dataset, "data": data}
+    return {**dataset, "data_loader": loader}

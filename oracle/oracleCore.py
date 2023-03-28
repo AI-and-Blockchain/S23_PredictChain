@@ -18,39 +18,54 @@ class Pricing:
     """Class to keep track and modify the pricing of transactions"""
     mult_cache = {}
 
-    def calc_dataset_upload_price(self, size: int):
-        """Calculates and returns the latest price and the txn_id where it was changed"""
-        mult, txn_id = self.get_price_multiplier(utils.OpCodes.UP_DATASET)
-        return size * mult, txn_id
+    @classmethod
+    def calc_ds_usage_incentive(cls, size: int, loss: float):
+        mult, txn_id = cls.get_price_multiplier(utils.OpCodes.DS_INCENTIVE)
+        return int(size * mult / loss), txn_id
 
-    def calc_model_train_price(self, raw_model: str, dataset_name: str, **kwargs):
+    @classmethod
+    def calc_model_usage_incentive(cls, loss: float):
+        mult, txn_id = cls.get_price_multiplier(utils.OpCodes.MODEL_INCENTIVE)
+        return int(mult / loss), txn_id
+
+    @classmethod
+    def calc_dataset_upload_price(cls, size: int):
         """Calculates and returns the latest price and the txn_id where it was changed"""
-        mult, txn_id = self.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
+        mult, txn_id = cls.get_price_multiplier(utils.OpCodes.UP_DATASET)
+        return int(size * mult), txn_id
+
+    @classmethod
+    def calc_model_train_price(cls, raw_model: str, dataset_name: str, **kwargs):
+        """Calculates and returns the latest price and the txn_id where it was changed"""
+        mult, txn_id = cls.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
         model = models.PredictModel.create(raw_model, **kwargs)
         dataset = dataManager.database.get(dataset_name)
-        return model.model_complexity * mult * dataset["size"], txn_id
+        return int(model.model_complexity * mult * dataset["size"]), txn_id
 
-    def calc_model_query_price(self, model_name: str):
+    @classmethod
+    def calc_model_query_price(cls, model_name: str):
         """Calculates and returns the latest price and the txn_id where it was changed"""
-        mult, txn_id = self.get_price_multiplier(utils.OpCodes.QUERY_MODEL)
-        model = models.get_trained_model(model_name)
-        return model.model_complexity * mult, txn_id
+        mult, txn_id = cls.get_price_multiplier(utils.OpCodes.QUERY_MODEL)
+        model = models.get_trained_model(model_name)[0]
+        return int(model.model_complexity * mult), txn_id
 
-    def get_price_multiplier(self, op: str) -> tuple[float, str]:
+    @classmethod
+    def get_price_multiplier(cls, op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the txn_id where it was last changed"""
-        if not self.mult_cache.get(op):
+        if not cls.mult_cache.get(op):
             # get price from database
 
-            self.mult_cache[op] = dataManager.database.get("<PRICE>"+op)
+            cls.mult_cache[op] = dataManager.database.get("<PRICE>" + op)
 
-        return self.mult_cache[op]["mul"], self.mult_cache[op]["txn_id"]
+        return cls.mult_cache[op]["mul"], cls.mult_cache[op]["txn_id"]
 
-    def set_price_multiplier(self, op: str, new_mul: float):
+    @classmethod
+    def set_price_multiplier(cls, op: str, new_mul: float):
         """Sends an update txn.  Stores txn_id and the new price multiplier in the database"""
         txn = utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
                              note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:{op}<ARG>:{new_mul}")
 
-        self.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
+        cls.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
         # Save txn_id to database
         dataManager.database.set("<PRICE>"+op, {"op": op, "mul": new_mul, "txn_id": txn["id"]})
 
@@ -67,19 +82,32 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                handler = dataManager.LocalDataHandler(args[1])
-                return dataManager.save_dataset(handler, args[0])
+                return dataManager.save_dataset(args[0], args[1], txn["id"], txn["sender"])
             case utils.OpCodes.QUERY_MODEL:
-                model = models.get_trained_model(args[0])
-                return model(args[1])
+                model, meta, ds_meta = models.get_trained_model(args[0])
+                out = model(args[1])
+                loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
+                loss = loss_fn(out, target)
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, meta[1],
+                               Pricing.calc_model_usage_incentive(loss)[0],
+                               note=f"{utils.OpCodes.MODEL_INCENTIVE}<ARG>:{model.model_name}")
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, ds_meta[1],
+                                Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+
+                return out
             case utils.OpCodes.UPDATE_PRICE:
                 ...
             case utils.OpCodes.TRAIN_MODEL:
-                model = models.PredictModel.create(args[0], ...)
-                handler = dataManager.LocalDataHandler(args[1])
-                data_loader = dataManager.load_dataset(handler)
-                model.train_model(data_loader, ...)
-                model.save("models")
+                handler, dataset_attribs = dataManager.load_dataset(args[2])
+                model = models.PredictModel.create(args[0], args[1], handler)
+                accuracy, loss = model.train_model(...)
+
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, dataset_attribs["user_id"],
+                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+
+                models.save_trained_model(model, f"models/{args[0]}", txn["id"], txn["sender"])
 
 
 app = Flask(__name__)

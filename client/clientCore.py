@@ -28,13 +28,13 @@ def get_model_query_price(trained_model: str):
 def add_dataset(link: str, dataset_name: str, data_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
-                          note=f"{utils.OpCodes.UP_DATASET}<ARG>:{link}<ARG>:{dataset_name}")
+                          note=f"{utils.OpCodes.UP_DATASET}<ARG>:{dataset_name}<ARG>:{link}")
 
 
-def train_model(dataset_name: str, raw_model: str, num_epochs: int):
+def train_model(raw_model: str, new_model: str, dataset_name: str, num_epochs: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
-                          note=f"{utils.OpCodes.TRAIN_MODEL}<ARG>:{raw_model}<ARG>:{dataset_name}<ARG>:{num_epochs}")
+                          note=f"{utils.OpCodes.TRAIN_MODEL}<ARG>:{raw_model}<ARG>:{new_model}<ARG>:{dataset_name}<ARG>:{num_epochs}")
 
 
 def query_model(trained_model: str, input):

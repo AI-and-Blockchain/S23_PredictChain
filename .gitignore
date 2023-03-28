@@ -3,3 +3,4 @@
 .creds
 venv
 node_modules
+sandbox.py

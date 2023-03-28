@@ -14,10 +14,16 @@ class DataHandler:
 
     SAVE_MODE = 0
     LOAD_MODE = 1
+    env = ""
 
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
-        self.env = ""
+
+    @classmethod
+    def create(cls, env: str, dataset_name: str):
+        for sub in cls.__subclasses__():
+            if sub.__name__ == env or sub.env == env:
+                return sub(dataset_name)
 
     @abc.abstractmethod
     def start(self, mode: int):
@@ -43,9 +49,10 @@ class DataHandler:
 class LocalDataHandler(DataHandler):
     """DataLoader specifically for files stored in the local environment"""
 
-    def __init__(self, dataset_name):
+    env = "local"
+
+    def __init__(self, dataset_name: str):
         super().__init__(dataset_name)
-        self.env = "local"
         self.dataset_name = dataset_name
         self.file: io.FileIO = None
         self.file_path = f"data/{dataset_name}"
@@ -95,8 +102,9 @@ class LocalDataHandler(DataHandler):
         self.mode = None
 
 
-def save_dataset(handler: DataHandler, link: str, txn_id: str):
+def save_dataset(dataset_name: str, link: str, txn_id: str, user_id: str):
     """Saves a dataset using the given data handler and appends an entry into the database"""
+    handler = LocalDataHandler(dataset_name)
     size = 0
     with requests.get(link, stream=True) as r:
         r.raise_for_status()
@@ -105,13 +113,11 @@ def save_dataset(handler: DataHandler, link: str, txn_id: str):
             handler.save_chunk(chunk)
 
     handler.finish()
-    database.set("<DS>"+handler.dataset_name, {"env": handler.env, "size": size, "txn_id": txn_id})
+    database.hset("<DS>"+handler.dataset_name, {"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id})
 
 
-def load_dataset(handler: DataHandler):
+def load_dataset(dataset_name: str):
     """Loads dataset information from both the handler and the database"""
-    handler.start(handler.LOAD_MODE)
-    loader = handler.get_data_loader()
-    handler.finish()
-    dataset = database.get("<DS>"+handler.dataset_name)
-    return {**dataset, "data_loader": loader}
+    dataset_attribs = database.hgetall("<DS>" + dataset_name)
+    handler = LocalDataHandler(dataset_name)
+    return handler, dataset_attribs

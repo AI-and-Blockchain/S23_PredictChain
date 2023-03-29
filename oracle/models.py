@@ -135,6 +135,32 @@ class BaseNN(nn.Module, PredictModel):
         self.load_state_dict(torch.load(save_location))
 
 
+class MLP(BaseNN):
+    """DNN implementation"""
+
+    base_model_name = "MLP"
+
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, hidden_dims: tuple[int] = (), output_size=0):
+        super(MLP, self).__init__(model_name, data_handler, loss_fn_name, input_size=input_size,
+                                  hidden_dims=hidden_dims, output_size=output_size)
+        self.fully_connected = []
+        prev_size = input_size
+        # Fully connected layers
+        for dim in hidden_dims:
+            self.fully_connected.append(nn.Linear(prev_size, dim))
+            prev_size = dim
+
+        self.fully_connected.append(nn.Linear(prev_size, output_size))
+
+        self.model_complexity = input_size + sum(hidden_dims) + output_size
+
+    def forward(self, x):
+        for layer in self.fully_connected[:-1]:
+            x = torch.nn.functional.relu(layer(x))
+        x = torch.nn.functional.sigmoid(self.fully_connected[-1](x))
+        return x
+
+
 # Define the model
 class LSTM(BaseNN):
     """LSTM implementation"""

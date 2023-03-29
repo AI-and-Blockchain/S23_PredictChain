@@ -77,6 +77,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         """Execute operations based on the OP code of the incoming transaction"""
         txn["note"] = base64.b64decode(txn["note"]).decode()
         # Split into OP and ARGS
+        # TODO: Implement some sort of kwargs system instead os just args
         op = txn["note"].split("<ARG>:")[0]
         args = txn["note"].split("<ARG>:")[1:]
 

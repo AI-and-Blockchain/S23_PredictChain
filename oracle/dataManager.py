@@ -36,6 +36,22 @@ class DataHandler:
         raise NotImplementedError()
 
     @abc.abstractmethod
+    def save_chunk(self, data: bytes):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def save_all(self, data: bytes):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_data_loader(self, **kwargs):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_all(self, **kwargs):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def finish(self):
         """Performs any finalization operations before saving or loading"""
         raise NotImplementedError()
@@ -77,7 +93,7 @@ class LocalDataHandler(DataHandler):
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
-    def get_data_loader(self):
+    def get_data_loader(self, **kwargs):
         """Returns a generator that generates the data in the dataset"""
         if self.mode is None:
             self.start(self.LOAD_MODE)
@@ -94,7 +110,7 @@ class LocalDataHandler(DataHandler):
 
         return gen()
 
-    def get_all(self):
+    def get_all(self, **kwargs):
         if self.mode is None:
             self.start(self.LOAD_MODE)
         elif self.mode != self.LOAD_MODE:
@@ -139,7 +155,20 @@ class IPFSDataHandler(DataHandler):
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.proxy_handler.save_all(data)
 
-    def get_all(self, cid: str):
+    def get_data_loader(self, cid: str, **kwargs):
+        """Returns a generator that generates the data in the dataset"""
+        if self.mode is None:
+            self.start(self.LOAD_MODE)
+        elif self.mode != self.LOAD_MODE:
+            raise AttributeError("Cannot perform load operation when not in load mode!")
+
+        def gen():
+            """A generator to sequentially yield all the data in the set"""
+            yield self.get_all(cid)
+
+        return gen()
+
+    def get_all(self, cid: str, **kwargs):
         if self.mode is None:
             self.start(self.LOAD_MODE)
         elif self.mode != self.LOAD_MODE:

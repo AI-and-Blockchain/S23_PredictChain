@@ -60,7 +60,7 @@ class PredictModel:
     def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
         """Creates a model based off of a model name, returning an instance based off other provided parameters"""
         for sub in cls.subclass_walk(cls):
-            if sub.__name__ == base_model_name or sub.base_model_name == base_model_name:
+            if sub.__name__ == base_model_name or sub.base_model_name.lower() == base_model_name.lower():
                 return sub(new_model_name, data_handler, loss_fn_name, **kwargs)
 
     @abc.abstractmethod

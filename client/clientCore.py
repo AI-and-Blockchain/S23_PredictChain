@@ -8,11 +8,11 @@ import utils
 
 
 ADDRESS = ""
-SECRET = ""
+STORAGE_KEY = ""
 
 
 def load_creds():
-    global ADDRESS, SECRET
+    global ADDRESS, STORAGE_KEY
     with open("../.creds/test_client_creds", "r") as file:
         ADDRESS = file.readline().strip("\n")
         SECRET = file.readline().strip("\n")
@@ -40,21 +40,21 @@ def get_model_query_price(trained_model: str):
 def add_dataset(link: str, dataset_name: str, data_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
+    return utils.transact(ADDRESS, STORAGE_KEY, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
                           note=json.dumps(locals().copy()))
 
 
 def train_model(raw_model: str, new_model: str, dataset_name: str, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
+    return utils.transact(ADDRESS, STORAGE_KEY, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
                           note=json.dumps(locals().copy()))
 
 
 def query_model(trained_model: str, model_input):
     """Creates a transaction to ask for a query from the specified model"""
     op = utils.OpCodes.QUERY_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
+    return utils.transact(ADDRESS, STORAGE_KEY, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
                           note=json.dumps(locals().copy()))
 
 
@@ -79,7 +79,7 @@ def command_line():
             case "h" | "?":
                 print(help_menu)
             case "txn":
-                print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
+                print(utils.transact(ADDRESS, STORAGE_KEY, utils.ORACLE_ALGO_ADDRESS, 1,
                                      note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
 
     monitor.halt()

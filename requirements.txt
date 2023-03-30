@@ -4,3 +4,4 @@ requests
 torch
 scikit-learn
 redis
+web3storage

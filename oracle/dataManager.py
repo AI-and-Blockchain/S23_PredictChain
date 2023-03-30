@@ -1,12 +1,16 @@
 import io
-
+import web3storage
 import redis
 import abc
 import requests
 import os
 from typing import Generator
+import utils
+from hashlib import sha256
+
 
 database = redis.Redis()
+web3 = web3storage.Client(utils.STORAGE_KEY)
 
 
 class DataHandler:
@@ -23,27 +27,12 @@ class DataHandler:
     def create(cls, env: str, dataset_name: str):
         """Creates a handler based off of the environment name"""
         for sub in cls.__subclasses__():
-            if sub.__name__ == env or sub.env == env:
+            if sub.__name__ == env or sub.env.lower() == env.lower():
                 return sub(dataset_name)
 
     @abc.abstractmethod
     def start(self, mode: int):
         """Performs any initialization operations before saving or loading"""
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def save_chunk(self, data: bytes):
-        """Saves a partial chunk to the environment"""
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def save_all(self, data: bytes):
-        """Saves the entirety of the data to the environment"""
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def get_data_loader(self) -> Generator:
-        """Returns a generator that generates the data in the dataset"""
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -89,6 +78,7 @@ class LocalDataHandler(DataHandler):
         self.file.write(data)
 
     def get_data_loader(self):
+        """Returns a generator that generates the data in the dataset"""
         if self.mode is None:
             self.start(self.LOAD_MODE)
         elif self.mode != self.LOAD_MODE:
@@ -104,15 +94,73 @@ class LocalDataHandler(DataHandler):
 
         return gen()
 
+    def get_all(self):
+        if self.mode is None:
+            self.start(self.LOAD_MODE)
+        elif self.mode != self.LOAD_MODE:
+            raise AttributeError("Cannot perform load operation when not in load mode!")
+
+        return self.file.read()
+
     def finish(self):
         self.file.close()
         self.file = None
         self.mode = None
 
 
-def save_dataset(dataset_name: str, link: str, txn_id: str, user_id: str):
+class IPFSDataHandler(DataHandler):
+    """DataLoader specifically for files stored in IPFS"""
+
+    env = "ipfs"
+
+    def __init__(self, dataset_name: str, dataset_id: str = ""):
+        super().__init__(dataset_name)
+        self.dataset_name = dataset_name
+        self.file_name = dataset_name
+        self.proxy_handler = LocalDataHandler(dataset_name)
+        self.mode = None
+        """Locks the handler into one mode until finalization to avoid unexpected behavior"""
+
+    def start(self, mode: int):
+        self.mode = mode
+        self.proxy_handler.start(mode)
+
+    def save_chunk(self, data: bytes):
+        if self.mode is None:
+            self.start(self.SAVE_MODE)
+        elif self.mode != self.SAVE_MODE:
+            raise AttributeError("Cannot perform save operation when not in save mode!")
+        self.proxy_handler.save_chunk(data)
+
+    def save_all(self, data: bytes):
+        if self.mode is None:
+            self.start(self.SAVE_MODE)
+        elif self.mode != self.SAVE_MODE:
+            raise AttributeError("Cannot perform save operation when not in save mode!")
+        self.proxy_handler.save_all(data)
+
+    def get_all(self, cid: str):
+        if self.mode is None:
+            self.start(self.LOAD_MODE)
+        elif self.mode != self.LOAD_MODE:
+            raise AttributeError("Cannot perform load operation when not in load mode!")
+
+        return web3.download(cid)
+
+    def finish(self):
+        out = None
+        if self.mode == self.SAVE_MODE:
+            resp = web3.upload_file(self.proxy_handler.file_path)
+            self.proxy_handler.finish()
+            out = resp["cid"]
+
+        self.mode = None
+        return out
+
+
+def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str):
     """Saves a dataset using the given data handler and appends an entry into the database"""
-    handler = LocalDataHandler(dataset_name)
+    handler = DataHandler.create(env, dataset_name)
     size = 0
     with requests.get(link, stream=True) as r:
         r.raise_for_status()

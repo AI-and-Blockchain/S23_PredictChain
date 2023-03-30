@@ -9,6 +9,9 @@ if os.path.isdir("../.creds"):
 with open(".creds/api_key", "r") as file:
     API_KEY = file.readline().strip("\n")
 
+with open("../.creds/storage_api_key", "r") as file:
+    STORAGE_KEY = file.readline()
+
 
 ALGOD_API_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"
 INDEXER_API_ADDRESS = "https://testnet-algorand.api.purestake.io/idx2"

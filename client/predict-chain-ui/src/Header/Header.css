@@ -1,0 +1,26 @@
+.fixed-header{
+    width: 100%;
+    position: static;        
+    background: #333;
+    padding: 40px 0;
+    color: #fff;
+}
+.fixed-header{
+    top: 0;
+}
+
+a{
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+}
+
+a:hover{
+    color: gray;
+}
+
+.container p{
+    line-height: 200px; /* Create scrollbar to test positioning */
+}

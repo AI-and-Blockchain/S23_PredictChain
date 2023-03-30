@@ -1,0 +1,10 @@
+.fixed-footer{
+    width: 100%;
+    position: static;        
+    background: #333;
+    padding: 20px 0;
+    color: #fff;
+}
+.fixed-footer{
+    bottom: 0;
+}    

@@ -7,13 +7,18 @@ made available, ranging from cheap, fast, and simple to more expensive, slower, 
 This will allow for a large variety of predictive abilities for both simple and complex patterns.
 All the past predictions form these models will be stored on the blockchain for public viewing.
 
+## User Actions
+
+Users can interact with this system through a variety of ways.  Users can choose to upload datasets
+of their own, train one of the base models on any previously uploaded dataset, or query any of the
+trained models for a specific result.
+
 ## Model Classes
 
 There will be several types of models available for use.  These may include:
 
 - Decision Trees
-- Bayesian Networks
-- Perceptrons
+- Multi-layered Perceptrons
 - Linear Neural Networks
 - Recurrent Neural Networks
 
@@ -31,22 +36,41 @@ information from the outside world and inject it back into the blockchain.  For 
 listen for the outcomes of user-predicted events and return those results to the users and update
 those who submitted the dataset.
 
+Communication between the blockchain and the oracle is facilitated by transactions.  When a message
+needs to be sent between the two parties, the sending party creates a transaction with a note attached.
+This note contains a json-encoded form of the arguments for the operation being requested.  These 
+arguments are then received and interpreted by the target of the transaction.
+
 ## Payments and Incentives
 
-Any user will be able to query previously trained models for predictions of real-world events.
+Payments and incentives help to turn this project into a functioning system.  They are each calculated
+using a fixed equation that is open to all users to view.  Each reward and incentive is also subject to
+a multiplier.  This can be raised or lowered by the oracle at any point.  To ensure there is a
+constant log kept in the blockchain, the id of this modifying transaction will be saved and returned
+to any user upon request.
+
+### Payments
+- Any user will be able to query previously trained models for predictions of real-world events.
 Each time this is done, these users will make a small payment to the system.
 
-Users who upload datasets will be able to choose which class of model that their dataset will be
-trained on.  The more complex models will be more expensive than their simpler counterparts.
-In order to compensate for this, these users will be compensated whenever their model makes a correct
-prediction.
+- Users who upload their own datasets will also have to pay a small fee.  This fee is based off of
+the size of the dataset that they plan to upload.
 
-## Betting
+ - Users who choose to request that a base model be trained on a particular dataset will also be
+charged with a small fee.  This fee is based off of a variety of factors including the complexity
+of the model and the size of the dataset.
 
-In addition to the other uses of this project, users may also be able to bet on the outcomes of events.
-Betting users would stake some amount on one of the possible outcomes of an event or the predictions
-of the model.  Winning users will be rewarded with their original stake in addition to part of the
-stake of any incorrect users.
+### Incentives
+
+To compensate for the payments that users make to the system, they will also be rewarded in the right
+circumstances.
+
+- Dataset uploading users will be rewarded both when a model is trained on their dataset and when
+that trained model makes a correct prediction.
+
+- Model training users will be rewarded whenever their model makes a correct prediction.
+
+- Each of the predictions mentioned above are triggered when a user queries the model for some event.
 
 ## User Interface Wireframes
 

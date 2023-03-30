@@ -12,10 +12,13 @@ activate User
 
 par Manual actions
   alt Upload dataset
+  	  User->Oracle: Get dataset price
       User->Blockchain: Add dataset txn
   else Train model
+      User->Oracle: Get train model price
       User->Blockchain: Train model txn
   else Query model
+      User->Oracle: Get query price
       User->Blockchain: Query model txn
   end
 end
@@ -63,6 +66,9 @@ loop forever
       Model Node-->>Oracle: Return prediction
       deactivate Model Node
       Oracle->>Blockchain: Add result txn
+      Oracle->Oracle: Calculate rewards
+      Oracle->>Blockchain: Reward dataset user
+      Oracle->>Blockchain: Reward training user
       deactivate Oracle
 
   	end

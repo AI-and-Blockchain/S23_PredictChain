@@ -60,9 +60,11 @@ def get_txn_confirmation(txn_id: str):
 def create_account():
     """Creates an algorand wallet"""
     private_key, address = account.generate_account()
+    print("Creating a new user account...")
     print("Address: {}".format(address))
     print("Secret key:", private_key)
     print("Mnemonic: {}".format(mnemonic.from_private_key(private_key)))
+    return address, private_key
 
 
 def search_transactions(limit=10, **kwargs):

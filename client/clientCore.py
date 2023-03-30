@@ -1,9 +1,21 @@
 import sys, os
 import requests
+import json
 from flask import Flask, request
 import threading
 sys.path.append("../")
 import utils
+
+
+ADDRESS = ""
+SECRET = ""
+
+
+def load_creds():
+    global ADDRESS, SECRET
+    with open("../.creds/test_client_creds", "r") as file:
+        ADDRESS = file.readline().strip("\n")
+        SECRET = file.readline().strip("\n")
 
 
 def get_dataset_upload_price(size: int):
@@ -27,20 +39,23 @@ def get_model_query_price(trained_model: str):
 
 def add_dataset(link: str, dataset_name: str, data_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
+    op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
-                          note=f"{utils.OpCodes.UP_DATASET}<ARG>:{dataset_name}<ARG>:{link}")
+                          note=json.dumps(locals().copy()))
 
 
-def train_model(raw_model: str, new_model: str, dataset_name: str, num_epochs: int):
+def train_model(raw_model: str, new_model: str, dataset_name: str, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
+    op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
-                          note=f"{utils.OpCodes.TRAIN_MODEL}<ARG>:{raw_model}<ARG>:{new_model}<ARG>:{dataset_name}<ARG>:{num_epochs}")
+                          note=json.dumps(locals().copy()))
 
 
-def query_model(trained_model: str, input):
+def query_model(trained_model: str, model_input):
     """Creates a transaction to ask for a query from the specified model"""
+    op = utils.OpCodes.QUERY_MODEL  # op is included in locals() and is passed inside the note
     return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
-                          note=f"{utils.OpCodes.QUERY_MODEL}<ARG>:{trained_model}<ARG>:{input}")
+                          note=json.dumps(locals().copy()))
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):
@@ -77,9 +92,7 @@ app = Flask(__name__)
 
 if __name__ == "__main__":
 
-    with open(".creds/test_client_creds", "r") as file:
-        ADDRESS = file.readline().strip("\n")
-        SECRET = file.readline().strip("\n")
+    load_creds()
 
     if os.path.isdir("client"):
         os.chdir("client")

@@ -95,9 +95,10 @@ class TransactionMonitor:
     _halt = False
     pause_duration = 10
 
-    def __init__(self, address: str):
+    def __init__(self, address: str, all_time=False):
         self.last_round_checked = search_transactions(limit=1)[-1]["confirmed-round"]
         self.address = address
+        self.all_time = all_time
 
     @abc.abstractmethod
     def process_incoming(self, txn):
@@ -112,7 +113,7 @@ class TransactionMonitor:
         def inner_mon():
             while not self._halt:
                 transactions = search_transactions(address=self.address, address_role="receiver",
-                                                   min_round=self.last_round_checked, limit=10)
+                        min_round=self.last_round_checked if not self.all_time else None, limit=10)
                 [self.process_incoming(txn) for txn in transactions]
                 self.last_round_checked = transactions[-1]["confirmed-round"]
 

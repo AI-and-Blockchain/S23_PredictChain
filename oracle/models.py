@@ -24,7 +24,7 @@ class PredictModel:
         self.data_handler = data_handler
         self.loss_fn_name = loss_fn_name
         self.kwargs = {"model_name": model_name, "dataset_name": data_handler.dataset_name,
-                       "loss_fn_name": loss_fn_name, **locals()["kwargs"]}
+                       "loss_fn_name": loss_fn_name, **locals().copy()["kwargs"]}
 
     @staticmethod
     def get_loss_fn(name: str):

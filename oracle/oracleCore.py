@@ -14,6 +14,16 @@ sys.path.append("../")
 import utils
 
 
+ADDRESS = None
+SECRET = None
+
+
+def load_creds():
+    global SECRET
+    with open("../.creds/test_oracle_creds", "r") as file:
+        SECRET = file.readline()
+
+
 class Pricing:
     """Class to keep track and modify the pricing of transactions"""
     mult_cache = {}
@@ -75,19 +85,18 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction"""
-        txn["note"] = base64.b64decode(txn["note"]).decode()
+        txn["note"] = json.loads(base64.b64decode(txn["note"]).decode())
         # Split into OP and ARGS
-        # TODO: Implement some sort of kwargs system instead os just args
-        op = txn["note"].split("<ARG>:")[0]
-        args = txn["note"].split("<ARG>:")[1:]
+        op = txn["note"].pop("op")
+        kwargs: dict = {**txn["note"].pop("kwargs"), **txn["note"]}
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                return dataManager.save_dataset(args[0], args[1], txn["id"], txn["sender"])
+                return dataManager.save_dataset(**kwargs, txn_id=txn["id"], user_id=txn["sender"])
 
             case utils.OpCodes.QUERY_MODEL:
-                model, meta, ds_meta = models.get_trained_model(args[0])
-                out = model(args[1])
+                model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])
+                out = model(kwargs["model_input"])
                 loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
                 loss = loss_fn(out, target)
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, meta[1],
@@ -103,15 +112,15 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 ...
 
             case utils.OpCodes.TRAIN_MODEL:
-                handler, dataset_attribs = dataManager.load_dataset(args[2])
-                model = models.PredictModel.create(args[0], args[1], handler)
-                accuracy, loss = model.train_model(...)
+                handler, dataset_attribs = dataManager.load_dataset(kwargs["dataset_name"])
+                model = models.PredictModel.create(**kwargs, data_handler=handler)
+                accuracy, loss = model.train_model(**kwargs)
 
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, dataset_attribs["user_id"],
                                Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
                                note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
 
-                models.save_trained_model(model, f"models/{args[0]}", txn["id"], txn["sender"])
+                models.save_trained_model(model, f"models/{kwargs['new_model']}", txn["id"], txn["sender"])
 
 
 app = Flask(__name__)
@@ -139,9 +148,6 @@ def report_model_query_price():
 
 
 if __name__ == '__main__':
-
-    with open(".creds/test_oracle_creds", "r") as file:
-        SECRET = file.readline()
 
     if os.path.isdir("oracle"):
         os.chdir("oracle")

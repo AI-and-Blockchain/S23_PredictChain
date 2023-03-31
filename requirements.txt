@@ -5,3 +5,4 @@ torch
 scikit-learn
 redis
 web3storage
+beautifulsoup4

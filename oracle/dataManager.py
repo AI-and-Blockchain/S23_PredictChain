@@ -4,8 +4,9 @@ import redis
 import abc
 import requests
 import os
-from typing import Generator
 import utils
+from typing import Generator
+import oracle_utils
 from hashlib import sha256
 
 

@@ -1,10 +1,29 @@
+from __future__ import annotations
 import sys, os
 import requests
 import json
-from flask import Flask, request
-import threading
-sys.path.append("../")
-import utils
+from flask import Flask
+from common import utils
+
+
+ADDRESS = ""
+SECRET = ""
+
+
+class ClientState:
+    monitor: ClientTransactionMonitor = None
+
+    @classmethod
+    def init(cls):
+        load_creds()
+        cls.monitor = ClientTransactionMonitor(ADDRESS)
+
+
+def load_creds():
+    global ADDRESS, SECRET
+    with open(".creds/test_client_creds", "r") as file:
+        ADDRESS = file.readline().strip("\n")
+        SECRET = file.readline().strip("\n")
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):
@@ -23,26 +42,6 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         tmp = self.txns
         self.txns = []
         return tmp
-
-
-ADDRESS = ""
-SECRET = ""
-
-
-class ClientState:
-    monitor: ClientTransactionMonitor = None
-
-    @classmethod
-    def init(cls):
-        cls.monitor = ClientTransactionMonitor(ADDRESS)
-        load_creds()
-
-
-def load_creds():
-    global ADDRESS, SECRET
-    with open("../.creds/test_client_creds", "r") as file:
-        ADDRESS = file.readline().strip("\n")
-        SECRET = file.readline().strip("\n")
 
 
 def get_dataset_upload_price(size: int):
@@ -109,6 +108,11 @@ app = Flask(__name__)
 # TODO: Client endpoints for communicating with front end
 
 
+@app.route('/', methods=["GET"])
+def home():
+    return {"hello": "there"}
+
+
 @app.route('/new_account', methods=["POST"])
 def create_new_account():
     addr, priv = utils.create_account()
@@ -120,16 +124,3 @@ def update_state():
     txns = ClientState.monitor.pop_txns()
     return {"transactions": txns}
 
-
-if __name__ == "__main__":
-
-    if os.path.isdir("client"):
-        os.chdir("client")
-
-    ClientState.init()
-
-    ClientState.monitor.monitor()
-
-    app.run(host="localhost", port=utils.CLIENT_SERVER_PORT)
-
-    # command_line()

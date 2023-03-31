@@ -4,4 +4,3 @@
 venv
 node_modules
 sandbox.py
-package-lock.json

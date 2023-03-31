@@ -3,13 +3,10 @@ import os
 import algosdk.mnemonic
 from algosdk.v2client import algod, indexer
 
-if os.path.isdir("../.creds"):
-    os.chdir("..")
-
 with open(".creds/api_key", "r") as file:
     API_KEY = file.readline().strip("\n")
 
-with open("../.creds/storage_api_key", "r") as file:
+with open(".creds/storage_api_key", "r") as file:
     STORAGE_KEY = file.readline()
 
 

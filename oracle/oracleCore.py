@@ -1,25 +1,28 @@
-import abc
-import dataclasses
+from __future__ import annotations
 import sys
-import time
 import base64
 from flask import Flask, request
 import os
 import json
-import copy
-import requests
 import models
 import dataManager
-sys.path.append("../")
-import utils
+from common import utils
+
+SECRET = ""
 
 
-STORAGE_KEY = ""
+class OracleState:
+    monitor: OracleTransactionMonitor = None
+
+    @classmethod
+    def init(cls):
+        load_creds()
+        cls.monitor = OracleTransactionMonitor()
 
 
 def load_creds():
-    global STORAGE_KEY
-    with open("../.creds/test_oracle_creds", "r") as file:
+    global SECRET
+    with open(".creds/test_oracle_creds", "r") as file:
         SECRET = file.readline()
 
 
@@ -71,8 +74,8 @@ class Pricing:
     @classmethod
     def set_price_multiplier(cls, op: str, new_mul: float):
         """Sends an update txn.  Stores txn_id and the new price multiplier in the database"""
-        txn = utils.transact(utils.ORACLE_ALGO_ADDRESS, STORAGE_KEY, utils.ORACLE_ALGO_ADDRESS, 1,
-                                    note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:{op}<ARG>:{new_mul}")
+        txn = utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
+                             note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:{op}<ARG>:{new_mul}")
 
         cls.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
         # Save txn_id to database
@@ -81,6 +84,9 @@ class Pricing:
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
     """Keeps the oracle updated on incoming transactions from users, real world events"""
+
+    def __init__(self, all_time=False):
+        super(OracleTransactionMonitor, self).__init__(utils.ORACLE_ALGO_ADDRESS, all_time=all_time)
 
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction"""
@@ -98,12 +104,12 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 out = model(kwargs["model_input"])
                 loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
                 loss = loss_fn(out, target)
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, STORAGE_KEY, meta[1],
-                                      Pricing.calc_model_usage_incentive(loss)[0],
-                                      note=f"{utils.OpCodes.MODEL_INCENTIVE}<ARG>:{model.model_name}")
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, STORAGE_KEY, ds_meta[1],
-                                      Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
-                                      note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, meta[1],
+                               Pricing.calc_model_usage_incentive(loss)[0],
+                               note=f"{utils.OpCodes.MODEL_INCENTIVE}<ARG>:{model.model_name}")
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, ds_meta[1],
+                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
 
                 return out
             case utils.OpCodes.UPDATE_PRICE:
@@ -115,9 +121,9 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)
 
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, STORAGE_KEY, dataset_attribs["user_id"],
-                                      Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
-                                      note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, dataset_attribs["user_id"],
+                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
 
                 models.save_trained_model(model, f"models/{kwargs['new_model']}", txn["id"], txn["sender"])
 

@@ -3,7 +3,7 @@ import abc
 import threading
 import time
 
-from constants import *
+from common.constants import *
 from algosdk import account, mnemonic
 from algosdk.transaction import PaymentTxn
 

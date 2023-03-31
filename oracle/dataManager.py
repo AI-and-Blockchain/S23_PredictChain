@@ -4,11 +4,7 @@ import redis
 import abc
 import requests
 import os
-import utils
-from typing import Generator
-import oracle_utils
-from hashlib import sha256
-
+from common import utils
 
 database = redis.Redis()
 web3 = web3storage.Client(utils.STORAGE_KEY)

@@ -1,6 +1,6 @@
 import abc
 import dataclasses
-import dataManager
+from oracle import dataManager
 import torch
 import torch.nn as nn
 from torch.autograd import Variable

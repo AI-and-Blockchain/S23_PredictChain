@@ -7,6 +7,4 @@ if __name__ == "__main__":
 
     ClientState.monitor.monitor()
 
-    app.run(host=utils.ORACLE_SERVER_HOST, port=utils.ORACLE_SERVER_PORT)
-
-    # command_line()
+    app.run(host=utils.CLIENT_SERVER_HOST, port=utils.CLIENT_SERVER_PORT)

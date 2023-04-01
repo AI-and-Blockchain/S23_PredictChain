@@ -108,9 +108,9 @@ app = Flask(__name__)
 # TODO: Client endpoints for communicating with front end
 
 
-@app.route('/', methods=["GET"])
-def home():
-    return {"hello": "there"}
+@app.route('/ping', methods=["GET"])
+def ping():
+    return {"pinged": "client"}
 
 
 @app.route('/new_account', methods=["POST"])

@@ -4,8 +4,7 @@ import base64
 from flask import Flask, request
 import os
 import json
-import models
-import dataManager
+from oracle import models, dataManager
 from common import utils
 
 SECRET = ""
@@ -131,6 +130,11 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 app = Flask(__name__)
 
 
+@app.route('/ping', methods=["GET"])
+def ping():
+    return {"pinged": "oracle"}
+
+
 @app.route('/dataset_upload_price', methods=["GET"])
 def report_dataset_upload_price():
     """Report back the latest dataset upload price"""
@@ -150,14 +154,3 @@ def report_model_query_price():
     """Report back the latest query price"""
     price, txn_id = Pricing.calc_model_query_price(**request.args)
     return {"price": price, "txn_id": txn_id}
-
-
-if __name__ == '__main__':
-
-    if os.path.isdir("oracle"):
-        os.chdir("oracle")
-
-    monitor = OracleTransactionMonitor(utils.ORACLE_ALGO_ADDRESS)
-    monitor.monitor()
-
-    app.run(host=utils.ORACLE_SERVER_HOST, port=utils.ORACLE_SERVER_PORT)

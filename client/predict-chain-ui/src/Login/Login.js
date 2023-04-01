@@ -19,37 +19,52 @@ function Login() {
   }, [user, loading]);
 
   return (
-    <div className="login">
-      <div className="login__container">
-        <input
-          type="text"
-          className="login__textBox"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-mail Address"
-        />
-        <input
-          type="password"
-          className="login__textBox"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button
-          className="login__btn"
-          onClick={() => logInWithEmailAndPassword(email, password)}
-        >
-          Login
-        </button>
-        <button className="login__btn login__google" onClick={signInWithGoogle}>
-          Login with Google
-        </button>
-        <div>
-          <Link to="/reset">Forgot Password</Link>
+    <div>
+      <div className="header">
+        <nav>
+          <a href="javascript:void(0)" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
+        </nav>  
+      </div>
+      <div className="login">
+        <div className="login__container">
+          <h2>Login</h2>
+          <input
+            type="text"
+            className="login__textBox"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-mail Address"
+          />
+          <input
+            type="password"
+            className="login__textBox"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button
+            className="login__btn"
+            onClick={() => logInWithEmailAndPassword(email, password)}
+          >
+            Login
+          </button>
+          <button className="login__btn login__google" onClick={signInWithGoogle}>
+            Login with Google
+          </button>
+          <div>
+            <Link to="/reset">Forgot Password</Link>
+          </div>
+          <div>
+            Don't have an account? <Link to="/register">Register</Link> now.
+          </div>
         </div>
-        <div>
-          Don't have an account? <Link to="/register">Register</Link> now.
-        </div>
+      </div>
+      <div className="footer">
+        <nav>
+          <a href="javascript:void(0)">FAQ</a>
+          <a href="javascript:void(0)" style={{marginLeft: '100px'}}>Meet The Team</a>
+          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '100px'}}>Docs</a>
+        </nav>       
       </div>
     </div>
   );

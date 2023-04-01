@@ -2,9 +2,9 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./Register/Register";
 import Login from "./Login/Login";
-import Reset from "./Register/Reset";
 import Dashboard from "./Dashboard/Dashboard";
 import HomePage from "./HomePage/HomePage";
+import Reset from "./Reset/Reset"
 function App() {
   return (
     <div className="app">

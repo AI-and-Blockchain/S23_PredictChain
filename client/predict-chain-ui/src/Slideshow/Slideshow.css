@@ -1,0 +1,10 @@
+.image-gallery-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  
+.image-gallery-container img {
+    width: 0px;
+    height: auto;
+}

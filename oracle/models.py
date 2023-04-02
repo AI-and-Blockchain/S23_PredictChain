@@ -1,3 +1,4 @@
+from __future__ import annotations
 import abc
 import dataclasses
 from oracle import dataManager
@@ -57,7 +58,7 @@ class PredictModel:
         return all_subs
 
     @classmethod
-    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters"""
         for sub in cls.subclass_walk(cls):
             if sub.__name__ == base_model_name or sub.base_model_name.lower() == base_model_name.lower():
@@ -96,7 +97,7 @@ class BaseNN(nn.Module, PredictModel):
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
         for epoch in range(num_epochs):
-            for input_sequence, target in self.data_handler.get_data_loader():
+            for input_sequence, target in self.data_handler.data_loader():
                 input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
                 target = torch.Tensor(target).view(len(target), -1)
 
@@ -114,7 +115,7 @@ class BaseNN(nn.Module, PredictModel):
         total_loss = 0
         total_correct = 0
         total_entries = 0
-        for input_sequence, target in self.data_handler.get_data_loader():
+        for input_sequence, target in self.data_handler.data_loader():
             input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
             target = torch.Tensor(target).view(len(target), -1)
 
@@ -226,7 +227,7 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
         self.model_complexity = self.get_n_leaves() + self.get_depth()
 
     def train_model(self):
-        for input_sequence, target in self.data_handler.get_data_loader():
+        for input_sequence, target in self.data_handler.data_loader():
             self.fit(input_sequence, target)
 
     def eval_model(self):
@@ -234,7 +235,7 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
         total_loss = 0
         total_correct = 0
         total_entries = 0
-        for input_sequence, target in self.data_handler.get_data_loader():
+        for input_sequence, target in self.data_handler.data_loader():
             output = self.predict(input_sequence)
 
             if output == target:

@@ -73,8 +73,8 @@ function Register() {
       </div>
       <div className="footer">
         <nav>
-          <a href="javascript:void(0)">FAQ</a>
-          <a href="javascript:void(0)" style={{marginLeft: '100px'}}>Meet The Team</a>
+          <a href="/faq">FAQ</a>
+          <a href="/mtt" style={{marginLeft: '100px'}}>Meet The Team</a>
           <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '100px'}}>Docs</a>
         </nav>       
       </div>

@@ -30,7 +30,7 @@ function Dashboard() {
       <div className="fixed-header">
         <nav>
           <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
-          <a href="javascript:void(0)"style={{marginLeft: '500px'}}>FAQ</a>
+          <a href="/faq"style={{marginLeft: '500px'}}>FAQ</a>
           <a href="/mtt" style={{marginLeft: '300px'}}>Meet The Team</a>
           <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '300px'}}>Docs</a>
         </nav>       
@@ -48,9 +48,9 @@ function Dashboard() {
       </div>
       <div className="fixed-footer">
           <nav>
-            <a href="javascript:void(0)" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
-            <a href="javascript:void(0)"style={{marginLeft: '400px'}}>FAQ</a>
-            <a href="javascript:void(0)" style={{marginLeft: '200px'}}>Meet The Team</a>
+            <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
+            <a href="/faq"style={{marginLeft: '400px'}}>FAQ</a>
+            <a href="/mtt" style={{marginLeft: '200px'}}>Meet The Team</a>
             <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '200px'}}>Docs</a>
             <a href="#" style={{marginLeft: '200px'}}>Back to top</a>
           </nav>       

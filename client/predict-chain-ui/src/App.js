@@ -6,6 +6,8 @@ import Dashboard from "./Dashboard/Dashboard";
 import HomePage from "./HomePage/HomePage";
 import Reset from "./Reset/Reset"
 import MTT from "./MTT/MTT";
+import FAQ from "./FAQ/FAQ";
+
 function App() {
   return (
     <div className="app">
@@ -17,6 +19,7 @@ function App() {
           <Route exact path="/reset" element={<Reset />} />
           <Route exact path="/dashboard" element={<Dashboard />} />
           <Route exact path="/mtt" element={<MTT />} />
+          <Route exact path="/faq" element={<FAQ />} />
         </Routes>
       </Router>
     </div>

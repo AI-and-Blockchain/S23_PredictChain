@@ -5,6 +5,7 @@ import Login from "./Login/Login";
 import Dashboard from "./Dashboard/Dashboard";
 import HomePage from "./HomePage/HomePage";
 import Reset from "./Reset/Reset"
+import MTT from "./MTT/MTT";
 function App() {
   return (
     <div className="app">
@@ -15,6 +16,7 @@ function App() {
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/reset" element={<Reset />} />
           <Route exact path="/dashboard" element={<Dashboard />} />
+          <Route exact path="/mtt" element={<MTT />} />
         </Routes>
       </Router>
     </div>

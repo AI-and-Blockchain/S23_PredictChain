@@ -1,28 +1,79 @@
 .dashboard {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .dashboard__container {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    background-color: #dcdcdc;
-    padding: 30px;
-  }
-  
-  .dashboard__btn {
-    padding: 10px;
-    font-size: 18px;
-    margin-top: 10px;
-    border: none;
-    color: white;
-    background-color: black;
-  }
-  
-  .dashboard div {
-    margin-top: 7px;
-  }
+  top:50%;
+  left:50%;
+  margin-top: 50px; /* this is half the height of your div*/  
+  margin-bottom: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard__container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background-color: #dcdcdc;
+  height: 1000px;
+  width: 95%;
+  position: relative;
+  border-radius: 10px;
+}
+
+.dashboard__btn {
+  padding: 10px;
+  font-size: 18px;
+  margin-top: 10px;
+  width: 100px;
+  border: none;
+  color: white;
+  background-color: black;
+  position: absolute;
+  bottom: 30px;
+  right: 40px;
+}
+
+.dashboard__btn:hover{
+  background-color: grey;
+}
+
+.dashboard div {
+  margin-top: 7px;
+}
+
+.fixed-footer{
+  width: 100%;
+  position: static;        
+  background: #333;
+  padding: 20px 0;
+  color: #fff;
+}
+.fixed-footer{
+  bottom: 0;
+}    
+
+.fixed-header{
+  width: 100%;
+  position: static;        
+  background: #333;
+  padding: 40px 0;
+  color: #fff;
+}
+.fixed-header{
+  top: 0;
+}
+
+a{
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover{
+  color: gray;
+}
+
+.container p{
+  line-height: 200px; /* Create scrollbar to test positioning */
+}

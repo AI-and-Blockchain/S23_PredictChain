@@ -1,12 +1,16 @@
 from __future__ import annotations
 import abc
 import dataclasses
+import numpy as np
+import pandas as pd
 from oracle import dataManager
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 # https://www.simplilearn.com/tutorials/machine-learning-tutorial/decision-tree-in-python
 from sklearn.tree import DecisionTreeClassifier
+
+# TODO: add GRU model
 
 
 class PredictModel:
@@ -58,7 +62,7 @@ class PredictModel:
         return all_subs
 
     @classmethod
-    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs) -> PredictModel:
+    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name="ce", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters"""
         for sub in cls.subclass_walk(cls):
             if sub.__name__ == base_model_name or sub.base_model_name.lower() == base_model_name.lower():
@@ -88,18 +92,30 @@ class PredictModel:
 class BaseNN(nn.Module, PredictModel):
     """Parent class encapsulating the behaviour of other neural network classes"""
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, output_size=0, **kwargs):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce", **kwargs):
         super(BaseNN, self).__init__()
-        self.init(model_name, data_handler, loss_fn_name, input_size=input_size, output_size=output_size, **kwargs)
+        self.input_size = len(data_handler.dataframe.columns)
+        self.output_size = 1
+        local_args = locals().copy()
+        local_args = {**local_args, **local_args["kwargs"]}
+        local_args.pop("kwargs")
+        local_args.pop("self")
+        local_args.pop("__class__")
+        self.init(**local_args)
 
-    def train_model(self, optimizer_name: str, num_epochs: int, learning_rate: float):
+    @abc.abstractmethod
+    def preprocess_data(self, **kwargs):
+        ...
+
+    def train_model(self, output_attrib: str, num_epochs: int, learning_rate=0.01, optimizer_name="adam", **preprocess_kwargs):
         loss_fn = self.get_loss_fn(self.loss_fn_name)
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
+        x_train, y_train, x_test, y_test = self.preprocess_data(output_attrib, **preprocess_kwargs)
         for epoch in range(num_epochs):
-            for input_sequence, target in self.data_handler.data_loader():
-                input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
-                target = torch.Tensor(target).view(len(target), -1)
+            for input_sequence, target in zip(x_train, y_train):
+                input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
+                target = torch.from_numpy(target).type('torch.FloatTensor')
 
                 # Forward pass
                 output = self.forward(input_sequence)
@@ -141,19 +157,16 @@ class MLP(BaseNN):
 
     base_model_name = "MLP"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, hidden_dims: tuple[int] = (), output_size=0):
-        super(MLP, self).__init__(model_name, data_handler, loss_fn_name, input_size=input_size,
-                                  hidden_dims=hidden_dims, output_size=output_size)
-        self.fully_connected = []
-        prev_size = input_size
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+        super(MLP, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        self.fully_connected = [nn.Linear(self.input_size, hidden_dim)]
         # Fully connected layers
-        for dim in hidden_dims:
-            self.fully_connected.append(nn.Linear(prev_size, dim))
-            prev_size = dim
+        for _ in range(num_hidden_layers-1):
+            self.fully_connected.append(nn.Linear(hidden_dim, hidden_dim))
 
-        self.fully_connected.append(nn.Linear(prev_size, output_size))
+        self.fully_connected.append(nn.Linear(hidden_dim, self.output_size))
 
-        self.model_complexity = input_size + sum(hidden_dims) + output_size
+        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
 
     def forward(self, x):
         for layer in self.fully_connected[:-1]:
@@ -169,20 +182,44 @@ class LSTM(BaseNN):
 
     base_model_name = "LSTM"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, hidden_size=0, output_size=0):
-        super(LSTM, self).__init__(model_name, data_handler, loss_fn_name, input_size=input_size,
-                                   hidden_size=hidden_size, output_size=output_size)
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+        super(LSTM, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
         # LSTM
-        self.lstm = nn.LSTM(input_size, hidden_size)
+        self.lstm = nn.LSTM(self.input_size, hidden_dim, num_hidden_layers)
         # Fully connected layer
-        self.fc = nn.Linear(hidden_size, output_size)
+        self.fc = nn.Linear(hidden_dim, self.output_size)
 
-        self.model_complexity = input_size+hidden_size+output_size
+        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
 
     def forward(self, x):
         out, _ = self.lstm(x)
         out = self.fc(out)
         return out
+
+    def preprocess_data(self, output_attrib: str, lookback=1, sub_split_value=None):
+        selected_data = self.data_handler.dataframe
+        if sub_split_value is not None:
+            selected_data = self.data_handler.sub_splits()[sub_split_value]
+
+        output_index = np.where(selected_data.columns.values == output_attrib)[0][0]
+
+        selected_data = selected_data.astype(dtype=float).to_numpy()
+        time_series = []
+
+        # Sliding window data
+        for index in range(len(selected_data) - lookback):
+            time_series.append(selected_data[index: index + lookback])
+
+        train_len = int(0.8*len(time_series))
+        time_series = np.array(time_series)
+
+        x_train = time_series[:train_len, :-1, :]
+        y_train = time_series[:train_len, -1, :]
+
+        x_test = time_series[train_len:, :-1]
+        y_test = time_series[train_len:, -1, :]
+
+        return x_train, y_train, x_test, y_test
 
 
 class RNN(BaseNN):
@@ -191,20 +228,17 @@ class RNN(BaseNN):
 
     base_model_name = "RNN"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", input_size=0, hidden_size=0, layers=0, output_size=0):
-        super(RNN, self).__init__(model_name, data_handler, loss_fn_name, input_size=input_size,
-                                  hidden_size=hidden_size, layers=layers, output_size=output_size)
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+        super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
         # Number of hidden dimensions
-        self.hidden_dim = hidden_size
-        # Number of hidden layers
-        self.layer_dim = layers
+        self.hidden_dim = hidden_dim
 
         # RNN
-        self.rnn = nn.RNN(input_size, hidden_size, layers, batch_first=True, nonlinearity='relu')
+        self.rnn = nn.RNN(self.input_size, hidden_dim, num_hidden_layers, batch_first=True, nonlinearity='relu')
         # Fully connected
-        self.fc = nn.Linear(hidden_size, output_size)
+        self.fc = nn.Linear(hidden_dim, self.output_size)
 
-        self.model_complexity = input_size + hidden_size * layers + output_size
+        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
 
     def forward(self, x):
         # Initialize hidden state with zeros

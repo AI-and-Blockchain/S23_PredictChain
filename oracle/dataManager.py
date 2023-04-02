@@ -42,7 +42,7 @@ class DataHandler:
         df.sort_values(by=self.time_attrib, inplace=True)
         return df
 
-    def sub_split(self):
+    def sub_splits(self):
         unique_grouping = self.dataframe.groupby(self.sub_split_attrib)
         return {key: unique_grouping.get_group(key) for key in unique_grouping.groups.keys() if key != self.sub_split_attrib}
 

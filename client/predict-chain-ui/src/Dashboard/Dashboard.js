@@ -8,14 +8,17 @@ import { query, collection, getDocs, where } from "firebase/firestore";
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
+  const [pk, setPK] = useState("");
+  const [addr, setAddr] = useState("");
   const navigate = useNavigate();
 
   const fetchUserName = async () => {
       const q = query(collection(db, "users"), where("uid", "==", user?.uid));
       const doc = await getDocs(q);
       const data = doc.docs[0].data();
-
       setName(data.name);
+      setPK(data.privateKey);
+      setAddr(data.address);
   };
 
   useEffect(() => {
@@ -41,6 +44,8 @@ function Dashboard() {
           Logged in as
           <div>{name}</div>
           <div>{user?.email}</div>
+          <div><h2>Private Key:</h2> {pk}</div>
+          <div><h2>Address:</h2> {addr}</div>
           <button className="dashboard__btn" onClick={logout}>
             Logout
           </button>

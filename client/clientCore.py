@@ -6,14 +6,11 @@ from flask import Flask
 from common import utils
 from flask_cors import CORS
 
-
 ADDRESS = ""
 SECRET = ""
 
 
 class ClientState:
-    """Allows for the client state to persist between classes"""
-
     monitor: ClientTransactionMonitor = None
 
     @classmethod
@@ -42,7 +39,6 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         print("Incoming transaction: ", txn)
 
     def pop_txns(self):
-        """Removes all unobserved transactions from the queue"""
         tmp = self.txns
         self.txns = []
         return tmp
@@ -99,7 +95,7 @@ def command_line():
         command = input("Command: ")
         if (command == "h") or (command == "?"):
             print(help_menu)
-        elif (command == "txt"):
+        elif (command == "txn"):
             print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
                 note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
 
@@ -119,7 +115,9 @@ def ping():
 
 @app.route('/new_account', methods=["POST"])
 def create_new_account():
+    print("HERE")
     addr, priv = utils.create_account()
+    print(addr);
     return {"address": addr, "private_key": priv}
 
 

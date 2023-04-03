@@ -16,6 +16,8 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
+import axios from 'axios';
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyBIeoOfmmLeUhhm9AY33izdevcU-ABxjhY",
@@ -38,16 +40,20 @@ const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    const q = query(collection(db, "users"), where("uid", "==", user.uid));
-    const docs = await getDocs(q);
-    if (docs.docs.length === 0) {
-      await addDoc(collection(db, "users"), {
-        uid: user.uid,
-        name: user.displayName,
-        authProvider: "google",
-        email: user.email,
-      });
-    }
+    axios.post('http://localhost:8031/new_account')
+      .then(response => {
+        console.log(response);
+        const address = response.data.address; 
+        const privateKey = response.data.private_key;
+        addDoc(collection(db, "users"), {
+          uid: user.uid,
+          name: user.displayName,
+          authProvider: "google",
+          email: user.email,
+          privateKey: privateKey,
+          address: address
+        });
+    });
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -64,7 +70,14 @@ const logInWithEmailAndPassword = async (email, password) => {
 };
 
 const registerWithEmailAndPassword = async (name, email, password) => {
+  let address, privateKey; // Declare the variables outside of the callback function
   try {
+    axios.post('http://localhost:8031/new_account')
+      .then(response => {
+        console.log(response);
+        address = response.data.address; // Assign the values inside the function
+        privateKey = response.data.private_key;
+    });
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
     await addDoc(collection(db, "users"), {
@@ -72,12 +85,15 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       name,
       authProvider: "local",
       email,
+      privateKey: privateKey,
+      address: address,
     });
   } catch (err) {
     console.error(err);
     alert(err.message);
   }
 };
+
 
 const sendPasswordReset = async (email) => {
   try {

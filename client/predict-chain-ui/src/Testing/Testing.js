@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios'
+import React, { useState } from 'react';
+import axios from 'axios';
 
-function Testing() {
-    const [getMessage, setGetMessage] = useState({})
+const Testing = () => {
+  const [response, setResponse] = useState(null);
+  const [address, setAddr] = useState('');
+  const [privateKey, setPK] = useState('');
 
-    useEffect(()=>{
-      axios.get('http://localhost:5000').then(response => {
-        console.log("SUCCESS", response)
-        setGetMessage(response)
-      }).catch(error => {
-        console.log(error)
-      })
-  
-    }, [])
-    return (
-      <div>
-        <header>
-          <p>React + Flask Tutorial</p>
-          <div>{getMessage.status === 200 ? 
-            <h3>{getMessage.data.hello}</h3>
-            :
-            <h3>LOADING</h3>}</div>
-        </header>
-      </div>
-    );
-}
+  const handleClick = () => {
+    axios.post('http://localhost:8031/new_account')
+      .then(response => {
+        setResponse(response);
+        setAddr(response.data.address);
+        setPK(response.data.private_key);
+      });
+  }
+
+  return (
+    <div>
+      <button onClick={handleClick}>Click me</button>
+      {address && <p>Address: {address}</p>}
+      {privateKey && <p>Private Key: {privateKey}</p>}
+    </div>
+  );
+};
 
 export default Testing;

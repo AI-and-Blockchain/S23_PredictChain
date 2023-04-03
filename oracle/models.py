@@ -3,6 +3,7 @@ import abc
 import dataclasses
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from oracle import dataManager
 import torch
 import torch.nn as nn
@@ -95,7 +96,7 @@ class BaseNN(nn.Module, PredictModel):
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce", **kwargs):
         super(BaseNN, self).__init__()
         self.input_size = len(data_handler.dataframe.columns)
-        self.output_size = 1
+        self.output_size = self.input_size
         local_args = locals().copy()
         local_args = {**local_args, **local_args["kwargs"]}
         local_args.pop("kwargs")
@@ -107,11 +108,11 @@ class BaseNN(nn.Module, PredictModel):
     def preprocess_data(self, **kwargs):
         ...
 
-    def train_model(self, output_attrib: str, num_epochs: int, learning_rate=0.01, optimizer_name="adam", **preprocess_kwargs):
+    def train_model(self, num_epochs: int, learning_rate=0.01, optimizer_name="adam", **kwargs):
         loss_fn = self.get_loss_fn(self.loss_fn_name)
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
-        x_train, y_train, x_test, y_test = self.preprocess_data(output_attrib, **preprocess_kwargs)
+        x_train, y_train, x_test, y_test = self.preprocess_data(**kwargs)
         for epoch in range(num_epochs):
             for input_sequence, target in zip(x_train, y_train):
                 input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
@@ -119,6 +120,9 @@ class BaseNN(nn.Module, PredictModel):
 
                 # Forward pass
                 output = self.forward(input_sequence)
+                # If output is given in batches, choose the last in the sequence
+                if len(output.shape) == 2:
+                    output = output[-1]
                 loss = loss_fn(output, target)
 
                 # Backward pass
@@ -126,22 +130,44 @@ class BaseNN(nn.Module, PredictModel):
                 loss.backward()
                 optimizer.step()
 
-    def eval_model(self):
+            if epoch % 5 == 0:
+                print(f"Evaluation for epoch {epoch}")
+                accuracy, loss = self.eval_model(**kwargs)
+                print(f"Accuracy: {accuracy}")
+                print(f"Loss: {loss}")
+
+    def eval_model(self, plot_eval=False, **kwargs):
         loss_fn = self.get_loss_fn(self.loss_fn_name)
         total_loss = 0
-        total_correct = 0
+        total_accuracy = 0
         total_entries = 0
-        for input_sequence, target in self.data_handler.data_loader():
-            input_sequence = torch.Tensor(input_sequence).view(len(input_sequence), 1, -1)
-            target = torch.Tensor(target).view(len(target), -1)
 
+        _, _, x_test, y_test = self.preprocess_data(**kwargs)
+
+        outputs = []
+        targets = []
+        for input_sequence, target in zip(x_test, y_test):
+            input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
+            target = torch.from_numpy(target).type('torch.FloatTensor')
+
+            # Forward pass
             output = self.forward(input_sequence)
+            # If output is given in batches, choose the last in the sequence
+            if len(output.shape) == 2:
+                output = output[-1]
 
-            if output == target:
-                total_correct += 1
+            cos = torch.nn.CosineSimilarity(dim=0)
+            # outputs.append(float(output[6]))
+            # targets.append(float(target[6]))
+            total_accuracy += cos(output, target)
             total_loss += loss_fn(output, target).item()
             total_entries += 1
-        return total_correct / total_entries, total_loss / total_entries
+
+        # plt.plot(range(len(outputs)), outputs)
+        # plt.plot(range(len(outputs)), targets, '-.')
+        # plt.ylabel('Output')
+        # plt.show()
+        return total_accuracy / total_entries, total_loss / total_entries
 
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
@@ -196,12 +222,10 @@ class LSTM(BaseNN):
         out = self.fc(out)
         return out
 
-    def preprocess_data(self, output_attrib: str, lookback=1, sub_split_value=None):
+    def preprocess_data(self, lookback=1, sub_split_value=None, **kwargs):
         selected_data = self.data_handler.dataframe
         if sub_split_value is not None:
             selected_data = self.data_handler.sub_splits()[sub_split_value]
-
-        output_index = np.where(selected_data.columns.values == output_attrib)[0][0]
 
         selected_data = selected_data.astype(dtype=float).to_numpy()
         time_series = []

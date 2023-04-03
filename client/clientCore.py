@@ -11,6 +11,8 @@ SECRET = ""
 
 
 class ClientState:
+    """Allows for the client state to persist between classes"""
+
     monitor: ClientTransactionMonitor = None
 
     @classmethod
@@ -39,6 +41,7 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         print("Incoming transaction: ", txn)
 
     def pop_txns(self):
+        """Removes all unobserved transactions from the queue"""
         tmp = self.txns
         self.txns = []
         return tmp

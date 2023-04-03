@@ -27,22 +27,26 @@ class DataHandler:
 
     @property
     def data(self):
+        """The raw string representing the dataset"""
         if not self._data:
             self._data = self.load_raw()
         return self._data
 
     @property
     def dataframe(self):
+        """The pandas dataframe of the dataset"""
         if self._dataframe is None:
             self._dataframe = self.load()
         return self._dataframe
 
     def load(self):
+        """Loads in the dataset as a dataframe"""
         df = pd.read_csv(io.StringIO(self.data)).astype({self.time_attrib: 'int'})
         df.sort_values(by=self.time_attrib, inplace=True)
         return df
 
     def sub_splits(self):
+        """Split dataset into parts based off of unique values in the `self.sub_split_attrib` column"""
         unique_grouping = self.dataframe.groupby(self.sub_split_attrib)
         return {key: unique_grouping.get_group(key) for key in unique_grouping.groups.keys() if key != self.sub_split_attrib}
 
@@ -60,19 +64,17 @@ class DataHandler:
 
     @abc.abstractmethod
     def save_chunk(self, data: bytes):
+        """Saves data by chunk"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def save(self, data: bytes):
-        raise NotImplementedError()
-
-    @property
-    @abc.abstractmethod
-    def data_loader(self):
+        """Saves all the data at once"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def load_raw(self) -> str:
+        """Loads the raw string of the dataset from the environment"""
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -119,24 +121,6 @@ class LocalDataHandler(DataHandler):
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
-    @property
-    def data_loader(self):
-        """Returns a generator that generates the data in the dataset"""
-        if self.mode is None:
-            self.start(self.LOAD_MODE)
-        elif self.mode != self.LOAD_MODE:
-            raise AttributeError("Cannot perform load operation when not in load mode!")
-
-        def gen():
-            """A generator to sequentially yield all the data in the set"""
-            line = self.file.readline()
-            while line:
-                yield line
-                line = self.file.readline()
-            self.file.close()
-
-        return gen()
-
     def load_raw(self):
         if self.mode is None:
             self.start(self.LOAD_MODE)
@@ -182,20 +166,6 @@ class IPFSDataHandler(DataHandler):
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.proxy_handler.save(data)
 
-    @property
-    def data_loader(self):
-        """Returns a generator that generates the data in the dataset"""
-        if self.mode is None:
-            self.start(self.LOAD_MODE)
-        elif self.mode != self.LOAD_MODE:
-            raise AttributeError("Cannot perform load operation when not in load mode!")
-
-        def gen():
-            """A generator to sequentially yield all the data in the set"""
-            yield self.load_raw()
-
-        return gen()
-
     def load_raw(self):
         if self.mode is None:
             self.start(self.LOAD_MODE)
@@ -236,5 +206,6 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
 def load_dataset(dataset_name: str):
     """Loads dataset information from both the handler and the database"""
     dataset_attribs = database.hgetall("<DS>" + dataset_name)
-    handler = LocalDataHandler(dataset_name)
+    handler = LocalDataHandler(dataset_name, dataset_attribs[b"time_attrib"].decode(),
+                               sub_split_attrib=dataset_attribs.get(b"sub_split_attrib", "").decode())
     return handler, dataset_attribs

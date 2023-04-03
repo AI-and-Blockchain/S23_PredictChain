@@ -4,14 +4,15 @@ import base64
 from flask import Flask, request
 import os
 import json
-import models
-import dataManager
+from oracle import models, dataManager
 from common import utils
 
 SECRET = ""
 
 
 class OracleState:
+    """Allows for the client state to persist between classes"""
+
     monitor: OracleTransactionMonitor = None
 
     @classmethod
@@ -103,6 +104,8 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])
                 out = model(kwargs["model_input"])
                 loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
+
+                # TODO: Get result from outside world
                 loss = loss_fn(out, target)
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, meta[1],
                                Pricing.calc_model_usage_incentive(loss)[0],
@@ -131,6 +134,11 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 app = Flask(__name__)
 
 
+@app.route('/ping', methods=["GET"])
+def ping():
+    return {"pinged": "oracle"}
+
+
 @app.route('/dataset_upload_price', methods=["GET"])
 def report_dataset_upload_price():
     """Report back the latest dataset upload price"""
@@ -150,14 +158,3 @@ def report_model_query_price():
     """Report back the latest query price"""
     price, txn_id = Pricing.calc_model_query_price(**request.args)
     return {"price": price, "txn_id": txn_id}
-
-
-if __name__ == '__main__':
-
-    if os.path.isdir("oracle"):
-        os.chdir("oracle")
-
-    monitor = OracleTransactionMonitor(utils.ORACLE_ALGO_ADDRESS)
-    monitor.monitor()
-
-    app.run(host=utils.ORACLE_SERVER_HOST, port=utils.ORACLE_SERVER_PORT)

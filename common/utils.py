@@ -2,7 +2,7 @@ import json
 import abc
 import threading
 import time
-
+import datetime
 from common.constants import *
 from algosdk import account, mnemonic
 from algosdk.transaction import PaymentTxn
@@ -98,7 +98,8 @@ class TransactionMonitor:
     pause_duration = 10
 
     def __init__(self, address: str, all_time=False):
-        self.last_round_checked = search_transactions(limit=1)[-1]["confirmed-round"]
+        now = datetime.datetime.now().isoformat().split("T")[0]
+        self.last_round_checked = search_transactions(limit=1, start_time=now)[-1]["confirmed-round"]
         self.address = address
         self.all_time = all_time
 
@@ -117,7 +118,8 @@ class TransactionMonitor:
                 transactions = search_transactions(address=self.address, address_role="receiver",
                         min_round=self.last_round_checked if not self.all_time else None, limit=10)
                 [self.process_incoming(txn) for txn in transactions]
-                self.last_round_checked = transactions[-1]["confirmed-round"]
+                if len(transactions):
+                    self.last_round_checked = transactions[-1]["confirmed-round"]
 
                 time.sleep(self.pause_duration)
 

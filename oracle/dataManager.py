@@ -4,6 +4,7 @@ import redis
 import abc
 import requests
 import os
+import pandas as pd
 from common import utils
 
 database = redis.Redis()
@@ -17,15 +18,44 @@ class DataHandler:
     LOAD_MODE = 1
     env = ""
 
-    def __init__(self, dataset_name: str):
+    def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         self.dataset_name = dataset_name
+        self.time_attrib = time_attrib
+        self.sub_split_attrib = sub_split_attrib
+        self._data: str = None
+        self._dataframe: pd.DataFrame = None
+
+    @property
+    def data(self):
+        """The raw string representing the dataset"""
+        if not self._data:
+            self._data = self.load_raw()
+        return self._data
+
+    @property
+    def dataframe(self):
+        """The pandas dataframe of the dataset"""
+        if self._dataframe is None:
+            self._dataframe = self.load()
+        return self._dataframe
+
+    def load(self):
+        """Loads in the dataset as a dataframe"""
+        df = pd.read_csv(io.StringIO(self.data)).astype({self.time_attrib: 'int'})
+        df.sort_values(by=self.time_attrib, inplace=True)
+        return df
+
+    def sub_splits(self):
+        """Split dataset into parts based off of unique values in the `self.sub_split_attrib` column"""
+        unique_grouping = self.dataframe.groupby(self.sub_split_attrib)
+        return {key: unique_grouping.get_group(key) for key in unique_grouping.groups.keys() if key != self.sub_split_attrib}
 
     @classmethod
-    def create(cls, env: str, dataset_name: str):
+    def create(cls, env: str, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         """Creates a handler based off of the environment name"""
         for sub in cls.__subclasses__():
             if sub.__name__ == env or sub.env.lower() == env.lower():
-                return sub(dataset_name)
+                return sub(dataset_name, time_attrib, sub_split_attrib)
 
     @abc.abstractmethod
     def start(self, mode: int):
@@ -34,18 +64,17 @@ class DataHandler:
 
     @abc.abstractmethod
     def save_chunk(self, data: bytes):
+        """Saves data by chunk"""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def save_all(self, data: bytes):
+    def save(self, data: bytes):
+        """Saves all the data at once"""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def get_data_loader(self, **kwargs):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def get_all(self, **kwargs):
+    def load_raw(self) -> str:
+        """Loads the raw string of the dataset from the environment"""
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -59,11 +88,13 @@ class LocalDataHandler(DataHandler):
 
     env = "local"
 
-    def __init__(self, dataset_name: str):
-        super().__init__(dataset_name)
-        self.dataset_name = dataset_name
-        self.file: io.FileIO = None
-        self.file_path = f"data/{dataset_name}"
+    def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
+        super().__init__(dataset_name, time_attrib, sub_split_attrib)
+        self.file: io.StringIO = None
+        ds_dir = f"data/{dataset_name}"
+        if not os.path.exists(ds_dir):
+            os.mkdir(ds_dir)
+        self.file_path = f"data/{dataset_name}/{dataset_name}.csv"
         self.mode = None
         """Locks the handler into one mode until finalization to avoid unexpected behavior"""
 
@@ -72,42 +103,25 @@ class LocalDataHandler(DataHandler):
         if mode == self.SAVE_MODE:
             if os.path.isfile(self.file_path):
                 raise FileExistsError()
-            self.file = open(self.file_path, "ab")
+            self.file = open(self.file_path, "a")
         elif mode == self.LOAD_MODE:
-            self.file = open(self.file_path, "rb")
+            self.file = open(self.file_path, "r")
 
-    def save_chunk(self, data: bytes):
+    def save_chunk(self, data: str):
         if self.mode is None:
             self.start(self.SAVE_MODE)
         elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
-    def save_all(self, data: bytes):
+    def save(self, data: str):
         if self.mode is None:
             self.start(self.SAVE_MODE)
         elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.file.write(data)
 
-    def get_data_loader(self, **kwargs):
-        """Returns a generator that generates the data in the dataset"""
-        if self.mode is None:
-            self.start(self.LOAD_MODE)
-        elif self.mode != self.LOAD_MODE:
-            raise AttributeError("Cannot perform load operation when not in load mode!")
-
-        def gen():
-            """A generator to sequentially yield all the data in the set"""
-            line = self.file.readline()
-            while line:
-                yield line
-                line = self.file.readline()
-            self.file.close()
-
-        return gen()
-
-    def get_all(self, **kwargs):
+    def load_raw(self):
         if self.mode is None:
             self.start(self.LOAD_MODE)
         elif self.mode != self.LOAD_MODE:
@@ -126,11 +140,11 @@ class IPFSDataHandler(DataHandler):
 
     env = "ipfs"
 
-    def __init__(self, dataset_name: str, dataset_id: str = ""):
-        super().__init__(dataset_name)
-        self.dataset_name = dataset_name
+    def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib="", dataset_id: str = ""):
+        super().__init__(dataset_name, time_attrib, sub_split_attrib)
         self.file_name = dataset_name
-        self.proxy_handler = LocalDataHandler(dataset_name)
+        self.dataset_id = dataset_id
+        self.proxy_handler = LocalDataHandler(dataset_name, time_attrib, sub_split_attrib)
         self.mode = None
         """Locks the handler into one mode until finalization to avoid unexpected behavior"""
 
@@ -138,40 +152,27 @@ class IPFSDataHandler(DataHandler):
         self.mode = mode
         self.proxy_handler.start(mode)
 
-    def save_chunk(self, data: bytes):
+    def save_chunk(self, data: str):
         if self.mode is None:
             self.start(self.SAVE_MODE)
         elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
         self.proxy_handler.save_chunk(data)
 
-    def save_all(self, data: bytes):
+    def save(self, data: str):
         if self.mode is None:
             self.start(self.SAVE_MODE)
         elif self.mode != self.SAVE_MODE:
             raise AttributeError("Cannot perform save operation when not in save mode!")
-        self.proxy_handler.save_all(data)
+        self.proxy_handler.save(data)
 
-    def get_data_loader(self, cid: str, **kwargs):
-        """Returns a generator that generates the data in the dataset"""
+    def load_raw(self):
         if self.mode is None:
             self.start(self.LOAD_MODE)
         elif self.mode != self.LOAD_MODE:
             raise AttributeError("Cannot perform load operation when not in load mode!")
 
-        def gen():
-            """A generator to sequentially yield all the data in the set"""
-            yield self.get_all(cid)
-
-        return gen()
-
-    def get_all(self, cid: str, **kwargs):
-        if self.mode is None:
-            self.start(self.LOAD_MODE)
-        elif self.mode != self.LOAD_MODE:
-            raise AttributeError("Cannot perform load operation when not in load mode!")
-
-        return web3.download(cid)
+        return web3.download(self.dataset_id)
 
     def finish(self):
         out = None
@@ -184,9 +185,12 @@ class IPFSDataHandler(DataHandler):
         return out
 
 
-def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str):
-    """Saves a dataset using the given data handler and appends an entry into the database"""
-    handler = DataHandler.create(env, dataset_name)
+def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
+    """Saves a dataset using the given data and appends an entry into the database
+    :param time_attrib: The time attribute of the dataset
+    :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets"""
+
+    handler = DataHandler.create(env, dataset_name, time_attrib, sub_split_attrib)
     size = 0
     with requests.get(link, stream=True) as r:
         r.raise_for_status()
@@ -195,11 +199,13 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
             handler.save_chunk(chunk)
 
     handler.finish()
-    database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id})
+    database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
+                                                        "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib})
 
 
 def load_dataset(dataset_name: str):
     """Loads dataset information from both the handler and the database"""
     dataset_attribs = database.hgetall("<DS>" + dataset_name)
-    handler = LocalDataHandler(dataset_name)
+    handler = LocalDataHandler(dataset_name, dataset_attribs[b"time_attrib"].decode(),
+                               sub_split_attrib=dataset_attribs.get(b"sub_split_attrib", "").decode())
     return handler, dataset_attribs

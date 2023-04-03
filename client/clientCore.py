@@ -12,6 +12,8 @@ SECRET = ""
 
 
 class ClientState:
+    """Allows for the client state to persist between classes"""
+
     monitor: ClientTransactionMonitor = None
 
     @classmethod
@@ -40,6 +42,7 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         print("Incoming transaction: ", txn)
 
     def pop_txns(self):
+        """Removes all unobserved transactions from the queue"""
         tmp = self.txns
         self.txns = []
         return tmp
@@ -109,9 +112,9 @@ CORS(app)
 # TODO: Client endpoints for communicating with front end
 
 
-@app.route('/', methods=["GET"])
-def home():
-    return {"hello": "there"}
+@app.route('/ping', methods=["GET"])
+def ping():
+    return {"pinged": "client"}
 
 
 @app.route('/new_account', methods=["POST"])

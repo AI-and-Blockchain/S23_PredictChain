@@ -6,3 +6,4 @@ scikit-learn
 redis==4.5.4
 web3storage
 beautifulsoup4
+pandas

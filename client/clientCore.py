@@ -4,6 +4,7 @@ import requests
 import json
 from flask import Flask
 from common import utils
+from flask_cors import CORS
 
 
 ADDRESS = ""
@@ -93,18 +94,18 @@ def command_line():
     command = ""
     while command != "q":
         command = input("Command: ")
-        match command:
-            case "h" | "?":
-                print(help_menu)
-            case "txn":
-                print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
-                                     note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
+        if (command == "h") or (command == "?"):
+            print(help_menu)
+        elif (command == "txt"):
+            print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
+                note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
 
     ClientState.monitor.halt()
     print("Client stop")
 
 
 app = Flask(__name__)
+CORS(app)
 # TODO: Client endpoints for communicating with front end
 
 

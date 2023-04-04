@@ -12,19 +12,17 @@ from torch.autograd import Variable
 # https://www.simplilearn.com/tutorials/machine-learning-tutorial/decision-tree-in-python
 from sklearn.tree import DecisionTreeClassifier
 
-# TODO: add GRU model
-
 
 class PredictModel:
     """Interface for unifying behavior of different predictive models"""
     model_complexity = 0.0
     base_model_name = ""
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Init function used mainly as constructor"""
         ...
 
-    def init(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+    def init(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Used to init unique values"""
         # NOTE: __init__() is not used due to multiple inheritance problems with torch.nn models
         self.model_name = model_name
@@ -63,11 +61,11 @@ class PredictModel:
         return all_subs
 
     @classmethod
-    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name="ce", **kwargs) -> PredictModel:
+    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters"""
         for sub in cls.subclass_walk(cls):
             if sub.__name__ == base_model_name or sub.base_model_name.lower() == base_model_name.lower():
-                return sub(new_model_name, data_handler, loss_fn_name, **kwargs)
+                return sub(new_model_name, data_handler, loss_fn_name=loss_fn_name, **kwargs)
 
     @abc.abstractmethod
     def train_model(self, **kwargs):
@@ -75,7 +73,7 @@ class PredictModel:
         ...
 
     @abc.abstractmethod
-    def eval_model(self):
+    def eval_model(self, **kwargs):
         """Evaluates the model"""
         ...
 
@@ -93,26 +91,23 @@ class PredictModel:
 class BaseNN(nn.Module, PredictModel):
     """Parent class encapsulating the behaviour of other neural network classes"""
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce", **kwargs):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         super(BaseNN, self).__init__()
         self.input_size = len(data_handler.dataframe.columns)
-        self.output_size = self.input_size
+        self.output_size = 1 # self.input_size
         local_args = utils.flatten_locals(locals())
         self.init(**local_args)
 
-    @abc.abstractmethod
-    def preprocess_data(self, **kwargs):
-        ...
-
-    def train_model(self, num_epochs: int, learning_rate=0.01, optimizer_name="adam", **kwargs):
+    def train_model(self, num_epochs: int, target_attrib: str, learning_rate=0.01, optimizer_name="adam", **kwargs):
+        """Trains the current neural net, giving regular eval updates over training"""
         loss_fn = self.get_loss_fn(self.loss_fn_name)
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
-        x_train, y_train, x_test, y_test = self.preprocess_data(**kwargs)
+        x_train, y_train, x_test, y_test = self.preprocess_data(target_attrib=target_attrib, **kwargs)
         for epoch in range(num_epochs):
             for input_sequence, target in zip(x_train, y_train):
                 input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
-                target = torch.from_numpy(target).type('torch.FloatTensor')
+                target = torch.tensor([target]).type('torch.FloatTensor')
 
                 # Forward pass
                 output = self.forward(input_sequence)
@@ -128,23 +123,24 @@ class BaseNN(nn.Module, PredictModel):
 
             if epoch % 5 == 0:
                 print(f"Evaluation for epoch {epoch}")
-                accuracy, loss = self.eval_model(**kwargs)
+                accuracy, loss = self.eval_model(target_attrib, **kwargs)
                 print(f"Accuracy: {accuracy}")
                 print(f"Loss: {loss}")
 
-    def eval_model(self, plot_eval=False, **kwargs):
+    def eval_model(self, target_attrib: str, plot_eval=False, **kwargs):
+        """Evaluates the performance of the network"""
         loss_fn = self.get_loss_fn(self.loss_fn_name)
         total_loss = 0
         total_accuracy = 0
         total_entries = 0
 
-        _, _, x_test, y_test = self.preprocess_data(**kwargs)
+        _, _, x_test, y_test = self.preprocess_data(target_attrib=target_attrib, **kwargs)
 
         outputs = []
         targets = []
         for input_sequence, target in zip(x_test, y_test):
             input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
-            target = torch.from_numpy(target).type('torch.FloatTensor')
+            target = torch.tensor([target]).type('torch.FloatTensor')
 
             # Forward pass
             output = self.forward(input_sequence)
@@ -153,17 +149,45 @@ class BaseNN(nn.Module, PredictModel):
                 output = output[-1]
 
             cos = torch.nn.CosineSimilarity(dim=0)
-            # outputs.append(float(output[6]))
-            # targets.append(float(target[6]))
+            outputs.append(float(output))
+            targets.append(float(target))
             total_accuracy += cos(output, target)
             total_loss += loss_fn(output, target).item()
             total_entries += 1
 
-        # plt.plot(range(len(outputs)), outputs)
-        # plt.plot(range(len(outputs)), targets, '-.')
-        # plt.ylabel('Output')
-        # plt.show()
+        if plot_eval:
+            plt.plot(range(len(outputs)), outputs)
+            plt.plot(range(len(outputs)), targets, '-.')
+            plt.ylabel('Output')
+            plt.show()
+
         return total_accuracy / total_entries, total_loss / total_entries
+
+    def preprocess_data(self, target_attrib: str, lookback=1, sub_split_value=None, **kwargs):
+        """Processes the dataframe from the data handler into labeled training and testing sets"""
+        selected_data = self.data_handler.dataframe
+
+        if sub_split_value is not None:
+            selected_data = self.data_handler.sub_splits()[sub_split_value]
+
+        selected_data = selected_data.astype(dtype=float).to_numpy()
+        time_series = []
+
+        # Sliding window data
+        for index in range(len(selected_data) - lookback):
+            time_series.append(selected_data[index: index + lookback])
+
+        train_len = int(0.8*len(time_series))
+        time_series = np.array(time_series)
+
+        x_train = time_series[:train_len, :-1, :]
+        x_test = time_series[train_len:, :-1]
+
+        target_attrib_idx = self.data_handler.dataframe.columns.get_loc(target_attrib)
+        y_train = time_series[:train_len, -1, target_attrib_idx]
+        y_test = time_series[train_len:, -1, target_attrib_idx]
+
+        return x_train, y_train, x_test, y_test
 
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
@@ -175,11 +199,11 @@ class BaseNN(nn.Module, PredictModel):
 
 
 class MLP(BaseNN):
-    """DNN implementation"""
+    """Multi-layered perceptron implementation"""
 
     base_model_name = "MLP"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         super(MLP, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
         self.fully_connected = [nn.Linear(self.input_size, hidden_dim)]
         # Fully connected layers
@@ -197,49 +221,65 @@ class MLP(BaseNN):
         return x
 
 
-# Define the model
+class GRU(BaseNN):
+    """GRU implementation"""
+    # https://blog.floydhub.com/gru-with-pytorch/
+
+    base_model_name = "GRU"
+
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
+        super(GRU, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        self.hidden_dim = hidden_dim
+        self.num_hidden_layers = num_hidden_layers
+
+        # GRU
+        self.gru = nn.GRU(self.input_size, hidden_dim, num_hidden_layers, dropout=drop_prob)
+        self.fc = nn.Linear(hidden_dim, self.output_size)
+        self.relu = nn.ReLU()
+
+        self.model_complexity = self.input_size + hidden_dim * num_hidden_layers + self.output_size
+
+    def forward(self, x):
+        out, h = self.gru(x)
+        out = self.fc(self.relu(out))
+        return out
+
+    def init_hidden(self, batch_size):
+        weight = next(self.parameters()).data
+        hidden = weight.new(self.num_hidden_layers, batch_size, self.hidden_dim).zero_()
+        return hidden
+
+
 class LSTM(BaseNN):
     """LSTM implementation"""
     # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
+    # https://blog.floydhub.com/gru-with-pytorch/
 
     base_model_name = "LSTM"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
         super(LSTM, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        self.hidden_dim = hidden_dim
+        self.num_hidden_layers = num_hidden_layers
+
         # LSTM
-        self.lstm = nn.LSTM(self.input_size, hidden_dim, num_hidden_layers)
+        self.lstm = nn.LSTM(self.input_size, hidden_dim, num_hidden_layers, dropout=drop_prob)
         # Fully connected layer
         self.fc = nn.Linear(hidden_dim, self.output_size)
+        self.relu = nn.ReLU()
 
         self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
 
     def forward(self, x):
-        out, _ = self.lstm(x)
-        out = self.fc(out)
+        out, h = self.lstm(x)
+        out = self.fc(self.relu(out))
         return out
 
-    def preprocess_data(self, lookback=1, sub_split_value=None, **kwargs):
-        selected_data = self.data_handler.dataframe
-        if sub_split_value is not None:
-            selected_data = self.data_handler.sub_splits()[sub_split_value]
-
-        selected_data = selected_data.astype(dtype=float).to_numpy()
-        time_series = []
-
-        # Sliding window data
-        for index in range(len(selected_data) - lookback):
-            time_series.append(selected_data[index: index + lookback])
-
-        train_len = int(0.8*len(time_series))
-        time_series = np.array(time_series)
-
-        x_train = time_series[:train_len, :-1, :]
-        y_train = time_series[:train_len, -1, :]
-
-        x_test = time_series[train_len:, :-1]
-        y_test = time_series[train_len:, -1, :]
-
-        return x_train, y_train, x_test, y_test
+    def init_hidden(self, batch_size):
+        weight = next(self.parameters()).data
+        hidden = (weight.new(self.n_layers, batch_size, self.hidden_dim).zero_(),
+                  weight.new(self.n_layers, batch_size, self.hidden_dim).zero_())
+        return hidden
 
 
 class RNN(BaseNN):
@@ -248,7 +288,7 @@ class RNN(BaseNN):
 
     base_model_name = "RNN"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "ce"):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
         # Number of hidden dimensions
         self.hidden_dim = hidden_dim
@@ -275,7 +315,7 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
 
     base_model_name = "DTree"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "ce", **kwargs):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         super(DecisionTree, self).__init__(**kwargs)
         self.init(model_name, data_handler, loss_fn_name, **kwargs)
         self.model_complexity = self.get_n_leaves() + self.get_depth()
@@ -306,9 +346,6 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
     def load(self, save_location):
         # TODO: Load tree params
         ...
-
-
-# TODO: Add more basic models
 
 
 def get_trained_model(model_name: str):

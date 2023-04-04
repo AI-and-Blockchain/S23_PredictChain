@@ -131,9 +131,9 @@ class TransactionMonitor:
 
 def flatten_locals(local_args: dict):
     """Takes in an attribute dict from `locals()`, inlines any kwargs and removes special keys"""
-    local_args = {**local_args.copy(), **local_args.copy()["kwargs"]}
-    local_args.pop("kwargs")
-    local_args.pop("self")
-    local_args.pop("__class__")
+    local_args = {**local_args.copy(), **local_args.copy().get("kwargs", {})}
+    for key in ["kwargs", "self", "__class__"]:
+        if key in local_args:
+            local_args.pop(key)
 
     return local_args

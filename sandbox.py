@@ -16,7 +16,7 @@ def sandbox():
 
     handler = dataManager.LocalDataHandler("dow_jones_index", "time_step", "stock")
 
-    model = models.PredictModel.create("GRU", "tom", handler, hidden_dim=5, num_hidden_layers=1)
+    model = models.PredictModel.create("MLP", "tom", handler, hidden_dim=5, num_hidden_layers=1)
     model.train_model(target_attrib="close", num_epochs=50, lookback=10, sub_split_value=0, plot_eval=True)
 
 

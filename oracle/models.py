@@ -205,20 +205,20 @@ class MLP(BaseNN):
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         super(MLP, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
-        self.fully_connected = [nn.Linear(self.input_size, hidden_dim)]
         # Fully connected layers
+        fcs = [nn.Linear(self.input_size, hidden_dim), nn.ReLU()]
         for _ in range(num_hidden_layers-1):
-            self.fully_connected.append(nn.Linear(hidden_dim, hidden_dim))
+            fcs.extend([nn.Linear(hidden_dim, hidden_dim), nn.ReLU()])
+        fcs.append(nn.Linear(hidden_dim, self.output_size))
 
-        self.fully_connected.append(nn.Linear(hidden_dim, self.output_size))
+        # Store layers into sequential
+        self.seq = nn.Sequential(*fcs)
 
         self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
 
     def forward(self, x):
-        for layer in self.fully_connected[:-1]:
-            x = torch.nn.functional.relu(layer(x))
-        x = torch.nn.functional.sigmoid(self.fully_connected[-1](x))
-        return x
+        out = self.seq(x)
+        return out
 
 
 class GRU(BaseNN):
@@ -290,11 +290,11 @@ class RNN(BaseNN):
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
-        # Number of hidden dimensions
         self.hidden_dim = hidden_dim
+        self.num_hidden_layers = num_hidden_layers
 
         # RNN
-        self.rnn = nn.RNN(self.input_size, hidden_dim, num_hidden_layers, batch_first=True, nonlinearity='relu')
+        self.rnn = nn.RNN(self.input_size, hidden_dim, num_hidden_layers, nonlinearity='relu')
         # Fully connected
         self.fc = nn.Linear(hidden_dim, self.output_size)
 
@@ -302,11 +302,10 @@ class RNN(BaseNN):
 
     def forward(self, x):
         # Initialize hidden state with zeros
-        h0 = Variable(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim))
 
         # One time step
-        out, hn = self.rnn(x, h0)
-        out = self.fc(out[:, -1, :])
+        out, h = self.rnn(x)
+        out = self.fc(out)
         return out
 
 

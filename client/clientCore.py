@@ -115,9 +115,7 @@ def ping():
 
 @app.route('/new_account', methods=["POST"])
 def create_new_account():
-    print("HERE")
     addr, priv = utils.create_account()
-    print(addr);
     return {"address": addr, "private_key": priv}
 
 

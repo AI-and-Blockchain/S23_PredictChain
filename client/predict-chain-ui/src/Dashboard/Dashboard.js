@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import { auth, db, logout } from "../firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
+import axios from "axios";
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
@@ -11,6 +12,14 @@ function Dashboard() {
   const [pk, setPK] = useState("");
   const [addr, setAddr] = useState("");
   const navigate = useNavigate();
+  const [transactions, setTransactions] = useState([]);
+
+  const handleUpdateState = () => {
+    axios.get('http://localhost:8031/update_state')
+      .then(response => {setTransactions(response.data.transactions); console.log(response);})
+      .catch(error => console.error(error));
+  }
+
 
   const fetchUserName = async () => {
       const q = query(collection(db, "users"), where("uid", "==", user?.uid));
@@ -50,6 +59,14 @@ function Dashboard() {
             Logout
           </button>
         </div>
+      </div>
+      <div>
+        <button onClick={handleUpdateState}>Update State</button>
+        <ul>
+          {transactions.map((txn, index) => (
+            <li key={index}>{txn}</li>
+          ))}
+        </ul>
       </div>
       <div className="fixed-footer">
           <nav>

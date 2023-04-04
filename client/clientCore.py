@@ -44,37 +44,36 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         return tmp
 
 
-def get_dataset_upload_price(size: int):
+def get_dataset_upload_price(ds_size: int):
     """Retrieves the upload price from the oracle.  This can be verified with the returned txn_id"""
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?size={size}"))
+    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?ds_size={ds_size}"))
     return resp.json()
 
 
-def get_model_train_price(raw_model: str, dataset_name: str):
+def get_model_train_price(raw_model: str, ds_name: str):
     """Retrieves the model price from the oracle.  This can be verified with the returned txn_id"""
     resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS,
-                        f"model_train_price?model={raw_model}&dataset_name={dataset_name}"))
+                        f"model_train_price?raw_model={raw_model}&ds_name={ds_name}"))
     return resp.json()
 
 
 def get_model_query_price(trained_model: str):
     """Retrieves the model price from the oracle.  This can be verified with the returned txn_id"""
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"model_query_price?model={trained_model}"))
+    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"model_query_price?trained_model={trained_model}"))
     return resp.json()
 
 
-def add_dataset(link: str, dataset_name: str, data_size: int):
+def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-
-    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
+    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size),
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
-def train_model(raw_model: str, new_model: str, dataset_name: str, **kwargs):
+def train_model(raw_model: str, trained_model: str, ds_name: str, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
+    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, ds_name),
                           note=json.dumps(utils.flatten_locals(locals())))
 
 

@@ -1,5 +1,8 @@
 from __future__ import annotations
+
+import math
 import sys
+import torch
 import base64
 from flask import Flask, request
 import os
@@ -28,43 +31,59 @@ class Pricing:
     mult_cache = {}
 
     @classmethod
-    def calc_ds_usage_incentive(cls, size: int, loss: float):
+    def calc_ds_usage_incentive(cls, ds_size: int, accuracy: float):
         """Calculates and returns the reward for a database being used in a model"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.DS_INCENTIVE)
-        return int(size * mult / loss), txn_id
+        return int(ds_size * mult / accuracy), txn_id
 
     @classmethod
-    def calc_model_usage_incentive(cls, loss: float):
+    def calc_model_usage_incentive(cls, accuracy: float):
         """Calculates and returns the reward for a model being used"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.MODEL_INCENTIVE)
-        return int(mult / loss), txn_id
+        return int(mult / accuracy), txn_id
 
     @classmethod
-    def calc_dataset_upload_price(cls, size: int):
+    def calc_dataset_upload_price(cls, ds_size: int):
         """Calculates and returns the latest price and the txn_id where it was changed"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.UP_DATASET)
-        return int(size * mult), txn_id
+        return int(ds_size * mult), txn_id
 
     @classmethod
-    def calc_model_train_price(cls, raw_model: str, dataset_name: str, **kwargs):
+    def calc_model_train_price(cls, raw_model: str, ds_name: str, **kwargs):
         """Calculates and returns the latest price and the txn_id where it was changed"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
-        model = models.PredictModel.create(raw_model, **kwargs)
-        dataset = dataManager.database.get(dataset_name)
-        return int(model.model_complexity * mult * dataset["size"]), txn_id
+        if "new_model_name" not in kwargs:
+            kwargs["new_model_name"] = "tmp"
+
+        handler = dataManager.load_dataset(ds_name)[0]
+        model = models.PredictModel.create(raw_model, data_handler=handler, **kwargs)
+        return int(model.model_complexity * mult * handler.size), txn_id
 
     @classmethod
-    def calc_model_query_price(cls, model_name: str):
+    def calc_model_query_price(cls, trained_model: str):
         """Calculates and returns the latest price and the txn_id where it was changed"""
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.QUERY_MODEL)
-        model = models.get_trained_model(model_name)[0]
+        model = models.get_trained_model(trained_model)[0]
         return int(model.model_complexity * mult), txn_id
 
+    @classmethod
+    def calc_op_price(cls, op: str, ds_size=None, raw_model=None, trained_model=None, ds_name=None, **kwargs):
+        """Helper method to get the price for any given operation"""
+        match op:
+            case utils.OpCodes.UP_DATASET:
+                return cls.calc_dataset_upload_price(ds_size)
+            case utils.OpCodes.QUERY_MODEL:
+                return cls.calc_model_query_price(trained_model)
+            case utils.OpCodes.TRAIN_MODEL:
+                return cls.calc_model_train_price(raw_model, ds_name, **kwargs)
     @classmethod
     def get_price_multiplier(cls, mul_op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the txn_id where it was last changed"""
         if not cls.mult_cache.get(mul_op):
-            cls.mult_cache[mul_op] = dataManager.database.hgetall("<PRICE>" + mul_op)
+            db_mul = dataManager.database.hgetall("<PRICE>" + mul_op)
+            if not len(db_mul):
+                db_mul = {"mul": 1, "txn_id": "0txn"}
+            cls.mult_cache[mul_op] = db_mul
 
         return cls.mult_cache[mul_op]["mul"], cls.mult_cache[mul_op]["txn_id"]
 
@@ -91,7 +110,14 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         txn["note"] = json.loads(base64.b64decode(txn["note"]).decode())
         # Split into OP and ARGS
         op = txn["note"].pop("op")
-        kwargs: dict = {**txn["note"].pop("kwargs"), **txn["note"]}
+        kwargs = {**txn["note"]}
+
+        op_price, _ = Pricing.calc_op_price(op, **kwargs)
+        if txn["amount"] < op_price:
+            # Reject transaction
+            utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, txn["sender"], txn["amount"],
+                           note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": "UNDERFUNDED"}))
+            return
 
         match op:
             case utils.OpCodes.UP_DATASET:
@@ -99,30 +125,31 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])
-                out = model(kwargs["model_input"])
+                output = model(kwargs["model_input"])
                 loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
 
                 # TODO: Get result from outside world
-                loss = loss_fn(out, target)
+                accuracy = float(torch.sigmoid(-loss_fn(output, target)+math.e**2))
+
                 # Reward model trainer
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, meta[1],
-                               Pricing.calc_model_usage_incentive(loss)[0],
+                               Pricing.calc_model_usage_incentive(accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "model_name": model.model_name}))
                 # Reward dataset uploader
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, ds_meta[1],
-                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
                 # Report result back to the user
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, txn["sender"], 0,
-                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "query_result": out}))
+                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "query_result": output}))
 
             case utils.OpCodes.UPDATE_PRICE:
                 # Handle any additional price change logic here if needed
                 ...
 
             case utils.OpCodes.TRAIN_MODEL:
-                handler, dataset_attribs = dataManager.load_dataset(kwargs["dataset_name"])
+                handler, dataset_attribs = dataManager.load_dataset(kwargs["ds_name"])
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)
 
@@ -130,7 +157,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                                Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
                                note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
-                models.save_trained_model(model, f"models/{kwargs['new_model']}", txn["id"], txn["sender"])
+                models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
 
 
 app = Flask(__name__)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 import abc
 import dataclasses
+import math
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -121,7 +123,7 @@ class BaseNN(nn.Module, PredictModel):
                 loss.backward()
                 optimizer.step()
 
-            if epoch % 5 == 0:
+            if epoch % 20 == 0:
                 print(f"Evaluation for epoch {epoch}")
                 accuracy, loss = self.eval_model(target_attrib, **kwargs)
                 print(f"Accuracy: {accuracy}")
@@ -148,10 +150,9 @@ class BaseNN(nn.Module, PredictModel):
             if len(output.shape) == 2:
                 output = output[-1]
 
-            cos = torch.nn.CosineSimilarity(dim=0)
             outputs.append(float(output))
             targets.append(float(target))
-            total_accuracy += cos(output, target)
+            total_accuracy += torch.sigmoid(-loss_fn(output, target)+math.e**2)
             total_loss += loss_fn(output, target).item()
             total_entries += 1
 

@@ -1,4 +1,6 @@
+import json
 import sys
+import base64
 import os
 import datetime
 import pandas as pd
@@ -14,10 +16,22 @@ def sandbox():
 
     # datasets.load_data("data/dow_jones_index/preprocessed.csv")
 
-    handler = dataManager.LocalDataHandler("dow_jones_index", "time_step", "stock")
+    # handler = dataManager.LocalDataHandler("dow_jones_index", "time_step", "stock")
 
-    model = models.PredictModel.create("MLP", "tom", handler, hidden_dim=5, num_hidden_layers=1)
-    model.train_model(target_attrib="close", num_epochs=50, lookback=10, sub_split_value=0, plot_eval=True)
+    # model = models.PredictModel.create("GRU", "tom", handler, hidden_dim=5, num_hidden_layers=1)
+    # model.train_model(target_attrib="close", num_epochs=50, lookback=10, sub_split_value=0, plot_eval=True)
+
+    # link = "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv"
+    # dataManager.save_dataset("local", "dow_jones_index", link, "0txn", "0user", "time_step", sub_split_attrib="stock")
+
+    mock_txn = {"id": "0txn", "sender": "0user", "amount": float("inf"), "note": base64.b64encode(json.dumps({
+        "op": utils.OpCodes.TRAIN_MODEL, "ds_name": "dow_jones_index", "raw_model": "GRU", "trained_model": "test",
+        "hidden_dim": 5, "num_hidden_layers": 1
+    }).encode())}
+
+    oracleCore.OracleState.init()
+    oracleCore.OracleState.monitor.process_incoming(mock_txn)
+
 
 
 if __name__ == "__main__":

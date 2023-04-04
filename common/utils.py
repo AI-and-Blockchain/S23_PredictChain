@@ -1,5 +1,6 @@
 import json
 import abc
+import base64
 import threading
 import time
 import datetime
@@ -15,7 +16,8 @@ def check_balance(address: str):
 
 
 def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: str = None):
-    """Creats a transaction and sends it to the blockchain"""
+    """Creates a transaction and sends it to the blockchain
+    :return: The transaction ID"""
     params = ALGOD_CLIENT.suggested_params()
     # params.flat_fee = True
     # params.fee = 1000
@@ -125,3 +127,13 @@ class TransactionMonitor:
 
         thread = threading.Thread(target=inner_mon, args=())
         thread.start()
+
+
+def flatten_locals(local_args: dict):
+    """Takes in an attribute dict from `locals()`, inlines any kwargs and removes special keys"""
+    local_args = {**local_args.copy(), **local_args.copy()["kwargs"]}
+    local_args.pop("kwargs")
+    local_args.pop("self")
+    local_args.pop("__class__")
+
+    return local_args

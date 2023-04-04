@@ -14,10 +14,10 @@ def sandbox():
 
     # datasets.load_data("data/dow_jones_index/preprocessed.csv")
 
-    handler = dataManager.LocalDataHandler("dow_jones_index", "time_step", "stock")
+    # handler = dataManager.LocalDataHandler("dow_jones_index", "time_step", "stock")
 
-    model = models.LSTM("tom", handler, 5, 1)
-    model.train_model(num_epochs=50, lookback=10, sub_split_value=0, plot_eval=True)
+    # model = models.LSTM("tom", handler, 5, 1)
+    # model.train_model(num_epochs=50, lookback=10, sub_split_value=0, plot_eval=True)
 
 
 if __name__ == "__main__":

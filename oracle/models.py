@@ -4,6 +4,7 @@ import dataclasses
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from common import utils
 from oracle import dataManager
 import torch
 import torch.nn as nn
@@ -29,8 +30,7 @@ class PredictModel:
         self.model_name = model_name
         self.data_handler = data_handler
         self.loss_fn_name = loss_fn_name
-        self.kwargs = {"model_name": model_name, "dataset_name": data_handler.dataset_name,
-                       "loss_fn_name": loss_fn_name, **locals().copy()["kwargs"]}
+        self.kwargs = utils.flatten_locals(locals())
 
     @staticmethod
     def get_loss_fn(name: str):
@@ -97,11 +97,7 @@ class BaseNN(nn.Module, PredictModel):
         super(BaseNN, self).__init__()
         self.input_size = len(data_handler.dataframe.columns)
         self.output_size = self.input_size
-        local_args = locals().copy()
-        local_args = {**local_args, **local_args["kwargs"]}
-        local_args.pop("kwargs")
-        local_args.pop("self")
-        local_args.pop("__class__")
+        local_args = utils.flatten_locals(locals())
         self.init(**local_args)
 
     @abc.abstractmethod

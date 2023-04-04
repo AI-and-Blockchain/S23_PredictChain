@@ -7,24 +7,20 @@ import json
 from oracle import models, dataManager
 from common import utils
 
-SECRET = ""
-
 
 class OracleState:
     """Allows for the client state to persist between classes"""
 
+    SECRET = ""
     monitor: OracleTransactionMonitor = None
 
     @classmethod
     def init(cls):
-        load_creds()
+        with open(".creds/test_oracle_creds", "r") as file:
+            file.readline() # throw out address as it is not needed
+            cls.SECRET = file.readline().strip("\n")
+
         cls.monitor = OracleTransactionMonitor()
-
-
-def load_creds():
-    global SECRET
-    with open(".creds/test_oracle_creds", "r") as file:
-        SECRET = file.readline()
 
 
 class Pricing:
@@ -65,22 +61,23 @@ class Pricing:
         return int(model.model_complexity * mult), txn_id
 
     @classmethod
-    def get_price_multiplier(cls, op: str) -> tuple[float, str]:
+    def get_price_multiplier(cls, mul_op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the txn_id where it was last changed"""
-        if not cls.mult_cache.get(op):
-            cls.mult_cache[op] = dataManager.database.hgetall("<PRICE>" + op)
+        if not cls.mult_cache.get(mul_op):
+            cls.mult_cache[mul_op] = dataManager.database.hgetall("<PRICE>" + mul_op)
 
-        return cls.mult_cache[op]["mul"], cls.mult_cache[op]["txn_id"]
+        return cls.mult_cache[mul_op]["mul"], cls.mult_cache[mul_op]["txn_id"]
 
     @classmethod
-    def set_price_multiplier(cls, op: str, new_mul: float):
+    def set_price_multiplier(cls, mul_op: str, new_mul: float):
         """Sends an update txn.  Stores txn_id and the new price multiplier in the database"""
-        txn = utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
-                             note=f"{utils.OpCodes.UPDATE_PRICE}<ARG>:{op}<ARG>:{new_mul}")
+        op = utils.OpCodes.UPDATE_PRICE  # op is included in locals() and is passed inside the note
+        txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, utils.ORACLE_ALGO_ADDRESS, 0,
+                             note=json.dumps(utils.flatten_locals(locals())))
 
-        cls.mult_cache[op] = {"op": op, "mul": new_mul, "txn_id": txn["id"]}
+        cls.mult_cache[mul_op] = {"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id}
         # Save txn_id to database
-        dataManager.database.hset("<PRICE>"+op, mapping={"op": op, "mul": new_mul, "txn_id": txn["id"]})
+        dataManager.database.hset("<PRICE>" + mul_op, mapping={"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id})
 
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
@@ -107,14 +104,19 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
                 # TODO: Get result from outside world
                 loss = loss_fn(out, target)
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, meta[1],
+                # Reward model trainer
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, meta[1],
                                Pricing.calc_model_usage_incentive(loss)[0],
-                               note=f"{utils.OpCodes.MODEL_INCENTIVE}<ARG>:{model.model_name}")
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, ds_meta[1],
+                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "model_name": model.model_name}))
+                # Reward dataset uploader
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, ds_meta[1],
                                Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
-                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
-                return out
+                # Report result back to the user
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, txn["sender"], 0,
+                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "query_result": out}))
+
             case utils.OpCodes.UPDATE_PRICE:
                 # Handle any additional price change logic here if needed
                 ...
@@ -124,9 +126,9 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)
 
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, SECRET, dataset_attribs["user_id"],
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.SECRET, dataset_attribs["user_id"],
                                Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
-                               note=f"{utils.OpCodes.DS_INCENTIVE}<ARG>:{model.data_handler.dataset_name}")
+                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
                 models.save_trained_model(model, f"models/{kwargs['new_model']}", txn["id"], txn["sender"])
 
@@ -136,6 +138,7 @@ app = Flask(__name__)
 
 @app.route('/ping', methods=["GET"])
 def ping():
+    """Accepts pings to report that the oracle is running properly"""
     return {"pinged": "oracle"}
 
 

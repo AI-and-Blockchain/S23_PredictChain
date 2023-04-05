@@ -33,7 +33,7 @@ function HomePage() {
         <br/>
         <div className="text" style={{marginTop: '50px'}}>
           <h1 style={{textAlign: "center"}}>Who are we?</h1>
-          <h4 style={{fontSize: "30px", fontWeight: "lighter", textAlign: "center"}}>Just a group of <a href="https://www.rpi.edu" className="temp">RPI</a> students in an AI & Blockchain class. More in-depth detail located in our "<a href="/mtt" className="temp">Meet The Team</a>" page!</h4>
+          <h4 style={{fontSize: "30px", fontWeight: "lighter", textAlign: "center"}}>Just a group of <a href="https://www.rpi.edu" className="temp">RPI</a> students in an AI & Blockchain class. This is our group project of the Spring 2023 semester. More in-depth detail located in our <a href="/mtt" className="temp">Meet The Team</a> page!</h4>
         </div>
         <br/>
         <Footer/>

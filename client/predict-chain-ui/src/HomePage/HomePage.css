@@ -37,4 +37,5 @@ a:hover{
     color:black;
     font-weight: lighter;
     font-size: 30px;
+    text-decoration: underline;
 }

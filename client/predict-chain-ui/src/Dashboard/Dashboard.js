@@ -16,7 +16,7 @@ function Dashboard() {
 
   const handleUpdateState = () => {
     axios.get('http://localhost:8031/update_state')
-      .then(response => {setTransactions(response.data.transactions); console.log(response);})
+      .then(response => {setTransactions(response.data.transactions);})
       .catch(error => console.error(error));
   }
 

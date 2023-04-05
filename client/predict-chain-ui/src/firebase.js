@@ -42,7 +42,6 @@ const signInWithGoogle = async () => {
     const user = res.user;
     axios.post('http://localhost:8031/new_account')
       .then(response => {
-        console.log(response);
         const address = response.data.address; 
         const privateKey = response.data.private_key;
         addDoc(collection(db, "users"), {
@@ -74,7 +73,6 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   try {
     axios.post('http://localhost:8031/new_account')
       .then(response => {
-        console.log(response);
         address = response.data.address; // Assign the values inside the function
         privateKey = response.data.private_key;
     });

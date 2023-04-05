@@ -83,8 +83,6 @@ def query_model(trained_model: str, model_input):
 
 app = Flask(__name__)
 CORS(app)
-# TODO: Client endpoints for communicating with front end
-
 
 @app.route('/ping', methods=["GET"])
 def ping():
@@ -104,3 +102,29 @@ def update_state():
     """Gets a report of recent updates to the state of the blockchain and reports them back to the user"""
     txns = ClientState.monitor.pop_txns()
     return {"transactions": txns}
+
+"""
+@app.route('/get_dataset_upload_size', methods=["GET"])
+def dataset_upload_size():
+    return 
+
+@app.route('/get_model_train_price', methods=["GET"])
+def model_train_price():
+    return 
+
+@app.route('/get_model_query_price', methods=["GET"])
+def model_query_price():
+    return 
+
+@app.route('/add_dataset', methods=["GET"])
+def add_dataset_api():
+    return 
+
+@app.route('/train_model', methods=["GET"])
+def train_model_api():
+    return 
+
+@app.route('/query_model', methods=["GET"])
+def query_model_api():
+    return 
+"""

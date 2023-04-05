@@ -5,8 +5,7 @@ function MTT() {
     return (
         <div>
             <Header/>
-            <br/>
-            <br/>
+            <h1 style={{textAlign: "center",  fontSize: "56px", textDecoration: "underline"}}>Meet The Team!</h1>
             <br/>
             <div class="row">
                 <div class="column">

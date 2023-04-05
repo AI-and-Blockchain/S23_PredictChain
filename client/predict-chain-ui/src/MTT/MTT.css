@@ -16,7 +16,7 @@
 
 /* Add some shadows to create a card effect */
 .card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 4px 8px 8px 4px rgba(0, 0, 0, 0.2);
   margin-left: 100px;
 }
 

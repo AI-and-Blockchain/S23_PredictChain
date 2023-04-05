@@ -6,24 +6,21 @@ from flask import Flask
 from common import utils
 from flask_cors import CORS
 
-ADDRESS = ""
-SECRET = ""
+
 
 
 class ClientState:
+    ADDRESS = ""
+    SECRET = ""
     monitor: ClientTransactionMonitor = None
 
     @classmethod
     def init(cls):
-        load_creds()
-        cls.monitor = ClientTransactionMonitor(ADDRESS)
+        with open(".creds/test_client_creds", "r") as file:
+            cls.ADDRESS = file.readline().strip("\n")
+            cls.SECRET = file.readline().strip("\n")
 
-
-def load_creds():
-    global ADDRESS, SECRET
-    with open(".creds/test_client_creds", "r") as file:
-        ADDRESS = file.readline().strip("\n")
-        SECRET = file.readline().strip("\n")
+        cls.monitor = ClientTransactionMonitor(cls.ADDRESS)
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):
@@ -44,63 +41,44 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         return tmp
 
 
-def get_dataset_upload_price(size: int):
+def get_dataset_upload_price(ds_size: int):
     """Retrieves the upload price from the oracle.  This can be verified with the returned txn_id"""
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?size={size}"))
+    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?ds_size={ds_size}"))
     return resp.json()
 
 
-def get_model_train_price(raw_model: str, dataset_name: str):
+def get_model_train_price(raw_model: str, ds_name: str):
     """Retrieves the model price from the oracle.  This can be verified with the returned txn_id"""
     resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS,
-                        f"model_train_price?model={raw_model}&dataset_name={dataset_name}"))
+                        f"model_train_price?raw_model={raw_model}&ds_name={ds_name}"))
     return resp.json()
 
 
 def get_model_query_price(trained_model: str):
     """Retrieves the model price from the oracle.  This can be verified with the returned txn_id"""
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"model_query_price?model={trained_model}"))
+    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"model_query_price?trained_model={trained_model}"))
     return resp.json()
 
 
-def add_dataset(link: str, dataset_name: str, data_size: int):
+def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(data_size),
-                          note=json.dumps(locals().copy()))
+    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size),
+                          note=json.dumps(utils.flatten_locals(locals())))
 
 
-def train_model(raw_model: str, new_model: str, dataset_name: str, **kwargs):
+def train_model(raw_model: str, trained_model: str, ds_name: str, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model"""
     op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, dataset_name),
-                          note=json.dumps(locals().copy()))
+    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, ds_name),
+                          note=json.dumps(utils.flatten_locals(locals())))
 
 
 def query_model(trained_model: str, model_input):
     """Creates a transaction to ask for a query from the specified model"""
     op = utils.OpCodes.QUERY_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
-                          note=json.dumps(locals().copy()))
-
-
-def command_line():
-    help_menu = """\
-            h, ?: Help menu
-            q: Quit
-        """
-
-    command = ""
-    while command != "q":
-        command = input("Command: ")
-        if (command == "h") or (command == "?"):
-            print(help_menu)
-        elif (command == "txn"):
-            print(utils.transact(ADDRESS, SECRET, utils.ORACLE_ALGO_ADDRESS, 1,
-                note=f"{utils.OpCodes.UP_DATASET}<ARG>:testarg1<ARG>:testarg2"))
-
-    ClientState.monitor.halt()
-    print("Client stop")
+    return utils.transact(ClientState.ADDRESS, ClientState.SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
+                          note=json.dumps(utils.flatten_locals(locals())))
 
 
 app = Flask(__name__)
@@ -110,17 +88,19 @@ CORS(app)
 
 @app.route('/ping', methods=["GET"])
 def ping():
+    """Accepts pings to report that the client is running properly"""
     return {"pinged": "client"}
 
 
 @app.route('/new_account', methods=["POST"])
 def create_new_account():
+    """Creates a new account keypair and returns it"""
     addr, priv = utils.create_account()
     return {"address": addr, "private_key": priv}
 
 
 @app.route('/update_state', methods=["GET"])
 def update_state():
+    """Gets a report of recent updates to the state of the blockchain and reports them back to the user"""
     txns = ClientState.monitor.pop_txns()
     return {"transactions": txns}
-

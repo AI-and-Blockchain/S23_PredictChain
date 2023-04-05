@@ -57,6 +57,15 @@ class DataHandler:
             if sub.__name__ == env or sub.env.lower() == env.lower():
                 return sub(dataset_name, time_attrib, sub_split_attrib)
 
+    @classmethod
+    def empty(cls):
+        return cls("", "")
+
+    @property
+    @abc.abstractmethod
+    def size(self):
+        ...
+
     @abc.abstractmethod
     def start(self, mode: int):
         """Performs any initialization operations before saving or loading"""
@@ -97,6 +106,10 @@ class LocalDataHandler(DataHandler):
         self.file_path = f"data/{dataset_name}/{dataset_name}.csv"
         self.mode = None
         """Locks the handler into one mode until finalization to avoid unexpected behavior"""
+
+    @property
+    def size(self):
+        return os.path.getsize(self.file_path)
 
     def start(self, mode: int):
         self.mode = mode
@@ -148,6 +161,10 @@ class IPFSDataHandler(DataHandler):
         self.mode = None
         """Locks the handler into one mode until finalization to avoid unexpected behavior"""
 
+    @property
+    def size(self):
+        return len(self.data)
+
     def start(self, mode: int):
         self.mode = mode
         self.proxy_handler.start(mode)
@@ -196,7 +213,7 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
         r.raise_for_status()
         for chunk in r.iter_content(chunk_size=8192):
             size += len(chunk)
-            handler.save_chunk(chunk)
+            handler.save_chunk(chunk.decode())
 
     handler.finish()
     database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,

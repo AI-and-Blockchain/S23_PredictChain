@@ -12,7 +12,7 @@ activate User
 
 par Manual actions
   alt Upload dataset
-  	  User->Oracle: Get dataset price
+      User->Oracle: Get dataset price
       User->Blockchain: Add dataset txn
   else Train model
       User->Oracle: Get train model price
@@ -27,14 +27,14 @@ par Poll in background
   loop
     User->Blockchain: Check for\nincoming txn
     alt Incoming txn
-    	User->User: Alert user
+        User->User: Alert user
     end
   end
 end
 
 loop forever
-  	Oracle->Blockchain: Listen for new txn
-	alt New dataset txn
+    Oracle->Blockchain: Listen for new txn
+    alt New dataset txn
 
       activate Oracle
       Oracle->>Database: Save dataset
@@ -56,7 +56,7 @@ loop forever
       Oracle->>Blockchain: Add confirmation txn
       deactivate Oracle
 
-	else New query txn
+    else New query txn
 
       activate Oracle
       Oracle->>Model Node: Query model
@@ -71,7 +71,7 @@ loop forever
       Oracle->>Blockchain: Reward training user
       deactivate Oracle
 
-  	end
+    end
 end
 
 

@@ -26,11 +26,12 @@ class ClientState:
 
 
 class ClientTransactionMonitor(utils.TransactionMonitor):
+    """Class to keep the user updated on incoming transactions or responses from the oracle"""
 
     def __init__(self, address: str, all_time=False):
         """Class to keep the user updated on incoming transactions or responses from the oracle
-        :param address: The address of the user
-        :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
+            :param address: The address of the user
+            :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
         super(ClientTransactionMonitor, self).__init__(address, all_time=all_time)
         self.txn_queue = []

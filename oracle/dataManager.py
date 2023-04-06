@@ -15,6 +15,7 @@ web3 = web3storage.Client(utils.STORAGE_KEY)
 
 
 class DataHandler:
+    """Manages the saving and usage of datasets"""
 
     SAVE_MODE = 0
     LOAD_MODE = 1
@@ -67,11 +68,11 @@ class DataHandler:
     @classmethod
     def create(cls, env: str, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         """Creates a handler based off of the environment name
-        :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
-        :param dataset_name: The name of the dataset
-        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
-        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
-            For example: the name of the stock in a dataset with name, independent stocks
+            :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
+            :param dataset_name: The name of the dataset
+            :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+            :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+                For example: the name of the stock in a dataset with name, independent stocks
         :return: An instance of the created handler"""
 
         for sub in cls.__subclasses__():
@@ -127,10 +128,17 @@ class DataHandler:
 
 
 class LocalDataHandler(DataHandler):
+    """Manages the saving and usage of datasets in the local environment"""
 
     env = "local"
 
     def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
+        """Manages the saving and usage of datasets in the local environment
+                :param dataset_name: The name of the dataset
+                :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+                :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+                    For example: the name of the stock in a dataset with name, independent stocks"""
+
         super().__init__(dataset_name, time_attrib, sub_split_attrib)
         self.file: io.StringIO = None
         ds_dir = f"data/{dataset_name}"

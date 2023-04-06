@@ -137,6 +137,7 @@ class Pricing:
 
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
+    """Keeps the oracle updated on incoming transactions from users, real world events"""
 
     def __init__(self, all_time=False):
         """Keeps the oracle updated on incoming transactions from users, real world events

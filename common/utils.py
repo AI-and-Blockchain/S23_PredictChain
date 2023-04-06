@@ -10,14 +10,23 @@ from algosdk.transaction import PaymentTxn
 
 
 def check_balance(address: str):
-    """Returns the current balance of the given address"""
+    """Returns the current balance of the given address
+    :param address: The algorand address to check the balance of
+    :return: The balance of the account"""
+
     account_info = ALGOD_CLIENT.account_info(address)
     return account_info.get('amount')
 
 
 def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: str = None):
     """Creates a transaction and sends it to the blockchain
-    :return: The transaction ID"""
+    :param sender: The address of the transaction sender
+    :param sender_secret: The secret key of the sender to sign the transaction
+    :param receiver: The address of the transaction recipient
+    :param amount: The amount to send
+    :param note: The note to send along with the transaction
+    :return: The id of the transaction"""
+
     params = ALGOD_CLIENT.suggested_params()
     # params.flat_fee = True
     # params.fee = 1000
@@ -29,38 +38,10 @@ def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: 
     return ALGOD_CLIENT.send_transaction(signed_txn)
 
 
-def wait_for_confirmation(txn_id: str, timeout: int):
-    """Wait until the transaction is confirmed or rejected, or until 'timeout'
-    number of rounds have passed."""
-    start_round = ALGOD_CLIENT.status()["last-round"] + 1
-    current_round = start_round
-
-    while current_round < start_round + timeout:
-        try:
-            pending_txn = ALGOD_CLIENT.pending_transaction_info(txn_id)
-        except Exception:
-            return
-        if pending_txn.get("confirmed-round", 0) > 0:
-            return pending_txn
-        elif pending_txn["pool-error"]:
-            raise Exception('pool error: {}'.format(pending_txn["pool-error"]))
-        ALGOD_CLIENT.status_after_block(current_round)
-        current_round += 1
-    raise Exception('pending tx not found in timeout rounds, timeout value = : {}'.format(timeout))
-
-
-def get_txn_confirmation(txn_id: str):
-    try:
-        confirmed_txn = wait_for_confirmation(txn_id, 4)
-    except Exception as err:
-        print(err)
-        return
-
-    return confirmed_txn
-
-
 def create_account():
-    """Creates an algorand wallet"""
+    """Creates an algorand wallet
+    :return The credentials to the account"""
+
     private_key, address = account.generate_account()
     print("Creating a new user account...")
     print("Address: {}".format(address))
@@ -70,7 +51,9 @@ def create_account():
 
 
 def search_transactions(limit=10, **kwargs):
-    """Searches the blockchain for recent transactions matching some given criteria"""
+    """Searches the blockchain for recent transactions matching some given criteria
+    :param limit: The maximum number of transactions to return"""
+
     transactions = []
     next_token = ""
     has_results = True
@@ -93,13 +76,16 @@ def search_transactions(limit=10, **kwargs):
 
 
 class TransactionMonitor:
-    """Polling monitor that periodically checks the blockchain to recent transactions"""
 
     last_round_checked = 0
     _halt = False
     pause_duration = 10
 
     def __init__(self, address: str, all_time=False):
+        """Polling monitor that periodically checks the blockchain to recent transactions
+        :param address: The address of the user
+        :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
+
         now = datetime.datetime.now().isoformat().split("T")[0]
         self.last_round_checked = search_transactions(limit=1, start_time=now)[-1]["confirmed-round"]
         self.address = address
@@ -107,12 +93,18 @@ class TransactionMonitor:
 
     @abc.abstractmethod
     def process_incoming(self, txn):
+        """Execute operations based on the OP code of the incoming transaction
+        :param txn: The incoming transaction"""
+
         raise NotImplementedError("Subclass this monitor to handle!")
 
     def halt(self):
+        """Halts the polling of the monitor"""
         self._halt = True
 
     def monitor(self):
+        """Starts a thread to monitor any incoming transactions to the target user address"""
+
         print("Starting monitor...")
 
         def inner_mon():
@@ -130,7 +122,10 @@ class TransactionMonitor:
 
 
 def flatten_locals(local_args: dict):
-    """Takes in an attribute dict from `locals()`, inlines any kwargs and removes special keys"""
+    """Takes in an attribute dict from `locals()`, inlines any kwargs and removes special keys
+    :param local_args: A dictionary of local variables to flatten
+    :return: A flattened dictionary of the attributes"""
+
     local_args = {**local_args.copy(), **local_args.copy().get("kwargs", {})}
     for key in ["kwargs", "self", "__class__"]:
         if key in local_args:

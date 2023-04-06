@@ -8,17 +8,25 @@ import pandas as pd
 from common import utils
 
 database = redis.Redis()
+"""The database that is used to store oracle information"""
+
 web3 = web3storage.Client(utils.STORAGE_KEY)
+"""The storage client for IPFS"""
 
 
 class DataHandler:
-    """Manages the saving and usage of datasets"""
 
     SAVE_MODE = 0
     LOAD_MODE = 1
     env = ""
 
     def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
+        """Manages the saving and usage of datasets
+        :param dataset_name: The name of the dataset
+        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+            For example: the name of the stock in a dataset with name, independent stocks"""
+
         self.dataset_name = dataset_name
         self.time_attrib = time_attrib
         self.sub_split_attrib = sub_split_attrib
@@ -28,6 +36,7 @@ class DataHandler:
     @property
     def data(self):
         """The raw string representing the dataset"""
+
         if not self._data:
             self._data = self.load_raw()
         return self._data
@@ -35,65 +44,89 @@ class DataHandler:
     @property
     def dataframe(self):
         """The pandas dataframe of the dataset"""
+
         if self._dataframe is None:
             self._dataframe = self.load()
         return self._dataframe
 
     def load(self):
-        """Loads in the dataset as a dataframe"""
+        """Loads in the dataset as a dataframe
+        :return: The pandas dataframe of the dataset"""
+
         df = pd.read_csv(io.StringIO(self.data)).astype({self.time_attrib: 'int'})
         df.sort_values(by=self.time_attrib, inplace=True)
         return df
 
     def sub_splits(self):
-        """Split dataset into parts based off of unique values in the `self.sub_split_attrib` column"""
+        """Split dataset into parts based off of unique values in the `self.sub_split_attrib` column
+        :return: A dictionary containing the split sections of the dataset"""
+
         unique_grouping = self.dataframe.groupby(self.sub_split_attrib)
         return {key: unique_grouping.get_group(key) for key in unique_grouping.groups.keys() if key != self.sub_split_attrib}
 
     @classmethod
     def create(cls, env: str, dataset_name: str, time_attrib: str, sub_split_attrib=""):
-        """Creates a handler based off of the environment name"""
+        """Creates a handler based off of the environment name
+        :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
+        :param dataset_name: The name of the dataset
+        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+            For example: the name of the stock in a dataset with name, independent stocks
+        :return: An instance of the created handler"""
+
         for sub in cls.__subclasses__():
             if sub.__name__ == env or sub.env.lower() == env.lower():
                 return sub(dataset_name, time_attrib, sub_split_attrib)
 
     @classmethod
     def empty(cls):
+        """Creates a dummy data handler
+        :return An empty data handler"""
+
         return cls("", "")
 
     @property
     @abc.abstractmethod
     def size(self):
+        """The size of the dataset"""
         ...
 
     @abc.abstractmethod
     def start(self, mode: int):
-        """Performs any initialization operations before saving or loading"""
+        """Performs any initialization operations before saving or loading
+        :param mode: The mode to set the handler to"""
+
         raise NotImplementedError()
 
     @abc.abstractmethod
     def save_chunk(self, data: bytes):
-        """Saves data by chunk"""
+        """Saves data by chunk
+        :param data: The partial data to save to the dataset"""
+
         raise NotImplementedError()
 
     @abc.abstractmethod
     def save(self, data: bytes):
-        """Saves all the data at once"""
+        """Saves all the data at once
+        :param data: The data to save to the dataset"""
+
         raise NotImplementedError()
 
     @abc.abstractmethod
     def load_raw(self) -> str:
-        """Loads the raw string of the dataset from the environment"""
+        """Loads the raw string of the dataset from the environment
+        :return: The raw string representation of the dataset"""
+
         raise NotImplementedError()
 
     @abc.abstractmethod
     def finish(self):
         """Performs any finalization operations before saving or loading"""
+
         raise NotImplementedError()
 
 
 class LocalDataHandler(DataHandler):
-    """DataLoader specifically for files stored in the local environment"""
 
     env = "local"
 
@@ -149,7 +182,6 @@ class LocalDataHandler(DataHandler):
 
 
 class IPFSDataHandler(DataHandler):
-    """DataLoader specifically for files stored in IPFS"""
 
     env = "ipfs"
 
@@ -204,6 +236,11 @@ class IPFSDataHandler(DataHandler):
 
 def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
     """Saves a dataset using the given data and appends an entry into the database
+    :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
+    :param dataset_name: The name of the dataset
+    :param link: The URL to the data of the dataset
+    :param txn_id: The id of the transaction that initiated the saving of this dataset
+    :param user_id: The address of the user that is saving this dataset
     :param time_attrib: The time attribute of the dataset
     :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets"""
 
@@ -221,7 +258,10 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
 
 
 def load_dataset(dataset_name: str):
-    """Loads dataset information from both the handler and the database"""
+    """Loads dataset information from both the handler and the database
+    :param dataset_name: The name of the dataset to load
+    :return: A handler for the dataset and the metadata associated with the dataset"""
+
     dataset_attribs = database.hgetall("<DS>" + dataset_name)
     handler = LocalDataHandler(dataset_name, dataset_attribs[b"time_attrib"].decode(),
                                sub_split_attrib=dataset_attribs.get(b"sub_split_attrib", "").decode())

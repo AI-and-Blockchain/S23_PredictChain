@@ -5,7 +5,7 @@ import requests
 import json
 from flask import Flask
 from common import utils
-
+from flask_cors import CORS
 
 class ClientState:
     """Allows for the client state to persist between classes"""
@@ -118,8 +118,7 @@ def query_model(trained_model: str, model_input):
 
 
 app = Flask(__name__)
-# TODO: Client endpoints for communicating with front end
-
+CORS(app)
 
 @app.route('/ping', methods=["GET"])
 def ping():
@@ -145,3 +144,29 @@ def update_state():
 
     txns = ClientState.monitor.clear_queue()
     return {"transactions": txns}
+
+"""
+@app.route('/get_dataset_upload_size', methods=["GET"])
+def dataset_upload_size():
+    return 
+
+@app.route('/get_model_train_price', methods=["GET"])
+def model_train_price():
+    return 
+
+@app.route('/get_model_query_price', methods=["GET"])
+def model_query_price():
+    return 
+
+@app.route('/add_dataset', methods=["GET"])
+def add_dataset_api():
+    return 
+
+@app.route('/train_model', methods=["GET"])
+def train_model_api():
+    return 
+
+@app.route('/query_model', methods=["GET"])
+def query_model_api():
+    return 
+"""

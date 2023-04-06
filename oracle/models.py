@@ -16,12 +16,14 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 class PredictModel:
+    """Interface for unifying behavior of different predictive models"""
 
     model_complexity = 0.0
     base_model_name = ""
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Interface for unifying behavior of different predictive models
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param loss_fn_name: The name of the loss function that the model will use"""
@@ -29,6 +31,7 @@ class PredictModel:
 
     def init(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Initializes the values common to all types of predict model
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param loss_fn_name: The name of the loss function that the model will use"""
@@ -42,6 +45,7 @@ class PredictModel:
     @staticmethod
     def get_loss_fn(name: str):
         """Gets a loss function by name
+
         :param name: The name of the loss function
         :return: The torch loss function"""
 
@@ -56,6 +60,7 @@ class PredictModel:
     @staticmethod
     def get_optimizer(name: str):
         """Gets an optimizer by name
+
         :param name: The name of the optimizer
         :return: The torch optimizer"""
 
@@ -68,6 +73,7 @@ class PredictModel:
     @classmethod
     def subclass_walk(cls, target_cls):
         """Recursively gathers all subclasses of a particular class
+
         :param target_cls: The class to search the subclasses of
         :return: A list of all the subclasses of this class"""
 
@@ -81,6 +87,7 @@ class PredictModel:
     @classmethod
     def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters
+
         :param base_model_name: The name of the base model of this instance
         :param new_model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
@@ -104,20 +111,24 @@ class PredictModel:
     @abc.abstractmethod
     def save(self, save_location) -> dict:
         """Saves the model to disk and returns a dict of its attributes
+
         :param save_location: Saves the information of this given model to the given location"""
         ...
 
     @abc.abstractmethod
     def load(self, save_location):
         """Loads the model from disk, reapplying all of its loaded attributes
+
         :param save_location: The location to load the model from"""
         ...
 
 
 class BaseNN(nn.Module, PredictModel):
+    """Parent class encapsulating the behaviour of other neural network classes"""
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """Parent class encapsulating the behaviour of other neural network classes
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param hidden_dim: The dimension of the hidden layers
@@ -131,7 +142,8 @@ class BaseNN(nn.Module, PredictModel):
         self.init(**local_args)
 
     def train_model(self, num_epochs: int, target_attrib: str, learning_rate=0.01, optimizer_name="adam", **kwargs):
-        """Trains the current neural net, giving regular eval updates over training
+        """Trains the current neural net, giving regular eval updates over
+
         :param num_epochs: The number of epochs to train the model for
         :param target_attrib: The attribute of the dataset to serve as the classifier
         :param learning_rate: The learning rate ofr training
@@ -166,6 +178,7 @@ class BaseNN(nn.Module, PredictModel):
 
     def eval_model(self, target_attrib: str, plot_eval=False, **kwargs):
         """Evaluates the performance of the network
+
         :param target_attrib: The attribute of the dataset to serve as the classifier
         :param plot_eval: Flag to govern weather pyplots will be generated during evaluation
         :return: The average accuracy of the model and the average loss of the value"""
@@ -205,6 +218,7 @@ class BaseNN(nn.Module, PredictModel):
 
     def preprocess_data(self, target_attrib: str, lookback=1, sub_split_value=None, **kwargs):
         """Processes the dataframe from the data handler into labeled training and testing sets
+
         :param target_attrib: The attribute of the dataset to serve as the classifier
         :param lookback: The size of the sliding time window to give to recurrent models
         :param sub_split_value: The value of the particular sub_split to use
@@ -244,11 +258,13 @@ class BaseNN(nn.Module, PredictModel):
 
 
 class MLP(BaseNN):
+    """Multi-layered perceptron implementation"""
 
     base_model_name = "MLP"
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         """Multi-layered perceptron implementation
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param hidden_dim: The dimension of the hidden layers
@@ -273,6 +289,7 @@ class MLP(BaseNN):
 
 
 class GRU(BaseNN):
+    """GRU implementation"""
 
     # https://blog.floydhub.com/gru-with-pytorch/
 
@@ -280,6 +297,7 @@ class GRU(BaseNN):
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
         """GRU implementation
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param hidden_dim: The dimension of the hidden layers
@@ -310,6 +328,8 @@ class GRU(BaseNN):
 
 
 class LSTM(BaseNN):
+    """LSTM implementation"""
+
     # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
     # https://blog.floydhub.com/gru-with-pytorch/
 
@@ -317,6 +337,7 @@ class LSTM(BaseNN):
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
         """LSTM implementation
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param hidden_dim: The dimension of the hidden layers
@@ -349,6 +370,7 @@ class LSTM(BaseNN):
 
 
 class RNN(BaseNN):
+    """RNN implementation"""
 
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
@@ -356,6 +378,7 @@ class RNN(BaseNN):
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
         """RNN implementation
+
         :param model_name: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param hidden_dim: The dimension of the hidden layers
@@ -383,7 +406,6 @@ class RNN(BaseNN):
 
 
 class DecisionTree(DecisionTreeClassifier, PredictModel):
-    """Decision tree implementation"""
 
     base_model_name = "DTree"
 
@@ -422,6 +444,7 @@ class DecisionTree(DecisionTreeClassifier, PredictModel):
 
 def get_trained_model(model_name: str):
     """Gets a trained model by name and returns the model along with transaction and user metadata
+
     :param model_name: The name of the trained model to load
     :return: The loaded model and associated metadata"""
 
@@ -434,6 +457,7 @@ def get_trained_model(model_name: str):
 
 def save_trained_model(model: PredictModel, save_location: str, txn_id: str, user_id: str):
     """Saves a model to disk and to the database along with user and metadata information
+
     :param model: The model to save
     :param save_location: The location to save the model to
     :param txn_id: The id of the transaction that initiated the saving of this model

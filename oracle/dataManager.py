@@ -23,6 +23,7 @@ class DataHandler:
 
     def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         """Manages the saving and usage of datasets
+
         :param dataset_name: The name of the dataset
         :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
         :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
@@ -52,6 +53,7 @@ class DataHandler:
 
     def load(self):
         """Loads in the dataset as a dataframe
+
         :return: The pandas dataframe of the dataset"""
 
         df = pd.read_csv(io.StringIO(self.data)).astype({self.time_attrib: 'int'})
@@ -60,6 +62,7 @@ class DataHandler:
 
     def sub_splits(self):
         """Split dataset into parts based off of unique values in the `self.sub_split_attrib` column
+
         :return: A dictionary containing the split sections of the dataset"""
 
         unique_grouping = self.dataframe.groupby(self.sub_split_attrib)
@@ -68,11 +71,12 @@ class DataHandler:
     @classmethod
     def create(cls, env: str, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         """Creates a handler based off of the environment name
-            :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
-            :param dataset_name: The name of the dataset
-            :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
-            :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
-                For example: the name of the stock in a dataset with name, independent stocks
+
+        :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
+        :param dataset_name: The name of the dataset
+        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+            For example: the name of the stock in a dataset with name, independent stocks
         :return: An instance of the created handler"""
 
         for sub in cls.__subclasses__():
@@ -82,7 +86,8 @@ class DataHandler:
     @classmethod
     def empty(cls):
         """Creates a dummy data handler
-        :return An empty data handler"""
+
+        :return: An empty data handler"""
 
         return cls("", "")
 
@@ -95,6 +100,7 @@ class DataHandler:
     @abc.abstractmethod
     def start(self, mode: int):
         """Performs any initialization operations before saving or loading
+
         :param mode: The mode to set the handler to"""
 
         raise NotImplementedError()
@@ -102,6 +108,7 @@ class DataHandler:
     @abc.abstractmethod
     def save_chunk(self, data: bytes):
         """Saves data by chunk
+
         :param data: The partial data to save to the dataset"""
 
         raise NotImplementedError()
@@ -109,6 +116,7 @@ class DataHandler:
     @abc.abstractmethod
     def save(self, data: bytes):
         """Saves all the data at once
+
         :param data: The data to save to the dataset"""
 
         raise NotImplementedError()
@@ -116,6 +124,7 @@ class DataHandler:
     @abc.abstractmethod
     def load_raw(self) -> str:
         """Loads the raw string of the dataset from the environment
+
         :return: The raw string representation of the dataset"""
 
         raise NotImplementedError()
@@ -134,10 +143,11 @@ class LocalDataHandler(DataHandler):
 
     def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib=""):
         """Manages the saving and usage of datasets in the local environment
-                :param dataset_name: The name of the dataset
-                :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
-                :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
-                    For example: the name of the stock in a dataset with name, independent stocks"""
+
+        :param dataset_name: The name of the dataset
+        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+            For example: the name of the stock in a dataset with name, independent stocks"""
 
         super().__init__(dataset_name, time_attrib, sub_split_attrib)
         self.file: io.StringIO = None
@@ -190,10 +200,18 @@ class LocalDataHandler(DataHandler):
 
 
 class IPFSDataHandler(DataHandler):
+    """Manages the saving and usage of datasets in the IPFS environment"""
 
     env = "ipfs"
 
     def __init__(self, dataset_name: str, time_attrib: str, sub_split_attrib="", dataset_id: str = ""):
+        """Manages the saving and usage of datasets in the local environment
+
+        :param dataset_name: The name of the dataset
+        :param time_attrib: The attribute of the dataset that measures the passage of time.  This is important for training the time-series models
+        :param sub_split_attrib: The attribute of the dataset whose change indicates a split in the data.
+            For example: the name of the stock in a dataset with name, independent stocks"""
+
         super().__init__(dataset_name, time_attrib, sub_split_attrib)
         self.file_name = dataset_name
         self.dataset_id = dataset_id
@@ -244,6 +262,7 @@ class IPFSDataHandler(DataHandler):
 
 def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
     """Saves a dataset using the given data and appends an entry into the database
+
     :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
     :param dataset_name: The name of the dataset
     :param link: The URL to the data of the dataset
@@ -267,6 +286,7 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
 
 def load_dataset(dataset_name: str):
     """Loads dataset information from both the handler and the database
+
     :param dataset_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 

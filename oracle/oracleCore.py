@@ -37,6 +37,7 @@ class Pricing:
     @classmethod
     def calc_ds_usage_incentive(cls, ds_size: int, accuracy: float):
         """Calculates and returns the reward for a dataset being used in a model
+
         :param ds_size: The size of the dataset that has been used
         :param accuracy: The accuracy attained by the model trained on the dataset
         :return: The reward for having uploaded a useful dataset and the transaction id of the last time the reward multiplier was changed"""
@@ -47,6 +48,7 @@ class Pricing:
     @classmethod
     def calc_model_usage_incentive(cls, accuracy: float):
         """Calculates and returns the reward for a model being used
+
         :param accuracy: The accuracy attained by the model trained on the dataset
         :return: The reward for having trained a useful model and the transaction id of the last time the reward multiplier was changed"""
 
@@ -56,6 +58,7 @@ class Pricing:
     @classmethod
     def calc_dataset_upload_price(cls, ds_size: int):
         """Calculates and returns the latest price and the transaction id where it was changed
+
         :param ds_size: The size of the dataset that is to be uploaded
         :return: The price of uploading a dataset and the transaction id of the last time the price multiplier was changed"""
 
@@ -65,6 +68,7 @@ class Pricing:
     @classmethod
     def calc_model_train_price(cls, raw_model: str, ds_name: str, **kwargs):
         """Calculates and returns the latest price and the transaction id where it was changed
+
         :param raw_model: The name of the raw model to train
         :param ds_name: The name of the dataset to train the model on
         :return: The price of training a model and the transaction id of the last time the price multiplier was changed"""
@@ -80,6 +84,7 @@ class Pricing:
     @classmethod
     def calc_model_query_price(cls, trained_model: str):
         """Calculates and returns the latest price and the transaction id where it was changed
+
         :param trained_model: The name of the trained model to query
         :return: The price of querying that model and the transaction id of the last time the price multiplier was changed"""
 
@@ -90,6 +95,7 @@ class Pricing:
     @classmethod
     def calc_op_price(cls, op: str, ds_name=None, ds_size=None, raw_model=None, trained_model=None, **kwargs):
         """Helper method to get the price for any given operation
+
         :param op: The operation to calculate the price for
         :param ds_name: The name of the dataset if involved in the operation
         :param ds_size: The size of the dataset if involved in the operation
@@ -107,6 +113,7 @@ class Pricing:
     @classmethod
     def get_price_multiplier(cls, mul_op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the transaction id where it was last changed
+
         :param mul_op: The operation to get the multiplier for
         :return: The multiplier and the transaction id of the last time the multiplier was changed"""
 
@@ -121,6 +128,7 @@ class Pricing:
     @classmethod
     def set_price_multiplier(cls, mul_op: str, new_mul: float):
         """Sends an update txn.  Stores transaction id and the new price multiplier in the database
+
         :param mul_op: The operation to set the multiplier for
         :param new_mul: The new multiplier for the price/reward associated with the operation
         :return: The transaction id of the multiplier changing transaction"""
@@ -141,12 +149,14 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
     def __init__(self, all_time=False):
         """Keeps the oracle updated on incoming transactions from users, real world events
+
         :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
         super(OracleTransactionMonitor, self).__init__(utils.ORACLE_ALGO_ADDRESS, all_time=all_time)
 
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction
+
         :param txn: The incoming transaction"""
 
         # Decode and parse the note
@@ -209,7 +219,8 @@ app = Flask(__name__)
 @app.route('/ping', methods=["GET"])
 def ping():
     """Accepts pings to report that the oracle is running properly
-    :return A ping message"""
+
+    :return: A ping message"""
 
     return {"pinged": "oracle"}
 
@@ -217,6 +228,7 @@ def ping():
 @app.route('/dataset_upload_price', methods=["GET"])
 def report_dataset_upload_price():
     """Report back the latest dataset upload price
+
     :return: The price of uploading the given dataset and the transaction id where the price multiplier was last changed"""
 
     price, txn_id = Pricing.calc_dataset_upload_price(**request.args)
@@ -226,6 +238,7 @@ def report_dataset_upload_price():
 @app.route('/model_train_price', methods=["GET"])
 def report_model_train_price():
     """Report back the latest training price
+
     :return: The price of training the given model and the transaction id where the price multiplier was last changed"""
 
     price, txn_id = Pricing.calc_model_train_price(**request.args)
@@ -235,6 +248,7 @@ def report_model_train_price():
 @app.route('/model_query_price', methods=["GET"])
 def report_model_query_price():
     """Report back the latest query price
+
     :return: The price of querying the given model and the transaction id where the price multiplier was last changed"""
 
     price, txn_id = Pricing.calc_model_query_price(**request.args)

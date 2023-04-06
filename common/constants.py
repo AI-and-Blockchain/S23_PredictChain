@@ -24,6 +24,7 @@ ORACLE_SERVER_ADDRESS = f"{ORACLE_SERVER_HOST}:{ORACLE_SERVER_PORT}"
 @dataclasses.dataclass
 class OpCodes:
     """Valid op codes to be included in transactions"""
+
     UP_DATASET = "<UP_DATASET>"
     TRAIN_MODEL = "<TRAIN_MODEL>"
     QUERY_MODEL = "<QUERY_MODEL>"

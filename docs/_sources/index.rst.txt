@@ -17,31 +17,63 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
 Common
 ========================================
+
+--------
+
+Constants
++++++++++++++++++++++
 
 .. automodule:: common.constants
    :members:
 
+--------
+
+Utils
++++++++++++++++++++++
+
 .. automodule:: common.utils
    :members:
+
+--------
 
 Client
 ========================================
 
+--------
+
+ClientCore
++++++++++++++++++++++
+
 .. automodule:: client.clientCore
    :members:
 
+--------
 
 Oracle
 ========================================
 
+--------
+
+OracleCore
++++++++++++++++++++++
+
 .. automodule:: oracle.oracleCore
    :members:
 
+--------
+
+DataManager
++++++++++++++++++++++
+
 .. automodule:: oracle.dataManager
    :members:
+
+--------
+
+Models
++++++++++++++++++++++
 
 .. automodule:: oracle.models
    :members:

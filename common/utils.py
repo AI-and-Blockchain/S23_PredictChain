@@ -11,6 +11,7 @@ from algosdk.transaction import PaymentTxn
 
 def check_balance(address: str):
     """Returns the current balance of the given address
+
     :param address: The algorand address to check the balance of
     :return: The balance of the account"""
 
@@ -20,6 +21,7 @@ def check_balance(address: str):
 
 def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: str = None):
     """Creates a transaction and sends it to the blockchain
+
     :param sender: The address of the transaction sender
     :param sender_secret: The secret key of the sender to sign the transaction
     :param receiver: The address of the transaction recipient
@@ -40,7 +42,8 @@ def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: 
 
 def create_account():
     """Creates an algorand wallet
-    :return The credentials to the account"""
+
+    :return: The credentials to the account"""
 
     private_key, address = account.generate_account()
     print("Creating a new user account...")
@@ -52,6 +55,7 @@ def create_account():
 
 def search_transactions(limit=10, **kwargs):
     """Searches the blockchain for recent transactions matching some given criteria
+
     :param limit: The maximum number of transactions to return"""
 
     transactions = []
@@ -83,6 +87,7 @@ class TransactionMonitor:
 
     def __init__(self, address: str, all_time=False):
         """Polling monitor that periodically checks the blockchain to recent transactions
+
         :param address: The address of the user
         :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
@@ -94,6 +99,7 @@ class TransactionMonitor:
     @abc.abstractmethod
     def process_incoming(self, txn):
         """Execute operations based on the OP code of the incoming transaction
+
         :param txn: The incoming transaction"""
 
         raise NotImplementedError("Subclass this monitor to handle!")
@@ -123,6 +129,7 @@ class TransactionMonitor:
 
 def flatten_locals(local_args: dict):
     """Takes in an attribute dict from `locals()`, inlines any kwargs and removes special keys
+
     :param local_args: A dictionary of local variables to flatten
     :return: A flattened dictionary of the attributes"""
 

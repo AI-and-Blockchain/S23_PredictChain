@@ -30,8 +30,9 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 
     def __init__(self, address: str, all_time=False):
         """Class to keep the user updated on incoming transactions or responses from the oracle
-            :param address: The address of the user
-            :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
+
+        :param address: The address of the user
+        :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
         super(ClientTransactionMonitor, self).__init__(address, all_time=all_time)
         self.txn_queue = []
@@ -39,6 +40,7 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 
     def process_incoming(self, txn: dict[str, Any]):
         """Processes the latest incoming transactions to the user
+
         :param txn: The incoming transaction dictionary"""
 
         # TODO: Alert user of incoming transaction
@@ -47,6 +49,7 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 
     def clear_queue(self):
         """Removes all unobserved transactions from the queue
+
         :return: The list of queued transactions"""
 
         tmp = self.txn_queue
@@ -56,6 +59,7 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 
 def get_dataset_upload_price(ds_size: int):
     """Retrieves the upload price from the oracle.  This can be verified with the returned transaction id
+
     :param ds_size: The size of the dataset that is planned to upload
     :return: The price of uploading a dataset and the transaction id where that price was last modified"""
 
@@ -65,6 +69,7 @@ def get_dataset_upload_price(ds_size: int):
 
 def get_model_train_price(raw_model: str, ds_name: str):
     """Retrieves the model price from the oracle.  This can be verified with the returned transaction id
+
     :param raw_model: The name of the base model
     :param ds_name: The name of the dataset to train the model on
     :return: The price of training a model and the transaction id where that price was last modified"""
@@ -76,6 +81,7 @@ def get_model_train_price(raw_model: str, ds_name: str):
 
 def get_model_query_price(trained_model: str):
     """Retrieves the query price from the oracle.  This can be verified with the returned transaction id
+
     :param trained_model: The name of the trained model to query
     :return: The price of querying a model and the transaction id where that price was last modified"""
 
@@ -85,6 +91,7 @@ def get_model_query_price(trained_model: str):
 
 def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
+
     :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_name: The name that will be assigned to the new dataset
     :param ds_size: The size of the dataset
@@ -97,6 +104,7 @@ def add_dataset(ds_link: str, ds_name: str, ds_size: int):
 
 def train_model(raw_model: str, trained_model: str, ds_name: str, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
+
     :param raw_model: The raw model to train
     :param trained_model: The name of the new trained model
     :param ds_name: The name of the dataset to train the model on
@@ -109,6 +117,7 @@ def train_model(raw_model: str, trained_model: str, ds_name: str, **kwargs):
 
 def query_model(trained_model: str, model_input):
     """Creates a transaction to ask for a query from the specified model
+
     :param trained_model: The trained model to query
     :param model_input: The input to the trained model
     :return: The id of the transaction to the oracle"""
@@ -124,7 +133,8 @@ CORS(app)
 @app.route('/ping', methods=["GET"])
 def ping():
     """Accepts pings to report that the client is running properly
-    :return A ping message"""
+
+    :return: A ping message"""
 
     return {"pinged": "client"}
 
@@ -132,6 +142,7 @@ def ping():
 @app.route('/new_account', methods=["POST"])
 def create_new_account():
     """Creates a new account keypair and returns it
+
     :return: Newly generated address credentials"""
 
     addr, priv = utils.create_account()
@@ -141,6 +152,7 @@ def create_new_account():
 @app.route('/update_state', methods=["GET"])
 def update_state():
     """Gets a report of recent updates to the state of the blockchain and reports them back to the user
+
     :return: A list of transactions that have recently been received by the client address"""
 
     txns = ClientState.monitor.clear_queue()

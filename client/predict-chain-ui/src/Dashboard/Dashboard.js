@@ -13,13 +13,14 @@ function Dashboard() {
   const [addr, setAddr] = useState("");
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
+  const [datasetSize, setDatasetSize] = useState("");
+  const [uploadPrice, setUploadPrice] = useState(0); // Added this line
 
   const handleUpdateState = () => {
     axios.get('http://localhost:8031/update_state')
       .then(response => {setTransactions(response.data.transactions);})
       .catch(error => console.error(error));
   }
-
 
   const fetchUserName = async () => {
       const q = query(collection(db, "users"), where("uid", "==", user?.uid));
@@ -36,6 +37,24 @@ function Dashboard() {
 
     fetchUserName();
   }, [user, loading]);
+
+  const handleDatasetUploadPriceRequest = async () => {
+    if(!datasetSize) {
+      alert("Please enter a number");
+    } else if (datasetSize >= 0) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8031/get_dataset_upload_size?ds_size=${datasetSize}`
+        );
+        setUploadPrice(response.data.price);
+      } catch (error) {
+        console.error(error);
+        alert("Error fetching price");
+      }
+    } else {
+      alert("Please enter a positive number");
+    }
+  };
 
   return (
     <div>
@@ -58,27 +77,45 @@ function Dashboard() {
           <button className="dashboard__btn" onClick={logout}>
             Logout
           </button>
+          <div>
+            <h2>Request Dataset Upload Price</h2>
+            <div>
+              <input
+                type="number"
+                value={datasetSize}
+                min="0"
+                onChange={(event) => setDatasetSize(event.target.value)}
+              />
+              <button onClick={handleDatasetUploadPriceRequest}>
+                Get Price
+              </button>
+            </div>
+            {uploadPrice >= 0 && (
+              <div>
+                <h3>Price: {uploadPrice}</h3>
+              </div>
+            )}
+          </div>
+          <div>
+            <button onClick={handleUpdateState}>Update State</button>
+            <ul>
+              {transactions.map((txn, index) => (
+                <li key={index}>{txn}</li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
-      <div>
-        <button onClick={handleUpdateState}>Update State</button>
-        <ul>
-          {transactions.map((txn, index) => (
-            <li key={index}>{txn}</li>
-          ))}
-        </ul>
       </div>
       <div className="fixed-footer">
-          <nav>
-            <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
-            <a href="/faq"style={{marginLeft: '400px'}}>FAQ</a>
-            <a href="/mtt" style={{marginLeft: '200px'}}>Meet The Team</a>
-            <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '200px'}}>Docs</a>
-            <a href="#" style={{marginLeft: '200px'}}>Back to top</a>
-          </nav>       
-        </div>
+        <nav>
+          <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
+          <a href="/faq"style={{marginLeft: '400px'}}>FAQ</a>
+          <a href="/mtt" style={{marginLeft: '200px'}}>Meet The Team</a>
+          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '200px'}}>Docs</a>
+          <a href="#" style={{marginLeft: '200px'}}>Back to top</a>
+        </nav> 
+      </div>
     </div>
-  );
-}
+)};
 
 export default Dashboard;

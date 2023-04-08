@@ -202,7 +202,7 @@ def train_model_api():
     raw_model = request.args.get('raw_model')
     trained_model = request.args.get('trained_model')
     ds_name = request.args.get('ds_name')
-    response = get_dataset_upload_price(raw_model, trained_model, ds_name)
+    response = train_model(raw_model, trained_model, ds_name)
     return response 
 
 # NEED TO TEST
@@ -220,14 +220,6 @@ def model_query_price():
     response = get_model_query_price(trained_model)
     return response
 
-# NEED TO TEST
-@app.route('/train_model', methods=["GET"])
-def train_model_api():
-    raw_model = request.args.get('raw_model')
-    trained_model = request.args.get('trained_model')
-    ds_name = request.args.get('ds_name')
-    response = train_model(raw_model, trained_model, ds_name)
-    return response
 
 # NEED TO TEST
 @app.route('/query_model', methods=["GET"])

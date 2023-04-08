@@ -40,18 +40,26 @@ const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    axios.post('http://localhost:8031/new_account')
-      .then(response => {
-        const address = response.data.address; 
-        const privateKey = response.data.private_key;
-        addDoc(collection(db, "users"), {
-          uid: user.uid,
-          name: user.displayName,
-          authProvider: "google",
-          email: user.email,
-          privateKey: privateKey,
-          address: address
-        });
+
+    // Check if user is already in Firestore
+    const userQuery = query(collection(db, "users"), where("uid", "==", user.uid));
+    const userDocs = await getDocs(userQuery);
+    if (userDocs.size > 0) {
+      // User already exists in Firestore
+      return;
+    }
+
+    // User does not exist in Firestore, create new account
+    const response = await axios.post('http://localhost:8031/new_account');
+    const address = response.data.address;
+    const privateKey = response.data.private_key;
+    await addDoc(collection(db, "users"), {
+      uid: user.uid,
+      name: user.displayName,
+      authProvider: "google",
+      email: user.email,
+      privateKey: privateKey,
+      address: address
     });
   } catch (err) {
     console.error(err);

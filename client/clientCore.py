@@ -3,7 +3,7 @@ from typing import Any
 import sys, os
 import requests
 import json
-from flask import Flask
+from flask import Flask, request
 from common import utils
 from flask_cors import CORS
 
@@ -62,8 +62,8 @@ def get_dataset_upload_price(ds_size: int):
 
     :param ds_size: The size of the dataset that is planned to upload
     :return: The price of uploading a dataset and the transaction id where that price was last modified"""
-
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"dataset_upload_price?ds_size={ds_size}"))
+    url = "http://localhost:8030/dataset_upload_price?ds_size=" + ds_size
+    resp = requests.get(url)
     return resp.json()
 
 
@@ -74,9 +74,9 @@ def get_model_train_price(raw_model: str, ds_name: str):
     :param ds_name: The name of the dataset to train the model on
     :return: The price of training a model and the transaction id where that price was last modified"""
 
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS,
-                        f"model_train_price?raw_model={raw_model}&ds_name={ds_name}"))
-    return resp.json()
+    url = "http://localhost:8030/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
+    resp = requests.get(url)
+    return resp
 
 
 def get_model_query_price(trained_model: str):
@@ -85,7 +85,8 @@ def get_model_query_price(trained_model: str):
     :param trained_model: The name of the trained model to query
     :return: The price of querying a model and the transaction id where that price was last modified"""
 
-    resp = requests.get(os.path.join(utils.ORACLE_SERVER_ADDRESS, f"model_query_price?trained_model={trained_model}"))
+    url = "http://localhost:8030/model_query_price?trained_model=" + trained_model
+    resp = requests.get(url)
     return resp.json()
 
 
@@ -98,7 +99,7 @@ def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     :return: The id of the transaction to the oracle"""
 
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size),
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size)['price'],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -158,28 +159,80 @@ def update_state():
     txns = ClientState.monitor.clear_queue()
     return {"transactions": txns}
 
-"""
-@app.route('/get_dataset_upload_size', methods=["GET"])
+
+@app.route('/get_dataset_upload_size')
 def dataset_upload_size():
-    return 
+    """Requests to see the price for a dataset
+    :requires: size of data in bytes
+    :example: ?ds_size=77
 
-@app.route('/get_model_train_price', methods=["GET"])
-def model_train_price():
-    return 
+    :return: {Price, TXN ID}"""
 
-@app.route('/get_model_query_price', methods=["GET"])
-def model_query_price():
-    return 
+    ds_size = request.args.get('ds_size')
+    response = get_dataset_upload_price(ds_size)
+    return response
 
+
+
+""" 
+AFTER TESTING THIS WITH THE PROVIDED EXAMPLE, ORACLE ERRORS OUT SAYING "oracleCore.py", line 170, in process_incoming
+    if txn["amount"] < op_price:
+       ~~~^^^^^^^^^^
+KeyError: 'amount'
+"""
 @app.route('/add_dataset', methods=["GET"])
 def add_dataset_api():
-    return 
+    """Requests to add a dataset from the UI to the client
+    :requires: link to data, name and size of file in bytes
+    :example: ?ds_link=https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv&ds_name=test&ds_size=77
 
+    :return: Oracle transaction ID """
+
+    ds_link = request.args.get('ds_link')
+    ds_name = request.args.get('ds_name')
+    ds_size = request.args.get('ds_size')
+    response = add_dataset(ds_link, ds_name, ds_size)
+    return response
+
+
+
+# NEED TO TEST
 @app.route('/train_model', methods=["GET"])
 def train_model_api():
-    return 
+    raw_model = request.args.get('raw_model')
+    trained_model = request.args.get('trained_model')
+    ds_name = request.args.get('ds_name')
+    response = get_dataset_upload_price(raw_model, trained_model, ds_name)
+    return response 
 
+# NEED TO TEST
+@app.route('/get_model_train_price', methods=["GET"])
+def model_train_price():
+    raw_model = request.args.get('raw_model')
+    ds_name = request.args.get('ds_name')
+    response = get_model_train_price(raw_model, ds_name)
+    return response
+
+# NEED TO TEST
+@app.route('/get_model_query_price', methods=["GET"])
+def model_query_price():
+    trained_model = request.args.get('trained_model')
+    response = get_model_query_price(trained_model)
+    return response
+
+# NEED TO TEST
+@app.route('/train_model', methods=["GET"])
+def train_model_api():
+    raw_model = request.args.get('raw_model')
+    trained_model = request.args.get('trained_model')
+    ds_name = request.args.get('ds_name')
+    response = train_model(raw_model, trained_model, ds_name)
+    return response
+
+# NEED TO TEST
 @app.route('/query_model', methods=["GET"])
 def query_model_api():
-    return 
-"""
+    trained_model = request.args.get('trained_model')
+    model_input = request.args.get('model_input')
+    response = query_model(trained_model, model_input)
+    return response

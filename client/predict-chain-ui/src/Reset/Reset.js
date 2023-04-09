@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { auth, sendPasswordReset } from "../firebase";
 import "./Reset.css";
 
@@ -30,7 +29,7 @@ function Reset() {
         </button>
 
         <div>
-          Don't have an account? <Link to="/register">Register</Link> now.
+          Don't have an account? <a href="/register" className="ex1">Register</a> now.
         </div>
       </div>
     </div>

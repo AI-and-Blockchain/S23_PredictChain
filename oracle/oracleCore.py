@@ -166,7 +166,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         kwargs = {**txn["note"]}
 
         op_price, _ = Pricing.calc_op_price(op, **kwargs)
-        if txn["amount"] < op_price:
+        if txn['payment-transaction']['amount'] < op_price:
             # Reject transaction
             utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn["amount"],
                            note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": "UNDERFUNDED"}))
@@ -174,7 +174,9 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                dataManager.save_dataset(**kwargs, txn_id=txn["id"], user_id=txn["sender"])
+                # somehow need to specify env and time_attrib beforehand ?
+                kwargs.pop("ds_size") # looks like this will need to happen every time
+                dataManager.save_dataset(**kwargs, env="local", time_attrib="time_step", txn_id=txn["id"], user_id=txn["sender"])
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])

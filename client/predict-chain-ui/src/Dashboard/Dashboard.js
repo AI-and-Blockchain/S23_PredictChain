@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
 import { auth, db, logout } from "../firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import axios from "axios";
+import "./Dashboard.css";
 
 function Dashboard() {
-  const [user, loading, error] = useAuthState(auth);
-  const [name, setName] = useState("");
-  const [pk, setPK] = useState("");
-  const [addr, setAddr] = useState("");
-  const navigate = useNavigate();
-  const [transactions, setTransactions] = useState([]);
-  const [datasetSize, setDatasetSize] = useState("");
-  const [uploadPrice, setUploadPrice] = useState(0); // Added this line
+  const [user, loading] = useAuthState(auth); // used for fetching user
+  const [name, setName] = useState(""); // used for setting name for dashboard
+  const [pk, setPK] = useState(""); // private key
+  const [addr, setAddr] = useState(""); // address
+  const [transactions, setTransactions] = useState([]); // set transaction list
+  const [datasetSize, setDatasetSize] = useState(""); // set templated data set size
+  const [uploadPrice, setUploadPrice] = useState(0); // set templated upload price 
+  const navigate = useNavigate(); // for useEffect
 
-  const handleUpdateState = () => {
+  const handleUpdateState = () => { // this doesnt do much now
     axios.get('http://localhost:8031/update_state')
       .then(response => {setTransactions(response.data.transactions);})
       .catch(error => console.error(error));
   }
 
-  const fetchUserName = async () => {
+  const fetchUserName = async () => { // fetch username and other params
       const q = query(collection(db, "users"), where("uid", "==", user?.uid));
       const doc = await getDocs(q);
       const data = doc.docs[0].data();
@@ -31,14 +31,7 @@ function Dashboard() {
       setAddr(data.address);
   };
 
-  useEffect(() => {
-    if (loading) return;
-    if (!user) return navigate("/");
-
-    fetchUserName();
-  }, [user, loading]);
-
-  const handleDatasetUploadPriceRequest = async () => {
+  const handleDatasetUploadPriceRequest = async () => { // handles upload price request based on dataset size
     if(!datasetSize) {
       alert("Please enter a number");
     } else if (datasetSize >= 0) {
@@ -55,6 +48,13 @@ function Dashboard() {
       alert("Please enter a positive number");
     }
   };
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return navigate("/");
+
+    fetchUserName();
+  }, [user, loading]);
 
   return (
     <div>

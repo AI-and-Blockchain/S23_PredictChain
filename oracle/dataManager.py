@@ -166,7 +166,7 @@ class LocalDataHandler(DataHandler):
         self.mode = mode
         if mode == self.SAVE_MODE:
             if os.path.isfile(self.file_path):
-                raise FileExistsError()
+                raise FileExistsError() # error here?
             self.file = open(self.file_path, "a")
         elif mode == self.LOAD_MODE:
             self.file = open(self.file_path, "r")
@@ -260,7 +260,7 @@ class IPFSDataHandler(DataHandler):
         return out
 
 
-def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
+def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
     """Saves a dataset using the given data and appends an entry into the database
 
     :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
@@ -271,9 +271,9 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
     :param time_attrib: The time attribute of the dataset
     :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets"""
 
-    handler = DataHandler.create(env, dataset_name, time_attrib, sub_split_attrib)
+    handler = DataHandler.create(env, ds_name, time_attrib, sub_split_attrib)
     size = 0
-    with requests.get(link, stream=True) as r:
+    with requests.get(ds_link, stream=True) as r:
         r.raise_for_status()
         for chunk in r.iter_content(chunk_size=8192):
             size += len(chunk)
@@ -284,13 +284,13 @@ def save_dataset(env: str, dataset_name: str, link: str, txn_id: str, user_id: s
                                                         "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib})
 
 
-def load_dataset(dataset_name: str):
+def load_dataset(ds_name: str):
     """Loads dataset information from both the handler and the database
 
     :param dataset_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
-    dataset_attribs = database.hgetall("<DS>" + dataset_name)
-    handler = LocalDataHandler(dataset_name, dataset_attribs[b"time_attrib"].decode(),
+    dataset_attribs = database.hgetall("<DS>" + ds_name)
+    handler = LocalDataHandler(ds_name, dataset_attribs[b"time_attrib"].decode(),
                                sub_split_attrib=dataset_attribs.get(b"sub_split_attrib", "").decode())
     return handler, dataset_attribs

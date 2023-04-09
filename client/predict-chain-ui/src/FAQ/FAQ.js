@@ -1,6 +1,7 @@
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import "./FAQ.css"
+
 function FAQ() {
     return (
         <div>
@@ -47,5 +48,5 @@ function FAQ() {
             <Footer/>
         </div>
     );
-  }
+}
 export default FAQ;

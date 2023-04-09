@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import './HomePage.css'
+import React from 'react';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import Slideshow from '../Slideshow/Slideshow';
+import './HomePage.css'
 
 function HomePage() {
   return (

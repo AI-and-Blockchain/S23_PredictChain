@@ -29,6 +29,14 @@ a:hover{
   color: gray;
 }
 
+a.ex1 {
+  color: black;
+}
+
+a.ex1:hover{
+  color: gray;
+}
+
 
 .register {
   height: calc(85vh - 120px);

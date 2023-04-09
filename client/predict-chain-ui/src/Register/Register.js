@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   auth,
   registerWithEmailAndPassword,
@@ -9,14 +9,15 @@ import {
 import "./Register.css";
 
 function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [user, loading, error] = useAuthState(auth);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState(""); // set email
+  const [password, setPassword] = useState(""); // set password
+  const [name, setName] = useState(""); // set name 
+  const [user, loading] = useAuthState(auth); // authenticate
+  const navigate = useNavigate(); // nav
 
   const register = () => {
     if (!name) alert("Please enter name");
+
     registerWithEmailAndPassword(name, email, password);
   };
 
@@ -67,7 +68,7 @@ function Register() {
           </button>
 
           <div>
-            Already have an account? <Link to="/login">Login</Link> now.
+            Already have an account? <a href="/login" className="ex1">Login</a> now.
           </div>
         </div>
       </div>

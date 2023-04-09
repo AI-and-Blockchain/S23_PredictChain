@@ -99,7 +99,8 @@ def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     :return: The id of the transaction to the oracle"""
 
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size)['price'],
+    price = get_dataset_upload_price(ds_size)['price']
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, price,
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -175,10 +176,9 @@ def dataset_upload_size():
 
 
 """ 
-AFTER TESTING THIS WITH THE PROVIDED EXAMPLE, ORACLE ERRORS OUT SAYING "oracleCore.py", line 170, in process_incoming
-    if txn["amount"] < op_price:
-       ~~~^^^^^^^^^^
-KeyError: 'amount'
+File "C:\Users\pattec3\Desktop\Academics\AI&B\project\predict-chain\oracle\dataManager.py", line 169, in start
+    raise FileExistsError()
+FileExistsError
 """
 @app.route('/add_dataset', methods=["GET"])
 def add_dataset_api():

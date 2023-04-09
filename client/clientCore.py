@@ -97,10 +97,9 @@ def add_dataset(ds_link: str, ds_name: str, ds_size: int):
     :param ds_name: The name that will be assigned to the new dataset
     :param ds_size: The size of the dataset
     :return: The id of the transaction to the oracle"""
-
+    
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    price = get_dataset_upload_price(ds_size)['price']
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, price,
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size)['price'],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -173,13 +172,7 @@ def dataset_upload_size():
     response = get_dataset_upload_price(ds_size)
     return response
 
-
-
-""" 
-File "C:\Users\pattec3\Desktop\Academics\AI&B\project\predict-chain\oracle\dataManager.py", line 169, in start
-    raise FileExistsError()
-FileExistsError
-"""
+#FileExistsError
 @app.route('/add_dataset', methods=["GET"])
 def add_dataset_api():
     """Requests to add a dataset from the UI to the client

@@ -174,9 +174,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                # somehow need to specify env and time_attrib beforehand ?
-                kwargs.pop("ds_size") # looks like this will need to happen every time
-                dataManager.save_dataset(**kwargs, env="local", time_attrib="time_step", txn_id=txn["id"], user_id=txn["sender"])
+                dataManager.save_dataset(**kwargs, txn_id=txn["id"], user_id=txn["sender"])
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])

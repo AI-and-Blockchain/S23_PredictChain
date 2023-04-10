@@ -62,7 +62,7 @@ def get_dataset_upload_price(ds_size: int):
 
     :param ds_size: The size of the dataset that is planned to upload
     :return: The price of uploading a dataset and the transaction id where that price was last modified"""
-    url = "http://localhost:8030/dataset_upload_price?ds_size=" + ds_size
+    url = f"http://localhost:8030/dataset_upload_price?ds_size={ds_size}"
     resp = requests.get(url)
     return resp.json()
 
@@ -76,7 +76,7 @@ def get_model_train_price(raw_model: str, ds_name: str):
 
     url = "http://localhost:8030/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
     resp = requests.get(url)
-    return resp
+    return resp.json()
 
 
 def get_model_query_price(trained_model: str):
@@ -90,12 +90,13 @@ def get_model_query_price(trained_model: str):
     return resp.json()
 
 
-def add_dataset(ds_link: str, ds_name: str, ds_size: int):
+def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
 
     :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_name: The name that will be assigned to the new dataset
     :param ds_size: The size of the dataset
+    :param time_attrib: The attribute of the data that denotes the passage of time
     :return: The id of the transaction to the oracle"""
     
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
@@ -168,7 +169,7 @@ def dataset_upload_size():
 
     :return: {Price, TXN ID}"""
 
-    ds_size = request.args.get('ds_size')
+    ds_size = int(request.args.get('ds_size'))
     response = get_dataset_upload_price(ds_size)
     return response
 
@@ -183,8 +184,9 @@ def add_dataset_api():
 
     ds_link = request.args.get('ds_link')
     ds_name = request.args.get('ds_name')
-    ds_size = request.args.get('ds_size')
-    response = add_dataset(ds_link, ds_name, ds_size)
+    ds_size = int(request.args.get('ds_size'))
+    time_attrib = request.args.get('time_attrib')
+    response = add_dataset(ds_link, ds_name, ds_size, time_attrib)
     return response
 
 

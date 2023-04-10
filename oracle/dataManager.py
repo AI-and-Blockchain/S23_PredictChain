@@ -260,12 +260,12 @@ class IPFSDataHandler(DataHandler):
         return out
 
 
-def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib=""):
+def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib="", **kwargs):
     """Saves a dataset using the given data and appends an entry into the database
 
     :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
-    :param dataset_name: The name of the dataset
-    :param link: The URL to the data of the dataset
+    :param ds_name: The name of the dataset
+    :param ds_link: The URL to the data of the dataset
     :param txn_id: The id of the transaction that initiated the saving of this dataset
     :param user_id: The address of the user that is saving this dataset
     :param time_attrib: The time attribute of the dataset
@@ -287,7 +287,7 @@ def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str
 def load_dataset(ds_name: str):
     """Loads dataset information from both the handler and the database
 
-    :param dataset_name: The name of the dataset to load
+    :param ds_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
     dataset_attribs = database.hgetall("<DS>" + ds_name)

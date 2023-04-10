@@ -13,6 +13,7 @@ import client.clientCore as clientCore
 
 def sandbox():
     """Wrapper function for any informal testing code"""
+    oracleCore.OracleState.init()
 
     # datasets.load_data("data/dow_jones_index/preprocessed.csv")
 
@@ -24,14 +25,22 @@ def sandbox():
     # link = "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv"
     # dataManager.save_dataset("local", "dow_jones_index", link, "0txn", "0user", "time_step", sub_split_attrib="stock")
 
-    mock_txn = {"id": "0txn", "sender": "0user", "amount": float("inf"), "note": base64.b64encode(json.dumps({
+    """mock_txn = {"id": "0txn", "sender": "0user", "amount": float("inf"), "note": base64.b64encode(json.dumps({
         "op": utils.OpCodes.TRAIN_MODEL, "ds_name": "dow_jones_index", "raw_model": "GRU", "trained_model": "test",
         "hidden_dim": 5, "num_hidden_layers": 1
-    }).encode())}
+    }).encode())}"""
 
-    oracleCore.OracleState.init()
+    note = {
+        "ds_link": "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv",
+        "ds_name": "test",
+        "ds_size": "77",
+        "time_attrib": "time_step",
+        "op": "<UP_DATASET>"
+    }
+    mock_txn = {"id": "0txn", "sender": "0user", "payment-transaction": {"amount": float("inf")},
+                "note": base64.b64encode(json.dumps(note).encode())}
+
     oracleCore.OracleState.monitor.process_incoming(mock_txn)
-
 
 
 if __name__ == "__main__":

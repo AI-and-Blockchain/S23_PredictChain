@@ -174,7 +174,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                dataManager.save_dataset(**kwargs, txn_id=txn["id"], user_id=txn["sender"])
+                dataManager.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])

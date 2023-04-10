@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import './HomePage.css'
+import React from 'react';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import Slideshow from '../Slideshow/Slideshow';
+import './HomePage.css'
 
 function HomePage() {
   return (
@@ -20,7 +20,7 @@ function HomePage() {
         <div className="containertext">
           <div className="text" style={{marginLeft: '200px', marginRight: '100px', marginTop: '50px'}}>
             <h1 style={{textDecoration: "underline"}}>How do we differ from our competitors?</h1>
-            <h4 style={{fontSize: "30px", fontWeight: "lighter"}}>Our motivation is to fill a similar niche to marketplace DApps, but will accommodate to the user more. We are working towards a more varied experience when it comes to decentralized ML platforms.  Over the course of the month, we plan to improve upon this idea to provide users with more flexibility in their use cases.</h4>
+            <h4 style={{fontSize: "30px", fontWeight: "lighter"}}>Our motivation is to fill a similar niche to marketplace DApps, but we intend on accommodating to the user more. We are working towards a more varied experience when it comes to decentralized ML platforms.  We plan to improve upon this idea to provide users with more flexibility in their use cases over the course of this semester.</h4>
           </div>
           <div className="img" style={{marginRight: '200px', marginTop: '50px'}}>
             <img src={require('../img/differentiate.jpg')}  style={{width: '600px', height: '400px', borderRadius: '80px'}}/>

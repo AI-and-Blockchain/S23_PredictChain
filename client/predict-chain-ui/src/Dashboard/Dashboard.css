@@ -75,5 +75,5 @@ a:hover{
 }
 
 .container p{
-  line-height: 200px; /* Create scrollbar to test positioning */
+  line-height: 200px;
 }

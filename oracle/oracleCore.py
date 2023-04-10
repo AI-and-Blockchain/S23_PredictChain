@@ -166,7 +166,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         kwargs = {**txn["note"]}
 
         op_price, _ = Pricing.calc_op_price(op, **kwargs)
-        if txn["amount"] < op_price:
+        if txn['payment-transaction']['amount'] < op_price:
             # Reject transaction
             utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn["amount"],
                            note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": "UNDERFUNDED"}))

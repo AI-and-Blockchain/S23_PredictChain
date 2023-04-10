@@ -27,7 +27,11 @@ a:hover{
   color: gray;
 }
 
-Link:hover{
+a.ex1 {
+  color: black;
+}
+
+a.ex1:hover{
   color: gray;
 }
 

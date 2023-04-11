@@ -4,7 +4,7 @@ import sys, os
 import requests
 import json
 from flask import Flask, request, send_file, send_from_directory
-from common import utils
+from common import utils, constants
 from flask_cors import CORS
 
 class ClientState:
@@ -63,7 +63,7 @@ def get_dataset_upload_price(ds_size: int) -> tuple[int, str]:
     :param ds_size: The size of the dataset that is planned to upload
     :return: The price of uploading a dataset and the transaction id where that price was last modified"""
 
-    url = f"http://localhost:8030/dataset_upload_price?ds_size={ds_size}"
+    url = f"http://{constants.ORACLE_SERVER_ADDRESS}/dataset_upload_price?ds_size={ds_size}"
     resp_json = requests.get(url).json()
     return resp_json["price"], resp_json["txn_id"]
 
@@ -75,7 +75,7 @@ def get_model_train_price(raw_model: str, ds_name: str) -> tuple[int, str]:
     :param ds_name: The name of the dataset to train the model on
     :return: The price of training a model and the transaction id where that price was last modified"""
 
-    url = "http://localhost:8030/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
+    url = "http://{constants.ORACLE_SERVER_ADDRESS}/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
     resp_json = requests.get(url).json()
     return resp_json["price"], resp_json["txn_id"]
 
@@ -86,7 +86,7 @@ def get_model_query_price(trained_model: str) -> tuple[int, str]:
     :param trained_model: The name of the trained model to query
     :return: The price of querying a model and the transaction id where that price was last modified"""
 
-    url = "http://localhost:8030/model_query_price?trained_model=" + trained_model
+    url = "http://{constants.ORACLE_SERVER_ADDRESS}/model_query_price?trained_model=" + trained_model
     resp_json = requests.get(url).json()
     return resp_json["price"], resp_json["txn_id"]
 
@@ -199,6 +199,24 @@ def dataset_upload_price():
     ds_size = int(request.args.get('ds_size'))
     price, txn_id = get_dataset_upload_price(ds_size)
     return {"price": price, "txn_id": txn_id}
+
+
+@app.route('/get_datasets', methods=["GET"])
+def get_datasets():
+    """Gets a dictionary of all the stored datasets and their attributes
+
+    :return: A dictionary of all the stored datasets and their attributes"""
+
+    return requests.get(f"http://{constants.ORACLE_SERVER_ADDRESS}/get_datasets").json()
+
+
+@app.route('/get_models', methods=["GET"])
+def get_models():
+    """Gets a dictionary of all the stored models and their attributes
+
+    :return: A dictionary of all the stored models and their attributes"""
+
+    return requests.get(f"http://{constants.ORACLE_SERVER_ADDRESS}/get_models").json()
 
 
 @app.route('/add_dataset', methods=["POST"])

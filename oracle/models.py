@@ -10,9 +10,6 @@ from common import utils
 from oracle import dataManager
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-# https://www.simplilearn.com/tutorials/machine-learning-tutorial/decision-tree-in-python
-from sklearn.tree import DecisionTreeClassifier
 
 
 class PredictModel:
@@ -444,12 +441,7 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
 
     model_attribs = model.save(save_location)
     model_attribs.pop("data_handler")
-    tmp = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
-
-    dataset_attribs = {}
-
-    for key in tmp.keys():
-        dataset_attribs[key.decode()] = tmp[key].decode()
+    dataset_attribs = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
 
     dataManager.database.hset("<MODEL>"+model.model_name, mapping={"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id,

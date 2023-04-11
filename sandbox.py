@@ -43,7 +43,9 @@ def sandbox():
     mock_txn = {"id": "0txn", "sender": "0user", "payment-transaction": {"amount": float("inf")},
                 "note": base64.b64encode(json.dumps(note).encode())}
 
-    oracleCore.OracleState.monitor.process_incoming(mock_txn)
+    # oracleCore.OracleState.monitor.process_incoming(mock_txn)
+
+    dataManager.save_database("database.json")
 
 
 if __name__ == "__main__":

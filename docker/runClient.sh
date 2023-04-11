@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run -d --network host predict-chain python3 clientMain.py
+docker run --rm -d --network host predict-chain python3 clientMain.py

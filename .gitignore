@@ -6,6 +6,7 @@ client/predict-chain-ui/node_modules
 data/*
 __pycache__
 docs/sphinx/.doctrees
+database.json
 *.pyc
 *.aux
 *.bbl

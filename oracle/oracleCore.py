@@ -27,6 +27,11 @@ class OracleState:
 
         cls.monitor = OracleTransactionMonitor()
 
+        if os.path.exists("database.json"):
+            print("Loading database contents from file...")
+            dataManager.load_database("database.json")
+            print("database keys", dataManager.database.keys())
+
 
 class Pricing:
     """Class to keep track and modify the pricing of transactions"""
@@ -256,3 +261,21 @@ def report_model_query_price():
 
     price, txn_id = Pricing.calc_model_query_price(**request.args)
     return {"price": price, "txn_id": txn_id}
+
+
+@app.route('/get_datasets', methods=["GET"])
+def get_datasets():
+    """Gets a dictionary of all the stored datasets and their attributes
+
+    :return: A dictionary of all the stored datasets and their attributes"""
+
+    return dataManager.enum_database("local", "<DS>")
+
+
+@app.route('/get_models', methods=["GET"])
+def get_models():
+    """Gets a dictionary of all the stored models and their attributes
+
+    :return: A dictionary of all the stored models and their attributes"""
+
+    return dataManager.enum_database("local", "<MODEL>")

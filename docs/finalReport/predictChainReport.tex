@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{subfiles}
+\usepackage{float}
 
 \title{Predict Chain}
 \author{Matthew Pisano, Connor Patterson, William Hawkins}
@@ -41,6 +42,70 @@ record for other users to view.
 \subsection{Use Case/ Motivating User Story}
 \emph{Use case or motivating user story detailing how someone would use the system you have built}
 
+\newline\quad\textbf{User Story \#1}
+\\\textit{Scenario:} As a data analyst, I want to have access to trends of various stock markets so that I can create predictive models that will inform my investment strategies
+
+\newline\quad\textbf{User Story \#2}
+\\\textit{Scenario:} As a stockbroker, I want to compare my dataset to another dataset against the same model so that I can get an idea as to which is better
+
+
+\newline\quad\textbf{Use Cases}
+\newline For the sake of space, we will only go over two simple Use Cases, one that allows the user to add a dataset, and another that checks a price request for a dataset 
+\begin{table}[H]
+\caption{Add Dataset}
+\label{tab:my-table}
+\centering
+\begin{tabular}{|p{3cm}|p{8cm}|}
+\hline
+\textbf{Identifier:} & UC1 \\
+\hline
+\textbf{Description:} & The user logs in to PredictChain and adds a dataset to their account\\
+\hline
+\textbf{Actor(s):} & Site User \\
+\hline
+\textbf{Precondition(s):} & PredictChain is set up properly (connected to the client which is connect to Oracle) \\
+\hline
+\textbf{Event Flow:} & 
+\begin{enumerate}
+    \item The user logs in properly into their account (or creates a new account)
+    \item The user inputs a link to the dataset file 
+    \item The user inputs a name corresponding to that dataset
+    \item The user enter in the amount of bytes the dataset file is
+    \item The user presses "Submit" 
+    \item The user then either sees the corresponding Oracle transaction ID or an error occurred
+\end{enumerate} \\
+\hline
+\textbf{Postcondition(s):} & The website displays the information onto the dashboard corresponding to the outcome \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\caption{Dataset Price Request}
+\label{tab:my-table}
+\centering
+\begin{tabular}{|p{3cm}|p{8cm}|}
+\hline
+\textbf{Identifier:} & UC2 \\
+\hline
+\textbf{Description:} & The user logs in to PredictChain and checks the price for a dataset that contains a certain amount of bytes\\
+\hline
+\textbf{Actor(s):} & Site User \\
+\hline
+\textbf{Precondition(s):} & PredictChain is set up properly (connected to the client which is connect to Oracle) \\
+\hline
+\textbf{Event Flow:} & 
+\begin{enumerate}
+    \item The user logs in properly into their account (or creates a new account)
+    \item The user inputs the corresponding amount of bytes that a sample file would have to check the price for
+    \item The user is then shown the price that it would cost for a user to upload a file that size in bytes
+\end{enumerate} \\
+\hline
+\textbf{Postcondition(s):} & The website displays the information onto the dashboard corresponding to the input \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{Implementation Details}
 
 \emph{Provide details of how you implemented your solution. Please add as many diagrams as necessary and explain the
@@ -50,6 +115,9 @@ Links to all the resources produced (GitHub source code, demo link, link to the 
 
 The structure of PredictChain is primarily broken up into two parts: the client and the oracle.  Both of these parts interact
 with each other through the blockchain.
+
+\subsection{The UI}
+Although not directly related to the AI nor the blockchain parts of the product, it is still important to discuss the UI aspect of our project. The UI creates the face of PredictChain by having multiple pages that create a more pleasant experience for the user. For example, the home page talks about our mission, how we differ from our competitors and example model sets we provide. The addition of FAQ pages and Meet the Team pages allow users to understand who created PredictChain, as well as get answers about any privacy/security concerns they might have. Lastly, users can create an account or login to a pre-existing account. Then users are able to use PredictChain to its fullest functionality such as adding datasets, checking prices, or querying models with provided datasets. The UI talks to the client in order to get this data and then provides it to the user in a nice manner.
 
 \subsection{The Client}
 

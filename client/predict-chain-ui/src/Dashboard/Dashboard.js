@@ -14,6 +14,10 @@ function Dashboard() {
   const [transactions, setTransactions] = useState([]); // set transaction list
   const [datasetSize, setDatasetSize] = useState(""); // set templated data set size
   const [uploadPrice, setUploadPrice] = useState(0); // set templated upload price 
+  const [size, setSize] = useState(0);
+  const [datasetName, setDatasetName] = useState("");
+  const [link, setLink] = useState("");
+  const [transactionId, setTransactionId] = useState('');
   const navigate = useNavigate(); // for useEffect
 
   const handleUpdateState = () => { // this doesnt do much now
@@ -29,6 +33,24 @@ function Dashboard() {
       setName(data.name);
       setPK(data.privateKey);
       setAddr(data.address);
+  };
+
+
+  const handleAddDataset = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.get('http://localhost:8031/add_dataset', {
+        params: {
+          ds_link: link,
+          ds_name: name,
+          ds_size: size,
+          time_attrib: "time_step"
+        }
+      });
+      setTransactionId(response.data); // assuming the response is just the transaction ID
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleDatasetUploadPriceRequest = async () => { // handles upload price request based on dataset size
@@ -69,15 +91,13 @@ function Dashboard() {
       <div className="dashboard">
         <div className="dashboard__container">
           <h1 style={{textAlign: "left", marginLeft: "50px"}}>Welcome {name}!</h1>
-          Logged in as
-          <div>{name}</div>
-          <div>{user?.email}</div>
-          <div><h2>Private Key:</h2> {pk}</div>
-          <div><h2>Address:</h2> {addr}</div>
+          <div style={{textAlign: "left", marginLeft: "50px"}}><h2>Email</h2>{user?.email}</div>
+          <div style={{textAlign: "left", marginLeft: "50px"}}><h2>Private Key</h2> {pk}</div>
+          <div style={{textAlign: "left", marginLeft: "50px"}}><h2>Address</h2> {addr}</div>
           <button className="dashboard__btn" onClick={logout}>
             Logout
           </button>
-          <div>
+          <div style={{marginTop: "-400px", marginLeft: "950px"}}>
             <h2>Request Dataset Upload Price</h2>
             <div>
               <input
@@ -96,7 +116,27 @@ function Dashboard() {
               </div>
             )}
           </div>
-          <div>
+          <div style={{marginLeft: "950px"}}>
+            <h2>Add Dataset</h2>
+            <form onSubmit={handleAddDataset}>
+              <label style={{marginLeft: "10px"}}>
+                Link:
+                <input style={{marginLeft: "10px"}} type="text" value={link} onChange={(e) => setLink(e.target.value)} />
+              </label>
+              <label style={{marginLeft: "10px"}}>
+                Name:
+                <input style={{marginLeft: "10px"}} type="text" value={datasetName} onChange={(e) => setDatasetName(e.target.value)} />
+              </label>
+              <label style={{marginLeft: "10px"}}>
+                Dataset Size (bytes):
+                <input  style={{marginLeft: "10px"}} type="text" value={size} onChange={(e) => setSize(e.target.value)} />
+              </label>
+              <br/>
+              <button type="submit">Submit</button>
+            </form>
+            {transactionId && <p>Oracle Transaction ID: {transactionId}</p>}
+          </div>
+          <div style={{marginTop: "500px"}}>
             <button onClick={handleUpdateState}>Update State</button>
             <ul>
               {transactions.map((txn, index) => (

@@ -2,13 +2,27 @@
 function Slideshow() {
   return (
     <div>
-        <div className="image-gallery-container">
-            <h1 style={{textAlign: "center",  textDecoration: "underline"}}>Example Models We Provide</h1>
-            <img src={require('../img/decision-tree.png')} style={{marginLeft: "50px", border: "4px solid black", borderRadius: "3px"}} alt="Decision Trees"/>
-            <img src={require('../img/perceptrons.png')} style={{marginLeft: "25px", marginRight: "25px", border: "4px solid black", borderRadius: "3px"}} alt="Perceptrons"/>
-            <img src={require('../img/nn.png')} style={{width: "600px", border: "4px solid black", borderRadius: "3px"}} alt="Neural Networks"/>
+        <h1 style={{textAlign: "center",  textDecoration: "underline"}}>Example Models We Provide</h1>
+        <div className="image-gallery-container" style={{width: "75%", marginLeft: "12.5%"}}>
+            <img src={require('../img/perceptrons.png')} className="slideshow-image" alt="Perceptrons"/>
+            <img src={require('../img/mpl.png')} className="slideshow-image" alt="Multi-Layered Perceptrons"/>
         </div>
-        <h2 style={{display: "inline", marginLeft: "250px"}}>Decision Trees</h2><h2 style={{display: "inline", marginLeft: "450px"}}>Perceptrons</h2><h2 style={{display: "inline", marginLeft: "435px"}}>Neural Networks</h2>
+        <div className="image-gallery-container" style={{width: "75%", marginLeft: "12.5%"}}>
+            <h2>Perceptrons</h2>
+            <h2>Multi-Layered Perceptrons</h2>
+        </div>
+
+        <div className="image-gallery-container">
+            <img src={require('../img/rnn.png')} className="slideshow-image" alt="Recurrent Neural Networks"/>
+            <img src={require('../img/lstm.png')} className="slideshow-image" alt="Long Short-Term Memory Networks"/>
+            <img src={require('../img/gru.png')} className="slideshow-image" alt="Gated Recurrent Unit Networks"/>
+        </div>
+        <div className="image-gallery-container">
+            <h2>Recurrent Neural Networks</h2>
+            <h2>Long Short-Term Memory Networks</h2>
+            <h2>Gated Recurrent Unit Networks</h2>
+        </div>
+
     </div>
   );
 }

@@ -2,7 +2,8 @@ import React from 'react';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import Slideshow from '../Slideshow/Slideshow';
-import './HomePage.css'
+import '../Slideshow/Slideshow.css';
+import './HomePage.css';
 
 function HomePage() {
   return (

@@ -5,6 +5,13 @@ venv
 node_modules
 data/*
 __pycache__
-*.pyc
 docs/sphinx/.doctrees
+*.pyc
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.gz
 *.inv

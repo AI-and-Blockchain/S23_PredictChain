@@ -1,4 +1,6 @@
+import os
 from client.clientCore import *
+from subprocess import Popen
 
 
 if __name__ == "__main__":
@@ -7,4 +9,13 @@ if __name__ == "__main__":
 
     ClientState.monitor.monitor()
 
-    app.run(host=utils.CLIENT_SERVER_HOST, port=utils.CLIENT_SERVER_PORT)
+    react_dir = "client/predict-chain-ui"
+
+    print("Running front end...")
+    p = Popen(['npm', 'start'], cwd=react_dir)
+
+    try:
+        app.run(host=utils.CLIENT_SERVER_HOST, port=utils.CLIENT_SERVER_PORT)
+    except Exception:
+        print("Terminating front end...")
+        p.terminate()

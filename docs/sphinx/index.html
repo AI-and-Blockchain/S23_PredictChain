@@ -39,6 +39,8 @@
             
   <section id="welcome-to-predictchain-s-documentation">
 <h1>Welcome to PredictChain’s documentation!<a class="headerlink" href="#welcome-to-predictchain-s-documentation" title="Permalink to this heading">¶</a></h1>
+<p>Here you will find detailed documentation concerning the functions and classes within this project, along with
+their appropriate usages.</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -283,6 +285,17 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.docs">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">docs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.docs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the index page for the documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The index page for the documentation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.get_dataset_upload_price">
 <span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_dataset_upload_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#client.clientCore.get_dataset_upload_price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the upload price from the oracle.  This can be verified with the returned transaction id</p>
@@ -406,6 +419,20 @@
 </dd>
 </dl>
 </section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.send_static_file">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">send_static_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.send_static_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets any folder located in the _static directory of the sphinx documentation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> – The name of the file to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The corresponding file</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1526,6 +1553,7 @@ registered hooks while the latter silently ignores them.</p>
 <li><a class="reference internal" href="#client.clientCore.add_dataset_api"><code class="docutils literal notranslate"><span class="pre">add_dataset_api()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.create_new_account"><code class="docutils literal notranslate"><span class="pre">create_new_account()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.dataset_upload_price"><code class="docutils literal notranslate"><span class="pre">dataset_upload_price()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.docs"><code class="docutils literal notranslate"><span class="pre">docs()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_dataset_upload_price"><code class="docutils literal notranslate"><span class="pre">get_dataset_upload_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_model_query_price"><code class="docutils literal notranslate"><span class="pre">get_model_query_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_model_train_price"><code class="docutils literal notranslate"><span class="pre">get_model_train_price()</span></code></a></li>
@@ -1534,6 +1562,7 @@ registered hooks while the latter silently ignores them.</p>
 <li><a class="reference internal" href="#client.clientCore.ping"><code class="docutils literal notranslate"><span class="pre">ping()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.query_model"><code class="docutils literal notranslate"><span class="pre">query_model()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.query_model_api"><code class="docutils literal notranslate"><span class="pre">query_model_api()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.send_static_file"><code class="docutils literal notranslate"><span class="pre">send_static_file()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.train_model"><code class="docutils literal notranslate"><span class="pre">train_model()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.train_model_api"><code class="docutils literal notranslate"><span class="pre">train_model_api()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.update_state"><code class="docutils literal notranslate"><span class="pre">update_state()</span></code></a></li>

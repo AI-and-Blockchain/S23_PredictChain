@@ -171,8 +171,10 @@ def update_state():
 def dataset_upload_price():
     """Requests to see the price for uploading a dataset
 
-    | Query Params:
-    | ds_size (int) - The size of the dataset in bytes
+    Query Params
+    ------------
+
+    * ds_size (int) - The size of the dataset in bytes
 
     :return: The price of the transaction and the transaction id where that price was last changed"""
 
@@ -185,14 +187,18 @@ def dataset_upload_price():
 def add_dataset_api():
     """Requests to add a dataset from the UI to the client
 
-    | JSON Data:
-    | ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
-    | ds_name (str) - The name that will be assigned to the new dataset
-    | ds_size (str) - The size of the dataset
-    | time_attrib (str) - The attribute of the data that denotes the passage of time
+    JSON Data
+    ------------
 
-    | Optional JSON Data
-    | sub_split_attrib (str) - The attribute that is used to split the dataset into independent subsets
+    * ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
+    * ds_name (str) - The name that will be assigned to the new dataset
+    * ds_size (str) - The size of the dataset
+    * time_attrib (str) - The attribute of the data that denotes the passage of time
+
+    Optional JSON Data
+    ------------
+
+    * sub_split_attrib (str) - The attribute that is used to split the dataset into independent subsets
 
     :return: The id of the transaction that was created"""
 
@@ -205,21 +211,25 @@ def add_dataset_api():
 def train_model_api():
     """Requests to train a model from the UI to the client
 
-    | JSON Data:
-    | raw_model (str) - The raw model to train
-    | trained_model (str) - The name of the new trained model
-    | ds_name (str) - The name of the dataset to train the model on
-    | num_epochs (int) - The number of epochs to train the model for
-    | target_attrib (str) - The name of the attribute that is used to test
-    | hidden_dim (int) - The size of the hidden layers
-    | num_hidden_layers (int) - The number of hidden layers
+    JSON Data
+    ------------
 
-    | Optional JSON Data
-    | sub_split_value (str) - The value used to split the data along the saved sub_split attribute
-    | loss_fn_name (str) - The name of the loss function to use while training
-    | optimizer_name (str) - The name of the optimizer to use while training
-    | learning_rate (float) - The learning rate to use while training
-    | training_lookback (int) - The size of the lookback window to use when training time series networks
+    * raw_model (str) - The raw model to train
+    * trained_model (str) - The name of the new trained model
+    * ds_name (str) - The name of the dataset to train the model on
+    * num_epochs (int) - The number of epochs to train the model for
+    * target_attrib (str) - The name of the attribute that is used to test
+    * hidden_dim (int) - The size of the hidden layers
+    * num_hidden_layers (int) - The number of hidden layers
+
+    Optional JSON Data
+    ------------
+
+    * sub_split_value (str) - The value used to split the data along the saved sub_split attribute
+    * loss_fn_name (str) - The name of the loss function to use while training
+    * optimizer_name (str) - The name of the optimizer to use while training
+    * learning_rate (float) - The learning rate to use while training
+    * training_lookback (int) - The size of the lookback window to use when training time series networks
 
     :return: The id of the transaction that was created"""
 
@@ -232,9 +242,11 @@ def train_model_api():
 def model_train_price():
     """Requests to see the price for training a model
 
-    | Query Params:
-    | raw_model (str) - The name of the raw model to train
-    | ds_name (str) - The name of the dataset to train the model on
+    Query Params
+    ------------
+
+    * raw_model (str) - The name of the raw model to train
+    * ds_name (str) - The name of the dataset to train the model on
 
     :return: The price of the transaction and the transaction id where that price was last changed"""
 
@@ -247,8 +259,10 @@ def model_train_price():
 def model_query_price():
     """Requests to see the price for querying a model
 
-    | Query Params:
-    | trained_model (str) - The name of the trained model to query
+    Query Params
+    ------------
+
+    * trained_model (str) - The name of the trained model to query
 
     :return: The price of the transaction and the transaction id where that price was last changed"""
 
@@ -261,11 +275,13 @@ def model_query_price():
 def query_model_api():
     """Requests to query a model from the UI to the client
 
-        | JSON Data:
-        | trained_model (str) - The name of the trained model to query
-        | model_input (str) - The input to the model
+    JSON Data
+    ------------
 
-        :return: The id of the transaction that was created"""
+    * trained_model (str) - The name of the trained model to query
+    * model_input (str) - The input to the model
+
+    :return: The id of the transaction that was created"""
 
     txn_id = query_model(**request.json)
     return txn_id

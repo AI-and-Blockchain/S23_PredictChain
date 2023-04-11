@@ -85,18 +85,18 @@ class PredictModel:
         return all_subs
 
     @classmethod
-    def create(cls, base_model_name: str, new_model_name: str, data_handler: dataManager.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
+    def create(cls, raw_model: str, trained_model: str, data_handler: dataManager.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters
 
-        :param base_model_name: The name of the base model of this instance
-        :param new_model_name: The name given to this instance of a model
+        :param raw_model: The name of the base model of this instance
+        :param trained_model: The name given to this instance of a model
         :param data_handler: The handler for the dataset that the model will use
         :param loss_fn_name: The name of the loss function that the model will use
         :return: An instance of the specified model"""
 
         for sub in cls.subclass_walk(cls):
-            if sub.__name__ == base_model_name or sub.base_model_name.lower() == base_model_name.lower():
-                return sub(new_model_name, data_handler, loss_fn_name=loss_fn_name, **kwargs)
+            if sub.__name__ == raw_model or sub.base_model_name.lower() == raw_model.lower():
+                return sub(trained_model, data_handler, loss_fn_name=loss_fn_name, **kwargs)
 
     @abc.abstractmethod
     def train_model(self, **kwargs):
@@ -176,6 +176,12 @@ class BaseNN(nn.Module, PredictModel):
                 print(f"Accuracy: {accuracy}")
                 print(f"Loss: {loss}")
 
+        accuracy, loss = self.eval_model(target_attrib, **kwargs)
+        print(f"Accuracy: {accuracy}")
+        print(f"Loss: {loss}")
+
+        return accuracy, loss
+
     def eval_model(self, target_attrib: str, plot_eval=False, **kwargs):
         """Evaluates the performance of the network
 
@@ -216,13 +222,16 @@ class BaseNN(nn.Module, PredictModel):
 
         return total_accuracy / total_entries, total_loss / total_entries
 
-    def preprocess_data(self, target_attrib: str, lookback=1, sub_split_value=None, **kwargs):
+    def preprocess_data(self, target_attrib: str, training_lookback=2, sub_split_value=None, **kwargs):
         """Processes the dataframe from the data handler into labeled training and testing sets
 
         :param target_attrib: The attribute of the dataset to serve as the classifier
-        :param lookback: The size of the sliding time window to give to recurrent models
-        :param sub_split_value: The value of the particular sub_split to use
+        :param training_lookback: The size of the sliding time window to give to recurrent models
+        :param sub_split_value: The value used to split the data along the saved sub_split attribute
         :return: The labeled training and testing sets"""
+
+        if training_lookback < 2:
+            raise ValueError("lookback must be greater than 1!")
 
         selected_data = self.data_handler.dataframe
 
@@ -233,8 +242,8 @@ class BaseNN(nn.Module, PredictModel):
         time_series = []
 
         # Sliding window data
-        for index in range(len(selected_data) - lookback):
-            time_series.append(selected_data[index: index + lookback])
+        for index in range(len(selected_data) - training_lookback):
+            time_series.append(selected_data[index: index + training_lookback])
 
         train_len = int(0.8*len(time_series))
         time_series = np.array(time_series)
@@ -262,7 +271,7 @@ class MLP(BaseNN):
 
     base_model_name = "MLP"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """Multi-layered perceptron implementation
 
         :param model_name: The name given to this instance of a model
@@ -295,7 +304,7 @@ class GRU(BaseNN):
 
     base_model_name = "GRU"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """GRU implementation
 
         :param model_name: The name given to this instance of a model
@@ -335,7 +344,7 @@ class LSTM(BaseNN):
 
     base_model_name = "LSTM"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """LSTM implementation
 
         :param model_name: The name given to this instance of a model
@@ -376,7 +385,7 @@ class RNN(BaseNN):
 
     base_model_name = "RNN"
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae"):
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """RNN implementation
 
         :param model_name: The name given to this instance of a model
@@ -405,43 +414,6 @@ class RNN(BaseNN):
         return out
 
 
-class DecisionTree(DecisionTreeClassifier, PredictModel):
-
-    base_model_name = "DTree"
-
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
-        super(DecisionTree, self).__init__(**kwargs)
-        self.init(model_name, data_handler, loss_fn_name, **kwargs)
-        self.model_complexity = self.get_n_leaves() + self.get_depth()
-
-    def train_model(self):
-        for input_sequence, target in self.data_handler.data_loader():
-            self.fit(input_sequence, target)
-
-    def eval_model(self):
-        loss_fn = self.get_loss_fn(self.loss_fn_name)
-        total_loss = 0
-        total_correct = 0
-        total_entries = 0
-        for input_sequence, target in self.data_handler.data_loader():
-            output = self.predict(input_sequence)
-
-            if output == target:
-                total_correct += 1
-            total_loss += loss_fn(output, target).item()
-            total_entries += 1
-        return total_correct / total_entries, total_loss / total_entries
-
-    def save(self, save_location):
-        # TODO: Save tree params
-        model_attribs = {"base_model_name": self.base_model_name, **self.kwargs}
-        return model_attribs
-
-    def load(self, save_location):
-        # TODO: Load tree params
-        ...
-
-
 def get_trained_model(model_name: str):
     """Gets a trained model by name and returns the model along with transaction and user metadata
 
@@ -463,8 +435,16 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
     :param txn_id: The id of the transaction that initiated the saving of this model
     :param user_id: The address of the user that is saving this model"""
 
+    print(f"Saving {model.base_model_name} model '{model.model_name}'")
+
     model_attribs = model.save(save_location)
-    dataset_attribs = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
+    model_attribs.pop("data_handler")
+    tmp = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
+
+    dataset_attribs = {}
+
+    for key in tmp.keys():
+        dataset_attribs[key.decode()] = tmp[key].decode()
 
     dataManager.database.hset("<MODEL>"+model.model_name, mapping={"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id,

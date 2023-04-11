@@ -290,7 +290,13 @@ def load_dataset(ds_name: str):
     :param ds_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
-    dataset_attribs = database.hgetall("<DS>" + ds_name)
-    handler = LocalDataHandler(ds_name, dataset_attribs[b"time_attrib"].decode(),
-                               sub_split_attrib=dataset_attribs.get(b"sub_split_attrib", "").decode())
+    tmp = database.hgetall("<DS>" + ds_name)
+    dataset_attribs = {}
+
+    for key in tmp.keys():
+        dataset_attribs[key.decode()] = tmp[key].decode()
+
+    handler = LocalDataHandler(ds_name, dataset_attribs["time_attrib"],
+                               sub_split_attrib=dataset_attribs.get("sub_split_attrib", ""))
+
     return handler, dataset_attribs

@@ -31,11 +31,14 @@ def sandbox():
     }).encode())}"""
 
     note = {
-        "ds_link": "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv",
-        "ds_name": "test",
-        "ds_size": "77",
-        "time_attrib": "time_step",
-        "op": "<UP_DATASET>"
+        "op": utils.OpCodes.TRAIN_MODEL,
+        "ds_name": "dow_jones_index",
+        "raw_model": "GRU",
+        "trained_model": "testModel",
+        "hidden_dim": 5,
+        "num_hidden_layers": 1,
+        "num_epochs": 3,
+        "target_attrib": "close"
     }
     mock_txn = {"id": "0txn", "sender": "0user", "payment-transaction": {"amount": float("inf")},
                 "note": base64.b64encode(json.dumps(note).encode())}

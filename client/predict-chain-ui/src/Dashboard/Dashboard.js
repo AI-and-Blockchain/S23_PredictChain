@@ -37,7 +37,7 @@ function Dashboard() {
     } else if (datasetSize >= 0) {
       try {
         const response = await axios.get(
-          `http://localhost:8031/get_dataset_upload_size?ds_size=${datasetSize}`
+          `http://localhost:8031/get_dataset_upload_price?ds_size=${datasetSize}`
         );
         setUploadPrice(response.data.price);
       } catch (error) {

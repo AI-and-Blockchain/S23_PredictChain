@@ -80,9 +80,39 @@ as a pandas dataframe, and split the dataset by the values of one of its attribu
 recognize are \textit{local} and \textit{ipfs}.  When using either of these environments, the handler abstracts away the
 complexities of working with either of them into a unified interface.
 
+When working with user-trained models, the oracle uses a similar, common interface.  This interface can create the model
+architecture, train the model on a selected dataset, query the trained model, evaluate its performance, save the model,
+and load it back from a specified environment.  When creating and training a model, the interface chooses among a group of
+archetype or template models.  These models can be a:
+
+\begin{itemize}
+    \item Multi-layered perceptron neural network
+    \item Recurrent neural network
+    \item Long short-term memory neural networks
+    \item Gated recurrent unit neural networks
+\end{itemize}
+
+Each of these models has a \textit{model\_complexity} attribute.  This is a simple float value, designed to give users
+a general idea of how performant a model can be once trained and serves as a method of calculating the cost of using
+or training that given model.  The attribute itself is calculated using the size of the network and a linter multiplier to
+account for more complex model architectures.  For models like GRUs or LSTMs, the complexity is higher as they are mode complex, and often
+better performing models.  For models like MLPs, the complexity is lower.  This gives the desired effect of faster, simpler
+models being cheaper than the slower, more complex models without any heavy calculations.   The interface abstracts most
+of the complexities of training, querying, and evaluating these models.  The only difference between them is the inclusion
+of several optional parameters.
+
 \subsection{The Blockchain}
 
 In PredictChain, the blockchain serves as both a records keeper and a messenger between the client and the oracle.
+This is accomplished by using transactions as a form of direct communication.  With every transaction sent is a note.
+This note is a json-encoded string (encoded in base64) that communicate information about the operation that the transaction
+is requesting be performed and arguments relevant to that operation.  The operations in the note are represented by a series
+of op codes.  These codes are abbreviations of the operation name enclosed in angle brackets, for example \textit{<QUERY\_MODEL>}.
+The arguments to these operations are represented as a named dictionary, with each key being the name of the argument and each
+value being the argument itself.  This named strategy allows the program to be very flexible without worrying about the exact
+ordering of the arguments.  Blockchain is quite useful in its role due to its immutability and its transparency.  Using
+a blockchain means that all requests are permanently stored and public, so other users can see what type of models are useful
+for specific datasets and what results those models have produced.
 
 \section{Evaluation}
 

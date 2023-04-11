@@ -19,7 +19,8 @@ class PredictModel:
     """Interface for unifying behavior of different predictive models"""
 
     model_complexity = 0.0
-    base_model_name = ""
+    BASE_MODEL_NAME = ""
+    COMPLEXITY_MULTIPLIER = 1
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Interface for unifying behavior of different predictive models
@@ -95,7 +96,7 @@ class PredictModel:
         :return: An instance of the specified model"""
 
         for sub in cls.subclass_walk(cls):
-            if sub.__name__ == raw_model or sub.base_model_name.lower() == raw_model.lower():
+            if sub.__name__ == raw_model or sub.BASE_MODEL_NAME.lower() == raw_model.lower():
                 return sub(trained_model, data_handler, loss_fn_name=loss_fn_name, **kwargs)
 
     @abc.abstractmethod
@@ -259,42 +260,11 @@ class BaseNN(nn.Module, PredictModel):
 
     def save(self, save_location):
         torch.save(self.state_dict(), save_location)
-        model_attribs = {"base_model_name": self.base_model_name, **self.kwargs}
+        model_attribs = {"BASE_MODEL_NAME": self.BASE_MODEL_NAME, **self.kwargs}
         return model_attribs
 
     def load(self, save_location):
         self.load_state_dict(torch.load(save_location))
-
-
-class MLP(BaseNN):
-    """Multi-layered perceptron implementation"""
-
-    base_model_name = "MLP"
-
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
-        """Multi-layered perceptron implementation
-
-        :param model_name: The name given to this instance of a model
-        :param data_handler: The handler for the dataset that the model will use
-        :param hidden_dim: The dimension of the hidden layers
-        :param num_hidden_layers: The number of hidden layers to put into the model
-        :param loss_fn_name: The name of the loss function that the model will use"""
-
-        super(MLP, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
-        # Fully connected layers
-        fcs = [nn.Linear(self.input_size, hidden_dim), nn.ReLU()]
-        for _ in range(num_hidden_layers-1):
-            fcs.extend([nn.Linear(hidden_dim, hidden_dim), nn.ReLU()])
-        fcs.append(nn.Linear(hidden_dim, self.output_size))
-
-        # Store layers into sequential
-        self.seq = nn.Sequential(*fcs)
-
-        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
-
-    def forward(self, x):
-        out = self.seq(x)
-        return out
 
 
 class GRU(BaseNN):
@@ -302,7 +272,8 @@ class GRU(BaseNN):
 
     # https://blog.floydhub.com/gru-with-pytorch/
 
-    base_model_name = "GRU"
+    BASE_MODEL_NAME = "GRU"
+    COMPLEXITY_MULTIPLIER = 2.5
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """GRU implementation
@@ -323,7 +294,7 @@ class GRU(BaseNN):
         self.fc = nn.Linear(hidden_dim, self.output_size)
         self.relu = nn.ReLU()
 
-        self.model_complexity = self.input_size + hidden_dim * num_hidden_layers + self.output_size
+        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim * num_hidden_layers + self.output_size)
 
     def forward(self, x):
         out, h = self.gru(x)
@@ -342,7 +313,8 @@ class LSTM(BaseNN):
     # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
     # https://blog.floydhub.com/gru-with-pytorch/
 
-    base_model_name = "LSTM"
+    BASE_MODEL_NAME = "LSTM"
+    COMPLEXITY_MULTIPLIER = 2
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """LSTM implementation
@@ -364,7 +336,7 @@ class LSTM(BaseNN):
         self.fc = nn.Linear(hidden_dim, self.output_size)
         self.relu = nn.ReLU()
 
-        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
+        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim*num_hidden_layers + self.output_size)
 
     def forward(self, x):
         out, h = self.lstm(x)
@@ -383,7 +355,8 @@ class RNN(BaseNN):
 
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
-    base_model_name = "RNN"
+    BASE_MODEL_NAME = "RNN"
+    COMPLEXITY_MULTIPLIER = 1.5
 
     def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """RNN implementation
@@ -403,7 +376,7 @@ class RNN(BaseNN):
         # Fully connected
         self.fc = nn.Linear(hidden_dim, self.output_size)
 
-        self.model_complexity = self.input_size + hidden_dim*num_hidden_layers + self.output_size
+        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim*num_hidden_layers + self.output_size)
 
     def forward(self, x):
         # Initialize hidden state with zeros
@@ -414,6 +387,38 @@ class RNN(BaseNN):
         return out
 
 
+class MLP(BaseNN):
+    """Multi-layered perceptron implementation"""
+
+    BASE_MODEL_NAME = "MLP"
+    COMPLEXITY_MULTIPLIER = 1
+
+    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+        """Multi-layered perceptron implementation
+
+        :param model_name: The name given to this instance of a model
+        :param data_handler: The handler for the dataset that the model will use
+        :param hidden_dim: The dimension of the hidden layers
+        :param num_hidden_layers: The number of hidden layers to put into the model
+        :param loss_fn_name: The name of the loss function that the model will use"""
+
+        super(MLP, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        # Fully connected layers
+        fcs = [nn.Linear(self.input_size, hidden_dim), nn.ReLU()]
+        for _ in range(num_hidden_layers-1):
+            fcs.extend([nn.Linear(hidden_dim, hidden_dim), nn.ReLU()])
+        fcs.append(nn.Linear(hidden_dim, self.output_size))
+
+        # Store layers into sequential
+        self.seq = nn.Sequential(*fcs)
+
+        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim*num_hidden_layers + self.output_size)
+
+    def forward(self, x):
+        out = self.seq(x)
+        return out
+
+
 def get_trained_model(model_name: str):
     """Gets a trained model by name and returns the model along with transaction and user metadata
 
@@ -421,7 +426,7 @@ def get_trained_model(model_name: str):
     :return: The loaded model and associated metadata"""
 
     model_attribs = dataManager.database.hgetall("<MODEL>" + model_name)
-    model = PredictModel.create(model_attribs["base_model_name"], model_name,
+    model = PredictModel.create(model_attribs["BASE_MODEL_NAME"], model_name,
                                 model_attribs["dataset_name"], model_attribs["loss_fn_name"], **model_attribs["kwargs"])
     model.load(model_attribs["save_location"])
     return model, (model_attribs["txn_id"], model_attribs["user_id"]), (model_attribs["ds_txn_id"], model_attribs["ds_user_id"])
@@ -435,7 +440,7 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
     :param txn_id: The id of the transaction that initiated the saving of this model
     :param user_id: The address of the user that is saving this model"""
 
-    print(f"Saving {model.base_model_name} model '{model.model_name}'")
+    print(f"Saving {model.BASE_MODEL_NAME} model '{model.model_name}'")
 
     model_attribs = model.save(save_location)
     model_attribs.pop("data_handler")

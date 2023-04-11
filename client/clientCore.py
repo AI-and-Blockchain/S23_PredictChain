@@ -3,7 +3,7 @@ from typing import Any
 import sys, os
 import requests
 import json
-from flask import Flask, request
+from flask import Flask, request, send_file, send_from_directory
 from common import utils
 from flask_cors import CORS
 
@@ -135,7 +135,7 @@ def query_model(trained_model: str, model_input):
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../docs/sphinx/_static")
 CORS(app)
 
 @app.route('/ping', methods=["GET"])
@@ -146,6 +146,24 @@ def ping():
 
     return {"pinged": "client"}
 
+
+@app.route('/_static/<path:filename>')
+def send_static_file(filename):
+    """Gets any folder located in the _static directory of the sphinx documentation
+
+    :param filename: The name of the file to get
+    :return: The corresponding file"""
+
+    return send_from_directory(app.static_folder, filename)
+
+
+@app.route('/docs', methods=["GET"])
+def docs():
+    """Gets the index page for the documentation
+
+    :return: The index page for the documentation"""
+
+    return send_file("../docs/sphinx/index.html")
 
 @app.route('/new_account', methods=["POST"])
 def create_new_account():

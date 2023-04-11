@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     ClientState.monitor.monitor()
 
-    react_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "client/predict-chain-ui")
+    react_dir = "client/predict-chain-ui"
 
     print("Running front end...")
     p = Popen(['npm', 'start'], cwd=react_dir)

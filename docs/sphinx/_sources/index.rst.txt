@@ -6,6 +6,9 @@
 Welcome to PredictChain's documentation!
 ========================================
 
+Here you will find detailed documentation concerning the functions and classes within this project, along with
+their appropriate usages.
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:

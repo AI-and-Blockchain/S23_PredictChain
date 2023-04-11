@@ -210,7 +210,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.add_dataset">
-<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_link</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.add_dataset" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_link</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_split_attrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.add_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a transaction to ask for a new dataset to be added and trained on a base model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -218,12 +218,40 @@
 <li><p><strong>ds_link</strong> – The URL that links to the dataset.  This URL must yield a stream of bytes upon GET</p></li>
 <li><p><strong>ds_name</strong> – The name that will be assigned to the new dataset</p></li>
 <li><p><strong>ds_size</strong> – The size of the dataset</p></li>
+<li><p><strong>time_attrib</strong> – The attribute of the data that denotes the passage of time</p></li>
+<li><p><strong>sub_split_attrib</strong> – The attribute that is used to split the dataset into independent subsets</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The id of the transaction to the oracle</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.add_dataset_api">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">add_dataset_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.add_dataset_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to add a dataset from the UI to the client</p>
+<section id="json-data">
+<h3>JSON Data<a class="headerlink" href="#json-data" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET</p></li>
+<li><p>ds_name (str) - The name that will be assigned to the new dataset</p></li>
+<li><p>ds_size (str) - The size of the dataset</p></li>
+<li><p>time_attrib (str) - The attribute of the data that denotes the passage of time</p></li>
+</ul>
+</section>
+<section id="optional-json-data">
+<h3>Optional JSON Data<a class="headerlink" href="#optional-json-data" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>sub_split_attrib (str) - The attribute that is used to split the dataset into independent subsets</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The id of the transaction that was created</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -238,8 +266,25 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.dataset_upload_price">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">dataset_upload_price</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.dataset_upload_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to see the price for uploading a dataset</p>
+<section id="query-params">
+<h3>Query Params<a class="headerlink" href="#query-params" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>ds_size (int) - The size of the dataset in bytes</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The price of the transaction and the transaction id where that price was last changed</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.get_dataset_upload_price">
-<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_dataset_upload_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.get_dataset_upload_price" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_dataset_upload_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#client.clientCore.get_dataset_upload_price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the upload price from the oracle.  This can be verified with the returned transaction id</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -253,7 +298,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.get_model_query_price">
-<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_model_query_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trained_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.get_model_query_price" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_model_query_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trained_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#client.clientCore.get_model_query_price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the query price from the oracle.  This can be verified with the returned transaction id</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -267,7 +312,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.get_model_train_price">
-<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_model_train_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.get_model_train_price" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">get_model_train_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#client.clientCore.get_model_train_price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the model price from the oracle.  This can be verified with the returned transaction id</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -280,6 +325,41 @@
 <dd class="field-even"><p>The price of training a model and the transaction id where that price was last modified</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.model_query_price">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">model_query_price</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.model_query_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to see the price for querying a model</p>
+<section id="id1">
+<h3>Query Params<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>trained_model (str) - The name of the trained model to query</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The price of the transaction and the transaction id where that price was last changed</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.model_train_price">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">model_train_price</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.model_train_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to see the price for training a model</p>
+<section id="id2">
+<h3>Query Params<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>raw_model (str) - The name of the raw model to train</p></li>
+<li><p>ds_name (str) - The name of the dataset to train the model on</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The price of the transaction and the transaction id where that price was last changed</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -311,8 +391,26 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.query_model_api">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">query_model_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.query_model_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to query a model from the UI to the client</p>
+<section id="id3">
+<h3>JSON Data<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>trained_model (str) - The name of the trained model to query</p></li>
+<li><p>model_input (str) - The input to the model</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The id of the transaction that was created</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="client.clientCore.train_model">
-<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trained_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.train_model" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trained_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.train_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a transaction to ask for a new dataset to be added and trained on a base model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -320,12 +418,49 @@
 <li><p><strong>raw_model</strong> – The raw model to train</p></li>
 <li><p><strong>trained_model</strong> – The name of the new trained model</p></li>
 <li><p><strong>ds_name</strong> – The name of the dataset to train the model on</p></li>
+<li><p><strong>num_epochs</strong> – The number of epochs to train the model for</p></li>
+<li><p><strong>target_attrib</strong> – The name of the attribute that is used to test</p></li>
+<li><p><strong>hidden_dim</strong> – The size of the hidden layers</p></li>
+<li><p><strong>num_hidden_layers</strong> – The number of hidden layers</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The id of the transaction to the oracle</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.clientCore.train_model_api">
+<span class="sig-prename descclassname"><span class="pre">client.clientCore.</span></span><span class="sig-name descname"><span class="pre">train_model_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.clientCore.train_model_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests to train a model from the UI to the client</p>
+<section id="id4">
+<h3>JSON Data<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>raw_model (str) - The raw model to train</p></li>
+<li><p>trained_model (str) - The name of the new trained model</p></li>
+<li><p>ds_name (str) - The name of the dataset to train the model on</p></li>
+<li><p>num_epochs (int) - The number of epochs to train the model for</p></li>
+<li><p>target_attrib (str) - The name of the attribute that is used to test</p></li>
+<li><p>hidden_dim (int) - The size of the hidden layers</p></li>
+<li><p>num_hidden_layers (int) - The number of hidden layers</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Optional JSON Data<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>sub_split_value (str) - The value used to split the data along the saved sub_split attribute</p></li>
+<li><p>loss_fn_name (str) - The name of the loss function to use while training</p></li>
+<li><p>optimizer_name (str) - The name of the optimizer to use while training</p></li>
+<li><p>learning_rate (float) - The learning rate to use while training</p></li>
+<li><p>training_lookback (int) - The size of the lookback window to use when training time series networks</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The id of the transaction that was created</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -893,11 +1028,11 @@ For example: the name of the stock in a dataset with name, independent stocks</p
 
 <dl class="py function">
 <dt class="sig sig-object py" id="oracle.dataManager.load_dataset">
-<span class="sig-prename descclassname"><span class="pre">oracle.dataManager.</span></span><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.dataManager.load_dataset" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">oracle.dataManager.</span></span><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.dataManager.load_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads dataset information from both the handler and the database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset_name</strong> – The name of the dataset to load</p>
+<dd class="field-odd"><p><strong>ds_name</strong> – The name of the dataset to load</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A handler for the dataset and the metadata associated with the dataset</p>
@@ -907,14 +1042,14 @@ For example: the name of the stock in a dataset with name, independent stocks</p
 
 <dl class="py function">
 <dt class="sig sig-object py" id="oracle.dataManager.save_dataset">
-<span class="sig-prename descclassname"><span class="pre">oracle.dataManager.</span></span><span class="sig-name descname"><span class="pre">save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_split_attrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.dataManager.save_dataset" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">oracle.dataManager.</span></span><span class="sig-name descname"><span class="pre">save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_link</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_split_attrib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.dataManager.save_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a dataset using the given data and appends an entry into the database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>env</strong> – The environment to create the dataset for.  For example ‘local’ or ‘ipfs’</p></li>
-<li><p><strong>dataset_name</strong> – The name of the dataset</p></li>
-<li><p><strong>link</strong> – The URL to the data of the dataset</p></li>
+<li><p><strong>ds_name</strong> – The name of the dataset</p></li>
+<li><p><strong>ds_link</strong> – The URL to the data of the dataset</p></li>
 <li><p><strong>txn_id</strong> – The id of the transaction that initiated the saving of this dataset</p></li>
 <li><p><strong>user_id</strong> – The address of the user that is saving this dataset</p></li>
 <li><p><strong>time_attrib</strong> – The time attribute of the dataset</p></li>
@@ -985,14 +1120,14 @@ For example: the name of the stock in a dataset with name, independent stocks</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.BaseNN.preprocess_data">
-<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_split_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.BaseNN.preprocess_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_attrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_lookback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_split_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.BaseNN.preprocess_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Processes the dataframe from the data handler into labeled training and testing sets</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>target_attrib</strong> – The attribute of the dataset to serve as the classifier</p></li>
-<li><p><strong>lookback</strong> – The size of the sliding time window to give to recurrent models</p></li>
-<li><p><strong>sub_split_value</strong> – The value of the particular sub_split to use</p></li>
+<li><p><strong>training_lookback</strong> – The size of the sliding time window to give to recurrent models</p></li>
+<li><p><strong>sub_split_value</strong> – The value used to split the data along the saved sub_split attribute</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1031,56 +1166,12 @@ For example: the name of the stock in a dataset with name, independent stocks</p
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">DecisionTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree.eval_model">
-<span class="sig-name descname"><span class="pre">eval_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree.eval_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates the model</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_location</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads the model from disk, reapplying all of its loaded attributes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>save_location</strong> – The location to load the model from</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_location</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the model to disk and returns a dict of its attributes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>save_location</strong> – Saves the information of this given model to the given location</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="oracle.models.DecisionTree.train_model">
-<span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.DecisionTree.train_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains the model using the given parameters</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="oracle.models.GRU">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">GRU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.GRU" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">GRU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.GRU" title="Permalink to this definition">¶</a></dt>
 <dd><p>GRU implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.GRU.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.GRU.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.GRU.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>GRU implementation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1114,11 +1205,11 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="oracle.models.LSTM">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">LSTM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.LSTM" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">LSTM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.LSTM" title="Permalink to this definition">¶</a></dt>
 <dd><p>LSTM implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.LSTM.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.LSTM.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.LSTM.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>LSTM implementation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1152,11 +1243,11 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="oracle.models.MLP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">MLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.MLP" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">MLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.MLP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multi-layered perceptron implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.MLP.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.MLP.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.MLP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multi-layered perceptron implementation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1208,13 +1299,13 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.PredictModel.create">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#oracle.models.PredictModel" title="oracle.models.PredictModel"><span class="pre">PredictModel</span></a></span></span><a class="headerlink" href="#oracle.models.PredictModel.create" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trained_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#oracle.models.PredictModel" title="oracle.models.PredictModel"><span class="pre">PredictModel</span></a></span></span><a class="headerlink" href="#oracle.models.PredictModel.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a model based off of a model name, returning an instance based off other provided parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>base_model_name</strong> – The name of the base model of this instance</p></li>
-<li><p><strong>new_model_name</strong> – The name given to this instance of a model</p></li>
+<li><p><strong>raw_model</strong> – The name of the base model of this instance</p></li>
+<li><p><strong>trained_model</strong> – The name given to this instance of a model</p></li>
 <li><p><strong>data_handler</strong> – The handler for the dataset that the model will use</p></li>
 <li><p><strong>loss_fn_name</strong> – The name of the loss function that the model will use</p></li>
 </ul>
@@ -1320,11 +1411,11 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="oracle.models.RNN">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">RNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.RNN" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">oracle.models.</span></span><span class="sig-name descname"><span class="pre">RNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.RNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>RNN implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="oracle.models.RNN.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.RNN.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#oracle.dataManager.DataHandler" title="oracle.dataManager.DataHandler"><span class="pre">DataHandler</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#oracle.models.RNN.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>RNN implementation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1432,13 +1523,19 @@ registered hooks while the latter silently ignores them.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#client.clientCore.add_dataset"><code class="docutils literal notranslate"><span class="pre">add_dataset()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.add_dataset_api"><code class="docutils literal notranslate"><span class="pre">add_dataset_api()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.create_new_account"><code class="docutils literal notranslate"><span class="pre">create_new_account()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.dataset_upload_price"><code class="docutils literal notranslate"><span class="pre">dataset_upload_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_dataset_upload_price"><code class="docutils literal notranslate"><span class="pre">get_dataset_upload_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_model_query_price"><code class="docutils literal notranslate"><span class="pre">get_model_query_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.get_model_train_price"><code class="docutils literal notranslate"><span class="pre">get_model_train_price()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.model_query_price"><code class="docutils literal notranslate"><span class="pre">model_query_price()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.model_train_price"><code class="docutils literal notranslate"><span class="pre">model_train_price()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.ping"><code class="docutils literal notranslate"><span class="pre">ping()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.query_model"><code class="docutils literal notranslate"><span class="pre">query_model()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.query_model_api"><code class="docutils literal notranslate"><span class="pre">query_model_api()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.train_model"><code class="docutils literal notranslate"><span class="pre">train_model()</span></code></a></li>
+<li><a class="reference internal" href="#client.clientCore.train_model_api"><code class="docutils literal notranslate"><span class="pre">train_model_api()</span></code></a></li>
 <li><a class="reference internal" href="#client.clientCore.update_state"><code class="docutils literal notranslate"><span class="pre">update_state()</span></code></a></li>
 </ul>
 </li>
@@ -1526,14 +1623,6 @@ registered hooks while the latter silently ignores them.</p>
 <li><a class="reference internal" href="#oracle.models.BaseNN.preprocess_data"><code class="docutils literal notranslate"><span class="pre">BaseNN.preprocess_data()</span></code></a></li>
 <li><a class="reference internal" href="#oracle.models.BaseNN.save"><code class="docutils literal notranslate"><span class="pre">BaseNN.save()</span></code></a></li>
 <li><a class="reference internal" href="#oracle.models.BaseNN.train_model"><code class="docutils literal notranslate"><span class="pre">BaseNN.train_model()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#oracle.models.DecisionTree"><code class="docutils literal notranslate"><span class="pre">DecisionTree</span></code></a><ul>
-<li><a class="reference internal" href="#oracle.models.DecisionTree.__init__"><code class="docutils literal notranslate"><span class="pre">DecisionTree.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#oracle.models.DecisionTree.eval_model"><code class="docutils literal notranslate"><span class="pre">DecisionTree.eval_model()</span></code></a></li>
-<li><a class="reference internal" href="#oracle.models.DecisionTree.load"><code class="docutils literal notranslate"><span class="pre">DecisionTree.load()</span></code></a></li>
-<li><a class="reference internal" href="#oracle.models.DecisionTree.save"><code class="docutils literal notranslate"><span class="pre">DecisionTree.save()</span></code></a></li>
-<li><a class="reference internal" href="#oracle.models.DecisionTree.train_model"><code class="docutils literal notranslate"><span class="pre">DecisionTree.train_model()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#oracle.models.GRU"><code class="docutils literal notranslate"><span class="pre">GRU</span></code></a><ul>

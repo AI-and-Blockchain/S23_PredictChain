@@ -74,8 +74,8 @@ class Pricing:
         :return: The price of training a model and the transaction id of the last time the price multiplier was changed"""
 
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
-        if "new_model_name" not in kwargs:
-            kwargs["new_model_name"] = "tmp"
+        if "trained_model" not in kwargs:
+            kwargs["trained_model"] = "tmp"
 
         handler = dataManager.load_dataset(ds_name)[0]
         model = models.PredictModel.create(raw_model, data_handler=handler, **kwargs)
@@ -177,7 +177,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 dataManager.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
 
             case utils.OpCodes.QUERY_MODEL:
-                model, meta, ds_meta = models.get_trained_model(kwargs["model_name"])
+                model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
                 output = model(kwargs["model_input"])
                 loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
 
@@ -187,10 +187,12 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 # Reward model trainer
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, meta[1],
                                Pricing.calc_model_usage_incentive(accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "model_name": model.model_name}))
+                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name}))
+
+                _, dataset_attribs = dataManager.load_dataset(model.data_handler.dataset_name)
                 # Reward dataset uploader
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta[1],
-                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), accuracy)[0],
+                               Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
                 # Report result back to the user
@@ -203,11 +205,12 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
             case utils.OpCodes.TRAIN_MODEL:
                 handler, dataset_attribs = dataManager.load_dataset(kwargs["ds_name"])
+
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)
 
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, dataset_attribs["user_id"],
-                               Pricing.calc_ds_usage_incentive(dataManager.load_dataset(model.data_handler.dataset_name), loss)[0],
+                               Pricing.calc_ds_usage_incentive(int(dataset_attribs["size"]), accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
 
                 models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])

@@ -3,6 +3,15 @@
 .creds
 venv
 node_modules
-sandbox.py
 data/*
+__pycache__
+docs/sphinx/.doctrees
 *.pyc
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.gz
+*.inv

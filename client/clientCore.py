@@ -57,17 +57,18 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
         return tmp
 
 
-def get_dataset_upload_price(ds_size: int):
+def get_dataset_upload_price(ds_size: int) -> tuple[int, str]:
     """Retrieves the upload price from the oracle.  This can be verified with the returned transaction id
 
     :param ds_size: The size of the dataset that is planned to upload
     :return: The price of uploading a dataset and the transaction id where that price was last modified"""
+
     url = f"http://localhost:8030/dataset_upload_price?ds_size={ds_size}"
-    resp = requests.get(url)
-    return resp.json()
+    resp_json = requests.get(url).json()
+    return resp_json["price"], resp_json["txn_id"]
 
 
-def get_model_train_price(raw_model: str, ds_name: str):
+def get_model_train_price(raw_model: str, ds_name: str) -> tuple[int, str]:
     """Retrieves the model price from the oracle.  This can be verified with the returned transaction id
 
     :param raw_model: The name of the base model
@@ -75,45 +76,50 @@ def get_model_train_price(raw_model: str, ds_name: str):
     :return: The price of training a model and the transaction id where that price was last modified"""
 
     url = "http://localhost:8030/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
-    resp = requests.get(url)
-    return resp.json()
+    resp_json = requests.get(url).json()
+    return resp_json["price"], resp_json["txn_id"]
 
 
-def get_model_query_price(trained_model: str):
+def get_model_query_price(trained_model: str) -> tuple[int, str]:
     """Retrieves the query price from the oracle.  This can be verified with the returned transaction id
 
     :param trained_model: The name of the trained model to query
     :return: The price of querying a model and the transaction id where that price was last modified"""
 
     url = "http://localhost:8030/model_query_price?trained_model=" + trained_model
-    resp = requests.get(url)
-    return resp.json()
+    resp_json = requests.get(url).json()
+    return resp_json["price"], resp_json["txn_id"]
 
 
-def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str):
+def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str, sub_split_attrib=""):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
 
     :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_name: The name that will be assigned to the new dataset
     :param ds_size: The size of the dataset
     :param time_attrib: The attribute of the data that denotes the passage of time
+    :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets
     :return: The id of the transaction to the oracle"""
     
     op = utils.OpCodes.UP_DATASET # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size)['price'],
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_dataset_upload_price(ds_size)[0],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
-def train_model(raw_model: str, trained_model: str, ds_name: str, **kwargs):
+def train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs: int, target_attrib: str, hidden_dim: int, num_hidden_layers: int, **kwargs):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
 
     :param raw_model: The raw model to train
     :param trained_model: The name of the new trained model
     :param ds_name: The name of the dataset to train the model on
+    :param num_epochs: The number of epochs to train the model for
+    :param target_attrib: The name of the attribute that is used to test
+    :param hidden_dim: The size of the hidden layers
+    :param num_hidden_layers: The number of hidden layers
     :return: The id of the transaction to the oracle"""
 
     op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, ds_name),
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, ds_name)[0],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -125,7 +131,7 @@ def query_model(trained_model: str, model_input):
     :return: The id of the transaction to the oracle"""
 
     op = utils.OpCodes.QUERY_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model),
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_query_price(trained_model)[0],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -161,65 +167,121 @@ def update_state():
     return {"transactions": txns}
 
 
-@app.route('/get_dataset_upload_size')
-def dataset_upload_size():
-    """Requests to see the price for a dataset
-    :requires: size of data in bytes
-    :example: ?ds_size=77
+@app.route('/get_dataset_upload_price')
+def dataset_upload_price():
+    """Requests to see the price for uploading a dataset
 
-    :return: {Price, TXN ID}"""
+    Query Params
+    ------------
+
+    * ds_size (int) - The size of the dataset in bytes
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
 
     ds_size = int(request.args.get('ds_size'))
-    response = get_dataset_upload_price(ds_size)
-    return response
+    price, txn_id = get_dataset_upload_price(ds_size)
+    return {"price": price, "txn_id": txn_id}
 
-#FileExistsError
-@app.route('/add_dataset', methods=["GET"])
+
+@app.route('/add_dataset', methods=["POST"])
 def add_dataset_api():
     """Requests to add a dataset from the UI to the client
-    :requires: link to data, name and size of file in bytes
-    :example: ?ds_link=https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv&ds_name=test&ds_size=77
 
-    :return: Oracle transaction ID """
+    JSON Data
+    ------------
 
-    ds_link = request.args.get('ds_link')
-    ds_name = request.args.get('ds_name')
-    ds_size = int(request.args.get('ds_size'))
-    time_attrib = request.args.get('time_attrib')
-    response = add_dataset(ds_link, ds_name, ds_size, time_attrib)
-    return response
+    * ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
+    * ds_name (str) - The name that will be assigned to the new dataset
+    * ds_size (str) - The size of the dataset
+    * time_attrib (str) - The attribute of the data that denotes the passage of time
 
+    Optional JSON Data
+    ------------
+
+    * sub_split_attrib (str) - The attribute that is used to split the dataset into independent subsets
+
+    :return: The id of the transaction that was created"""
+
+    txn_id = add_dataset(**request.json)
+    return txn_id
 
 
 # NEED TO TEST
-@app.route('/train_model', methods=["GET"])
+@app.route('/train_model', methods=["POST"])
 def train_model_api():
-    raw_model = request.args.get('raw_model')
-    trained_model = request.args.get('trained_model')
-    ds_name = request.args.get('ds_name')
-    response = train_model(raw_model, trained_model, ds_name)
-    return response 
+    """Requests to train a model from the UI to the client
+
+    JSON Data
+    ------------
+
+    * raw_model (str) - The raw model to train
+    * trained_model (str) - The name of the new trained model
+    * ds_name (str) - The name of the dataset to train the model on
+    * num_epochs (int) - The number of epochs to train the model for
+    * target_attrib (str) - The name of the attribute that is used to test
+    * hidden_dim (int) - The size of the hidden layers
+    * num_hidden_layers (int) - The number of hidden layers
+
+    Optional JSON Data
+    ------------
+
+    * sub_split_value (str) - The value used to split the data along the saved sub_split attribute
+    * loss_fn_name (str) - The name of the loss function to use while training
+    * optimizer_name (str) - The name of the optimizer to use while training
+    * learning_rate (float) - The learning rate to use while training
+    * training_lookback (int) - The size of the lookback window to use when training time series networks
+
+    :return: The id of the transaction that was created"""
+
+    txn_id = train_model(**request.json)
+    return txn_id
+
 
 # NEED TO TEST
 @app.route('/get_model_train_price', methods=["GET"])
 def model_train_price():
-    raw_model = request.args.get('raw_model')
-    ds_name = request.args.get('ds_name')
-    response = get_model_train_price(raw_model, ds_name)
-    return response
+    """Requests to see the price for training a model
+
+    Query Params
+    ------------
+
+    * raw_model (str) - The name of the raw model to train
+    * ds_name (str) - The name of the dataset to train the model on
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = get_model_train_price(**request.args)
+    return {"price": price, "txn_id": txn_id}
+
 
 # NEED TO TEST
 @app.route('/get_model_query_price', methods=["GET"])
 def model_query_price():
-    trained_model = request.args.get('trained_model')
-    response = get_model_query_price(trained_model)
-    return response
+    """Requests to see the price for querying a model
+
+    Query Params
+    ------------
+
+    * trained_model (str) - The name of the trained model to query
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = get_model_query_price(**request.args)
+    return {"price": price, "txn_id": txn_id}
 
 
 # NEED TO TEST
-@app.route('/query_model', methods=["GET"])
+@app.route('/query_model', methods=["POST"])
 def query_model_api():
-    trained_model = request.args.get('trained_model')
-    model_input = request.args.get('model_input')
-    response = query_model(trained_model, model_input)
-    return response
+    """Requests to query a model from the UI to the client
+
+    JSON Data
+    ------------
+
+    * trained_model (str) - The name of the trained model to query
+    * model_input (str) - The input to the model
+
+    :return: The id of the transaction that was created"""
+
+    txn_id = query_model(**request.json)
+    return txn_id

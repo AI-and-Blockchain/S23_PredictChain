@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from common import utils
-from oracle import dataManager
+from oracle import dataManager, datasets
 import torch
 import torch.nn as nn
 
@@ -19,7 +19,7 @@ class PredictModel:
     BASE_MODEL_NAME = ""
     COMPLEXITY_MULTIPLIER = 1
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Interface for unifying behavior of different predictive models
 
         :param model_name: The name given to this instance of a model
@@ -27,7 +27,7 @@ class PredictModel:
         :param loss_fn_name: The name of the loss function that the model will use"""
         ...
 
-    def init(self, model_name: str, data_handler: dataManager.DataHandler, loss_fn_name: str = "mae", **kwargs):
+    def init(self, model_name: str, data_handler: datasets.DataHandler, loss_fn_name: str = "mae", **kwargs):
         """Initializes the values common to all types of predict model
 
         :param model_name: The name given to this instance of a model
@@ -83,7 +83,7 @@ class PredictModel:
         return all_subs
 
     @classmethod
-    def create(cls, raw_model: str, trained_model: str, data_handler: dataManager.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
+    def create(cls, raw_model: str, trained_model: str, data_handler: datasets.DataHandler, loss_fn_name="mae", **kwargs) -> PredictModel:
         """Creates a model based off of a model name, returning an instance based off other provided parameters
 
         :param raw_model: The name of the base model of this instance
@@ -124,7 +124,7 @@ class PredictModel:
 class BaseNN(nn.Module, PredictModel):
     """Parent class encapsulating the behaviour of other neural network classes"""
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """Parent class encapsulating the behaviour of other neural network classes
 
         :param model_name: The name given to this instance of a model
@@ -272,7 +272,7 @@ class GRU(BaseNN):
     BASE_MODEL_NAME = "GRU"
     COMPLEXITY_MULTIPLIER = 2.5
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """GRU implementation
 
         :param model_name: The name given to this instance of a model
@@ -313,7 +313,7 @@ class LSTM(BaseNN):
     BASE_MODEL_NAME = "LSTM"
     COMPLEXITY_MULTIPLIER = 2
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
         """LSTM implementation
 
         :param model_name: The name given to this instance of a model
@@ -355,7 +355,7 @@ class RNN(BaseNN):
     BASE_MODEL_NAME = "RNN"
     COMPLEXITY_MULTIPLIER = 1.5
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """RNN implementation
 
         :param model_name: The name given to this instance of a model
@@ -390,7 +390,7 @@ class MLP(BaseNN):
     BASE_MODEL_NAME = "MLP"
     COMPLEXITY_MULTIPLIER = 1
 
-    def __init__(self, model_name: str, data_handler: dataManager.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
         """Multi-layered perceptron implementation
 
         :param model_name: The name given to this instance of a model
@@ -423,10 +423,12 @@ def get_trained_model(model_name: str):
     :return: The loaded model and associated metadata"""
 
     model_attribs = dataManager.database.hgetall("<MODEL>" + model_name)
+
+    handler, dataset_attribs = datasets.load_dataset(model_attribs["ds_name"])
     model = PredictModel.create(model_attribs["BASE_MODEL_NAME"], model_name,
-                                model_attribs["dataset_name"], model_attribs["loss_fn_name"], **model_attribs["kwargs"])
+                                handler, model_attribs["loss_fn_name"], **model_attribs["kwargs"])
     model.load(model_attribs["save_location"])
-    return model, (model_attribs["txn_id"], model_attribs["user_id"]), (model_attribs["ds_txn_id"], model_attribs["ds_user_id"])
+    return model, model_attribs, dataset_attribs
 
 
 def save_trained_model(model: PredictModel, save_location: str, txn_id: str, user_id: str):
@@ -444,6 +446,6 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
     dataset_attribs = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
 
     dataManager.database.hset("<MODEL>"+model.model_name, mapping={"save_location": save_location,
-                            **model_attribs, "txn_id": txn_id, "user_id": user_id,
+                            **model_attribs, "txn_id": txn_id, "user_id": user_id, "ds_name": model.data_handler.dataset_name,
                             "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]})
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+import time
+import threading
 import math
 import sys
 import torch
@@ -115,6 +116,8 @@ class Pricing:
                 return cls.calc_model_query_price(trained_model)
             case utils.OpCodes.TRAIN_MODEL:
                 return cls.calc_model_train_price(raw_model, ds_name, **kwargs)
+        return 0, ""
+
     @classmethod
     def get_price_multiplier(cls, mul_op: str) -> tuple[float, str]:
         """Gets the price multiplier from the database and returns it and the transaction id where it was last changed
@@ -147,6 +150,45 @@ class Pricing:
         dataManager.database.hset("<PRICE>" + mul_op, mapping={"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id})
 
         return txn_id
+
+
+class EventMonitor:
+
+    query_queue = {}
+    _halt = False
+    PAUSE_DURATION = 10
+
+    @classmethod
+    def query_endpoint(cls, endpoint: str):
+
+        # TODO: Get latest event data from endpoint
+
+        return {}
+
+    def halt(self):
+        """Halts the polling of the monitor"""
+        self._halt = True
+
+    @classmethod
+    def monitor(cls):
+        """Starts a thread to monitor any incoming events from the target endpoint"""
+
+        print("Starting event monitor...")
+
+        def inner_mon():
+            while not cls._halt:
+                queue_clone = cls.query_queue.copy()
+                for txn_id in queue_clone:
+                    event = cls.query_endpoint(cls.query_queue[txn_id]["endpoint"])
+                    utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, utils.ORACLE_ALGO_ADDRESS, 0,
+                                   note=json.dumps({"op": utils.OpCodes.EVENT_UPDATE, **cls.query_queue[txn_id],
+                                                    "target": event["result"]}))
+                    cls.query_queue.pop(txn_id)
+
+                time.sleep(cls.PAUSE_DURATION)
+
+        thread = threading.Thread(target=inner_mon, args=())
+        thread.start()
 
 
 class OracleTransactionMonitor(utils.TransactionMonitor):
@@ -194,25 +236,41 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
                 output = model(kwargs["model_input"])
-                loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
 
-                # TODO: Get result from outside world
-                accuracy = float(torch.sigmoid(-loss_fn(output, target)+math.e**2))
-
-                # Reward model trainer
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, meta[1],
-                               Pricing.calc_model_usage_incentive(accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name}))
-
-                _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
-                # Reward dataset uploader
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta[1],
-                               Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
+                if ds_meta.get("endpoint", ""):
+                    print("Adding event request to event queue")
+                    EventMonitor.query_queue[txn["id"]] = {"endpoint": ds_meta["endpoint"], "output": output,
+                                                     "query_user_id": txn["sender"], "query_txn_id": txn["id"]}
 
                 # Report result back to the user
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], 0,
-                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "query_result": output}))
+                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "output": output}))
+
+
+            case utils.OpCodes.EVENT_UPDATE:
+                model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
+                loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
+                output, target = kwargs["output"], kwargs["target"]
+
+                accuracy = float(torch.sigmoid(-loss_fn(output, target) + math.e ** 2))
+
+                # Report result back to the user
+                event_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, kwargs["query_user_id"], 0,
+                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "output": output, "target": target,
+                                                "accuracy": accuracy}))
+
+                # Reward model trainer
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, meta["user_id"],
+                               Pricing.calc_model_usage_incentive(accuracy)[0],
+                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name,
+                                                "query_txn_id": kwargs["query_txn_id"], "event_txn_id": event_txn_id}))
+
+                _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
+                # Reward dataset uploader
+                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta["user_id"],
+                               Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
+                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name,
+                                                "query_txn_id": kwargs["query_txn_id"], "event_txn_id": event_txn_id}))
 
             case utils.OpCodes.UPDATE_PRICE:
                 # Handle any additional price change logic here if needed

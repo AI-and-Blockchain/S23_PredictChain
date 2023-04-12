@@ -91,13 +91,14 @@ def get_model_query_price(trained_model: str) -> tuple[int, str]:
     return resp_json["price"], resp_json["txn_id"]
 
 
-def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str, sub_split_attrib=""):
+def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str, endpoint="", sub_split_attrib=""):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
 
     :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_name: The name that will be assigned to the new dataset
     :param ds_size: The size of the dataset
     :param time_attrib: The attribute of the data that denotes the passage of time
+    :param endpoint: The name of the endpoint that is associated with the dataset
     :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets
     :return: The id of the transaction to the oracle"""
     

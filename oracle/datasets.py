@@ -252,7 +252,7 @@ class IPFSDataHandler(DataHandler):
         return out
 
 
-def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str, time_attrib: str, sub_split_attrib="", **kwargs):
+def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str, time_attrib: str, endpoint="", sub_split_attrib="", **_):
     """Saves a dataset using the given data and appends an entry into the database
 
     :param env: The environment to create the dataset for.  For example 'local' or 'ipfs'
@@ -261,6 +261,7 @@ def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str
     :param txn_id: The id of the transaction that initiated the saving of this dataset
     :param user_id: The address of the user that is saving this dataset
     :param time_attrib: The time attribute of the dataset
+    :param endpoint: The name of the endpoint that is associated with the dataset
     :param sub_split_attrib: The attribute that is used to split the dataset into independent subsets"""
 
     handler = DataHandler.create(env, ds_name, time_attrib, sub_split_attrib)
@@ -273,7 +274,8 @@ def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str
 
     handler.finish()
     database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
-                                                        "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib})
+                                                        "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib,
+                                                        "endpoint": endpoint})
 
 
 def load_dataset(ds_name: str):

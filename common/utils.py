@@ -85,7 +85,7 @@ class TransactionMonitor:
 
     last_round_checked = 0
     _halt = False
-    pause_duration = 10
+    PAUSE_DURATION = 10
 
     def __init__(self, address: str, all_time=False):
         """Polling monitor that periodically checks the blockchain to recent transactions
@@ -94,7 +94,7 @@ class TransactionMonitor:
         :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
         now = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0)
-        now = now - datetime.timedelta(minutes=1)
+        now = now - datetime.timedelta(minutes=2)
         now_iso = now.isoformat()
         txns = search_transactions(limit=1, start_time=now_iso)
         while len(txns) == 0:
@@ -128,7 +128,7 @@ class TransactionMonitor:
                 if len(transactions):
                     self.last_round_checked = transactions[-1]["confirmed-round"]
 
-                time.sleep(self.pause_duration)
+                time.sleep(self.PAUSE_DURATION)
 
         thread = threading.Thread(target=inner_mon, args=())
         thread.start()

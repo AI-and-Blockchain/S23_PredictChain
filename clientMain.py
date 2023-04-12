@@ -12,7 +12,10 @@ if __name__ == "__main__":
     react_dir = os.path.join(os.getcwd(), "client/predict-chain-ui")
 
     print("Running front end...")
-    p = Popen(['npm', 'start'], cwd=react_dir)
+    try:
+        p = Popen(['npm', 'start'], cwd=react_dir)
+    except FileNotFoundError:
+        p = Popen(['npm', 'start'], cwd=react_dir, shell=True)
 
     try:
         app.run(host=utils.CLIENT_SERVER_HOST, port=utils.CLIENT_SERVER_PORT)

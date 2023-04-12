@@ -72,11 +72,13 @@ class Pricing:
         return int(ds_size * mult), txn_id
 
     @classmethod
-    def calc_model_train_price(cls, raw_model: str, ds_name: str, **kwargs):
+    def calc_model_train_price(cls, raw_model: str, ds_name: str, hidden_dim: int, num_hidden_layers: int, **kwargs):
         """Calculates and returns the latest price and the transaction id where it was changed
 
         :param raw_model: The name of the raw model to train
         :param ds_name: The name of the dataset to train the model on
+        :param hidden_dim: The dimension of the hidden layers
+        :param num_hidden_layers: The number of hidden layers to put into the model
         :return: The price of training a model and the transaction id of the last time the price multiplier was changed"""
 
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
@@ -84,7 +86,7 @@ class Pricing:
             kwargs["trained_model"] = "tmp"
 
         handler = datasets.load_dataset(ds_name)[0]
-        model = models.PredictModel.create(raw_model, data_handler=handler, **kwargs)
+        model = models.PredictModel.create(raw_model, data_handler=handler, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, **kwargs)
         return int(model.model_complexity * mult * handler.size), txn_id
 
     @classmethod
@@ -282,11 +284,11 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)
 
+                models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
+
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, dataset_attribs["user_id"],
                                Pricing.calc_ds_usage_incentive(int(dataset_attribs["size"]), accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
-
-                models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
 
 
 app = Flask(__name__)

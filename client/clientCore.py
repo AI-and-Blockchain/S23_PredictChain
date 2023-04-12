@@ -68,14 +68,17 @@ def get_dataset_upload_price(ds_size: int) -> tuple[int, str]:
     return resp_json["price"], resp_json["txn_id"]
 
 
-def get_model_train_price(raw_model: str, ds_name: str) -> tuple[int, str]:
+def get_model_train_price(raw_model: str, ds_name: str, hidden_dim: int, num_hidden_layers: int) -> tuple[int, str]:
     """Retrieves the model price from the oracle.  This can be verified with the returned transaction id
 
     :param raw_model: The name of the base model
     :param ds_name: The name of the dataset to train the model on
+    :param hidden_dim: The dimension of the hidden layers
+    :param num_hidden_layers: The number of hidden layers to put into the model
     :return: The price of training a model and the transaction id where that price was last modified"""
 
-    url = "http://{constants.ORACLE_SERVER_ADDRESS}/model_train_price?raw_model=" + raw_model + "&ds_name=" + ds_name
+    url = f"http://{constants.ORACLE_SERVER_ADDRESS}/model_train_price?raw_model={raw_model}&ds_name={ds_name}" \
+        f"&hidden_dim={hidden_dim}&num_hidden_layers={num_hidden_layers}"
     resp_json = requests.get(url).json()
     return resp_json["price"], resp_json["txn_id"]
 
@@ -86,7 +89,7 @@ def get_model_query_price(trained_model: str) -> tuple[int, str]:
     :param trained_model: The name of the trained model to query
     :return: The price of querying a model and the transaction id where that price was last modified"""
 
-    url = "http://{constants.ORACLE_SERVER_ADDRESS}/model_query_price?trained_model=" + trained_model
+    url = f"http://{constants.ORACLE_SERVER_ADDRESS}/model_query_price?trained_model={trained_model}"
     resp_json = requests.get(url).json()
     return resp_json["price"], resp_json["txn_id"]
 
@@ -120,7 +123,8 @@ def train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs: in
     :return: The id of the transaction to the oracle"""
 
     op = utils.OpCodes.TRAIN_MODEL  # op is included in locals() and is passed inside the note
-    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS, get_model_train_price(raw_model, ds_name)[0],
+    return utils.transact(ClientState.CLIENT_ADDRESS, ClientState.CLIENT_SECRET, utils.ORACLE_ALGO_ADDRESS,
+                          get_model_train_price(raw_model, ds_name, hidden_dim, num_hidden_layers)[0],
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
@@ -284,6 +288,8 @@ def model_train_price():
 
     * raw_model (str) - The name of the raw model to train
     * ds_name (str) - The name of the dataset to train the model on
+    * hidden_dim (int) - The dimension of the hidden layers
+    * num_hidden_layers (int) - The number of hidden layers to put into the model
 
     :return: The price of the transaction and the transaction id where that price was last changed"""
 

@@ -7,7 +7,7 @@ import base64
 from flask import Flask, request
 import os
 import json
-from oracle import models, dataManager
+from oracle import models, dataManager, datasets
 from common import utils
 
 
@@ -30,7 +30,7 @@ class OracleState:
         if os.path.exists("database.json"):
             print("Loading database contents from file...")
             dataManager.load_database("database.json")
-            print("database keys", dataManager.database.keys())
+            print("Database keys", dataManager.database.keys())
 
 
 class Pricing:
@@ -82,7 +82,7 @@ class Pricing:
         if "trained_model" not in kwargs:
             kwargs["trained_model"] = "tmp"
 
-        handler = dataManager.load_dataset(ds_name)[0]
+        handler = datasets.load_dataset(ds_name)[0]
         model = models.PredictModel.create(raw_model, data_handler=handler, **kwargs)
         return int(model.model_complexity * mult * handler.size), txn_id
 
@@ -171,15 +171,25 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         kwargs = {**txn["note"]}
 
         op_price, _ = Pricing.calc_op_price(op, **kwargs)
+
+        def reject(reason: str):
+            # Reject transaction
+            return utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn["amount"],
+                           note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": reason}))
+
         if txn['payment-transaction']['amount'] < op_price:
             # Reject transaction
-            utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn["amount"],
-                           note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": "UNDERFUNDED"}))
+            reject("UNDERFUNDED")
             return
 
         match op:
             case utils.OpCodes.UP_DATASET:
-                dataManager.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
+                try:
+                    datasets.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
+                except FileExistsError:
+                    print("Dataset already exists!")
+                    reject("DS_EXISTS")
+                    return
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
@@ -194,7 +204,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                                Pricing.calc_model_usage_incentive(accuracy)[0],
                                note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name}))
 
-                _, dataset_attribs = dataManager.load_dataset(model.data_handler.dataset_name)
+                _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
                 # Reward dataset uploader
                 utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta[1],
                                Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
@@ -209,7 +219,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 ...
 
             case utils.OpCodes.TRAIN_MODEL:
-                handler, dataset_attribs = dataManager.load_dataset(kwargs["ds_name"])
+                handler, dataset_attribs = datasets.load_dataset(kwargs["ds_name"])
 
                 model = models.PredictModel.create(**kwargs, data_handler=handler)
                 accuracy, loss = model.train_model(**kwargs)

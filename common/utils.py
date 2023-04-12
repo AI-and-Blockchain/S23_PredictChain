@@ -1,5 +1,6 @@
 import json
 import abc
+import pytz
 import redis
 import base64
 import threading
@@ -92,8 +93,11 @@ class TransactionMonitor:
         :param address: The address of the user
         :param all_time: Gathers complete transaction history if ``True`` instead of just recent transactions"""
 
-        now = datetime.datetime.now().isoformat().split("T")[0]
-        self.last_round_checked = search_transactions(limit=1, start_time=now)[-1]["confirmed-round"]
+        now = datetime.datetime.now(pytz.timezone('UTC')).replace(microsecond=0).isoformat()
+        txns = search_transactions(limit=1, start_time=now)
+        while len(txns) == 0:
+            txns = search_transactions(limit=1, start_time=now)
+        self.last_round_checked = txns[-1]["confirmed-round"]
         self.address = address
         self.all_time = all_time
 

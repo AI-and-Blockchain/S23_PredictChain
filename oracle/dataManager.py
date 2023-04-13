@@ -82,7 +82,7 @@ database = Database()
 """Database used to store oracle information"""
 
 
-web3 = web3storage.Client(utils.STORAGE_KEY)
+web3 = web3storage.Client(utils.WEB3_API_KEY)
 """The storage client for IPFS"""
 
 

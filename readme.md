@@ -85,6 +85,9 @@ npm i
 cd ../.. # Return to the root directory
 ```
 
+> **_NOTE:_** Before running either node, make sure the credential files have been filled out.
+> More information fan be found in the [Credentials Readme](creds/readme.md).
+
 Next, run the client and oracle programs.  This should be done within separate terminals as both
 processes are continuous and do not exit while the network is running.
 
@@ -106,6 +109,9 @@ a complete, working example.
 
 If using Linux, building and running docker containers for the program is the most straightforward
 method of setting up the nodes.
+
+> **_NOTE:_** Before building the container, make sure the credential files have been filled out.
+> More information fan be found in the [Credentials Readme](creds/readme.md).
 
 First, build the container using:
 

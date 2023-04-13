@@ -40,8 +40,7 @@ def transact(sender: str, sender_secret: str, receiver: str, amount: int, note: 
     unsigned_txn = PaymentTxn(sender, params, receiver, amount, None, note)
     signed_txn = unsigned_txn.sign(sender_secret)
 
-    return "TEST_TXN_ID"
-    # return ALGOD_CLIENT.send_transaction(signed_txn)
+    return ALGOD_CLIENT.send_transaction(signed_txn)
 
 
 def create_account():

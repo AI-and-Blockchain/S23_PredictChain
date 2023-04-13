@@ -18,7 +18,7 @@ class ClientState:
     def init(cls):
         """Loads in the client credentials and initializes the monitor"""
 
-        with open(".creds/test_client_creds", "r") as file:
+        with open("creds/client.creds", "r") as file:
             cls.CLIENT_ADDRESS = file.readline().strip("\n")
             cls.CLIENT_SECRET = file.readline().strip("\n")
 

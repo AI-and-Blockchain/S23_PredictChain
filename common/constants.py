@@ -3,11 +3,11 @@ import os
 import algosdk.mnemonic
 from algosdk.v2client import algod, indexer
 
-with open(".creds/api_key", "r") as file:
+with open("creds/algo_api_key.creds", "r") as file:
     API_KEY = file.readline().strip("\n")
 
-with open(".creds/storage_api_key", "r") as file:
-    STORAGE_KEY = file.readline()
+with open("creds/web3_api_key.creds", "r") as file:
+    WEB3_API_KEY = file.readline()
 
 
 ALGOD_API_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"

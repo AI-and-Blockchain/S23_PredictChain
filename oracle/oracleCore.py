@@ -22,7 +22,7 @@ class OracleState:
     def init(cls):
         """Initializes the internal state of the oracle and initializes the monitor"""
 
-        with open(".creds/test_oracle_creds", "r") as file:
+        with open("creds/oracle.creds", "r") as file:
             file.readline() # throw out address as it is not needed
             cls.ORACLE_SECRET = file.readline().strip("\n")
 

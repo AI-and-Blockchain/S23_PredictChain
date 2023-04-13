@@ -1,11 +1,75 @@
 # PredictChain
 
-PredictChain is a marketplace for predictive AI models. Users will be able to upload datasets
-to train predictive models, or submit queries to those models.  These various models will be 
-operated by a central node or nodes with computing resources available. A variety of models will be 
-made available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful. 
-This will allow for a large variety of predictive abilities for both simple and complex patterns.
-All the past predictions form these models will be stored on the blockchain for public viewing.
+PredictChain is a marketplace for predictive AI models. Our goal is to make predictive models
+more accessible to more potential users.  We do this through the ease of use and transparency
+of PredictChain.  Users will be able to upload datasets, request the training of train predictive 
+models, or submit queries to those models.  These various models will be operated by a central 
+node or nodes with computing resources available. A variety of models will be made available, 
+ranging from cheap, fast, and simple to more expensive, slower, and more powerful. This will allow 
+for a large variety of predictive abilities for both simple and complex patterns. All the past 
+transactions will be stored on the blockchain for public viewing.  These include dataset creation,
+model training, model queries, and the results of these queries.
+
+## Quick Start
+
+For each of the following cases, they will involve setting up a relevant environment then running both
+the *Client* and *Oracle* nodes.
+
+First, clone this repository and enter its directory.
+
+**All commands must be run from the root project directory unless otherwise specified.**
+
+### Docker
+
+If using Linux, building and running docker containers for the program is the most straightforward
+method of setting up the nodes.
+
+First, build the container using:
+
+```bash
+docker/buildContainer.sh
+```
+
+Next, run both the client and oracle programs using:
+
+```bash
+docker/runClient.sh
+``` 
+and 
+```bash
+docker/runOracle.sh
+```
+
+After these containers have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
+
+### Building From Source
+
+The following should work on all platforms.  If using a virtual environment, make sure all python
+commands are run within that environment.
+
+First, install the project dependencies using
+
+```bash
+pip install -r requirements.txt
+```
+```bash
+cd client/predict-chain-ui # Enter react front end directory
+npm i
+cd ../.. # Return to the root directory
+```
+
+Next, run the client and oracle programs.  This should be done within separate terminals as both
+processes are continuous and do not exit while the network is running.
+
+```bash
+python clientMain.py
+``` 
+and 
+```bash
+python oracleMain.py
+```
+
+After these have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
 
 ## User Actions
 

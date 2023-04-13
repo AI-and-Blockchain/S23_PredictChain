@@ -260,8 +260,6 @@ def model_train_price():
     price, txn_id = get_model_train_price(**request.args)
     return {"price": price, "txn_id": txn_id}
 
-
-# NEED TO TEST
 @app.route('/train_model', methods=["POST"])
 def train_model_api():
     """Requests to train a model from the UI to the client

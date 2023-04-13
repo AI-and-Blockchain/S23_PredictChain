@@ -94,11 +94,11 @@ def get_model_query_price(trained_model: str) -> tuple[int, str]:
     return resp_json["price"], resp_json["txn_id"]
 
 
-def add_dataset(ds_link: str, ds_name: str, ds_size: int, time_attrib: str, endpoint="", sub_split_attrib=""):
+def add_dataset(ds_name: str, ds_link: str, ds_size: int, time_attrib: str, endpoint="", sub_split_attrib=""):
     """Creates a transaction to ask for a new dataset to be added and trained on a base model
 
-    :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_name: The name that will be assigned to the new dataset
+    :param ds_link: The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     :param ds_size: The size of the dataset
     :param time_attrib: The attribute of the data that denotes the passage of time
     :param endpoint: The name of the endpoint that is associated with the dataset
@@ -128,7 +128,7 @@ def train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs: in
                           note=json.dumps(utils.flatten_locals(locals())))
 
 
-def query_model(trained_model: str, model_input):
+def query_model(trained_model: str, model_input: list):
     """Creates a transaction to ask for a query from the specified model
 
     :param trained_model: The trained model to query
@@ -194,8 +194,7 @@ def update_state():
 def dataset_upload_price():
     """Requests to see the price for uploading a dataset
 
-    Query Params
-    ------------
+    **Query Params**
 
     * ds_size (int) - The size of the dataset in bytes
 
@@ -228,17 +227,16 @@ def get_models():
 def add_dataset_api():
     """Requests to add a dataset from the UI to the client
 
-    JSON Data
-    ------------
+    **JSON Data**
 
-    * ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     * ds_name (str) - The name that will be assigned to the new dataset
+    * ds_link (str) - The URL that links to the dataset.  This URL must yield a stream of bytes upon GET
     * ds_size (str) - The size of the dataset
     * time_attrib (str) - The attribute of the data that denotes the passage of time
 
-    Optional JSON Data
-    ------------
+    **Optional JSON Data**
 
+    * endpoint (str) - The name of the endpoint that is associated with the dataset
     * sub_split_attrib (str) - The attribute that is used to split the dataset into independent subsets
 
     :return: The id of the transaction that was created"""
@@ -252,8 +250,7 @@ def add_dataset_api():
 def train_model_api():
     """Requests to train a model from the UI to the client
 
-    JSON Data
-    ------------
+    **JSON Data**
 
     * raw_model (str) - The raw model to train
     * trained_model (str) - The name of the new trained model
@@ -263,8 +260,7 @@ def train_model_api():
     * hidden_dim (int) - The size of the hidden layers
     * num_hidden_layers (int) - The number of hidden layers
 
-    Optional JSON Data
-    ------------
+    **Optional JSON Data**
 
     * sub_split_value (str) - The value used to split the data along the saved sub_split attribute
     * loss_fn_name (str) - The name of the loss function to use while training
@@ -283,8 +279,7 @@ def train_model_api():
 def model_train_price():
     """Requests to see the price for training a model
 
-    Query Params
-    ------------
+    **Query Params**
 
     * raw_model (str) - The name of the raw model to train
     * ds_name (str) - The name of the dataset to train the model on
@@ -302,8 +297,7 @@ def model_train_price():
 def model_query_price():
     """Requests to see the price for querying a model
 
-    Query Params
-    ------------
+    **Query Params**
 
     * trained_model (str) - The name of the trained model to query
 
@@ -318,8 +312,7 @@ def model_query_price():
 def query_model_api():
     """Requests to query a model from the UI to the client
 
-    JSON Data
-    ------------
+    **JSON Data**
 
     * trained_model (str) - The name of the trained model to query
     * model_input (str) - The input to the model

@@ -45,7 +45,7 @@ def load_database(filepath: str, overwrite=False):
         if not overwrite and database.exists(key):
             continue
 
-        database.hset(key, mapping=loaded[key])
+        database.set(key, loaded[key])
 
 
 def save_database(filepath: str):
@@ -56,7 +56,7 @@ def save_database(filepath: str):
     saved = {}
 
     for key in database.scan_iter():
-        saved[key] = database.hgetall(key)
+        saved[key] = database.get(key)
 
     with open(filepath, "w") as file:
         file.write(json.dumps(saved))

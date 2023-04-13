@@ -3,7 +3,6 @@ import abc
 import dataclasses
 import json
 import math
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -221,7 +220,7 @@ class BaseNN(nn.Module, PredictModel):
 
         return total_accuracy / total_entries, total_loss / total_entries
 
-    def preprocess_data(self, target_attrib: str, training_lookback=2, sub_split_value=None, **kwargs):
+    def preprocess_data(self, target_attrib: str, training_lookback=2, sub_split_value=None, **_):
         """Processes the dataframe from the data handler into labeled training and testing sets
 
         :param target_attrib: The attribute of the dataset to serve as the classifier
@@ -273,7 +272,7 @@ class GRU(BaseNN):
     BASE_MODEL_NAME = "GRU"
     COMPLEXITY_MULTIPLIER = 2.5
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **_):
         """GRU implementation
 
         :param model_name: The name given to this instance of a model
@@ -314,7 +313,7 @@ class LSTM(BaseNN):
     BASE_MODEL_NAME = "LSTM"
     COMPLEXITY_MULTIPLIER = 2
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **_):
         """LSTM implementation
 
         :param model_name: The name given to this instance of a model
@@ -356,7 +355,7 @@ class RNN(BaseNN):
     BASE_MODEL_NAME = "RNN"
     COMPLEXITY_MULTIPLIER = 1.5
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **_):
         """RNN implementation
 
         :param model_name: The name given to this instance of a model
@@ -391,7 +390,7 @@ class MLP(BaseNN):
     BASE_MODEL_NAME = "MLP"
     COMPLEXITY_MULTIPLIER = 1
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **kwargs):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **_):
         """Multi-layered perceptron implementation
 
         :param model_name: The name given to this instance of a model
@@ -423,7 +422,11 @@ def get_trained_model(model_name: str):
     :param model_name: The name of the trained model to load
     :return: The loaded model and associated metadata"""
 
-    model_attribs = json.loads(dataManager.database.get("<MODEL>" + model_name))
+    result = dataManager.database.get("<MODEL>" + model_name)
+    if result is None:
+        raise Exception(f"Could not find trained model '{model_name}'!")
+
+    model_attribs = json.loads(result)
     # Remove since this is already fulfilled by the model_name param
     model_attribs.pop("model_name")
 
@@ -446,7 +449,7 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
     model_attribs = model.save(save_location)
     model_attribs.pop("data_handler")
     model_attribs["raw_model"] = model_attribs.pop("BASE_MODEL_NAME")
-    dataset_attribs = json.loads(dataManager.database.get("<DS>" + model.data_handler.dataset_name))
+    _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
 
     dataManager.database.set("<MODEL>"+model.model_name, json.dumps({"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id, "ds_name": model.data_handler.dataset_name,

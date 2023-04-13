@@ -20,7 +20,7 @@ class OracleState:
 
     @classmethod
     def init(cls):
-        """Loads in the oracle credentials and initializes the monitor"""
+        """Initializes the internal state of the oracle and initializes the monitor"""
 
         with open(".creds/test_oracle_creds", "r") as file:
             file.readline() # throw out address as it is not needed
@@ -28,6 +28,7 @@ class OracleState:
 
         cls.monitor = OracleTransactionMonitor()
 
+        # Attempt to load database from saved if it exists
         if os.path.exists("database.json"):
             print("Loading database contents from file...")
             dataManager.load_database("database.json")
@@ -72,7 +73,7 @@ class Pricing:
         return int(ds_size * mult), txn_id
 
     @classmethod
-    def calc_model_train_price(cls, raw_model: str, ds_name: str, hidden_dim: int, num_hidden_layers: int, **kwargs):
+    def calc_model_train_price(cls, raw_model: str, ds_name: str, hidden_dim: int, num_hidden_layers: int):
         """Calculates and returns the latest price and the transaction id where it was changed
 
         :param raw_model: The name of the raw model to train
@@ -82,11 +83,10 @@ class Pricing:
         :return: The price of training a model and the transaction id of the last time the price multiplier was changed"""
 
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.TRAIN_MODEL)
-        if "trained_model" not in kwargs:
-            kwargs["trained_model"] = "tmp"
 
         handler = datasets.load_dataset(ds_name)[0]
-        model = models.PredictModel.create(raw_model, data_handler=handler, hidden_dim=int(hidden_dim), num_hidden_layers=int(num_hidden_layers), **kwargs)
+        model = models.PredictModel.create(raw_model, "tmp", data_handler=handler,
+                                           hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers)
         return int(model.model_complexity * mult * handler.size), txn_id
 
     @classmethod
@@ -101,7 +101,7 @@ class Pricing:
         return int(model.model_complexity * mult), txn_id
 
     @classmethod
-    def calc_op_price(cls, op: str, ds_name=None, ds_size=None, raw_model=None, trained_model=None, **kwargs):
+    def calc_op_price(cls, op: str, ds_name=None, ds_size=None, raw_model=None, trained_model=None, hidden_dim=None, num_hidden_layers=None, **_):
         """Helper method to get the price for any given operation
 
         :param op: The operation to calculate the price for
@@ -109,6 +109,8 @@ class Pricing:
         :param ds_size: The size of the dataset if involved in the operation
         :param raw_model: The name of the raw model if involved in the operation
         :param trained_model: The name of the trained model if involved in the operation
+        :param hidden_dim: The dimension of the hidden layers
+        :param num_hidden_layers: The number of hidden layers to put into the model
         :return: The price of the given operation and the transaction id of the last time the price multiplier was changed"""
 
         match op:
@@ -117,7 +119,7 @@ class Pricing:
             case utils.OpCodes.QUERY_MODEL:
                 return cls.calc_model_query_price(trained_model)
             case utils.OpCodes.TRAIN_MODEL:
-                return cls.calc_model_train_price(raw_model, ds_name, **kwargs)
+                return cls.calc_model_train_price(raw_model, ds_name, hidden_dim, num_hidden_layers)
         return 0, ""
 
     @classmethod
@@ -310,31 +312,47 @@ def ping():
 
 @app.route('/dataset_upload_price', methods=["GET"])
 def report_dataset_upload_price():
-    """Report back the latest dataset upload price
+    """Requests to see the price for uploading a dataset
 
-    :return: The price of uploading the given dataset and the transaction id where the price multiplier was last changed"""
+    **Query Params**
 
-    price, txn_id = Pricing.calc_dataset_upload_price(**request.args)
+    * ds_size (int) - The size of the dataset in bytes
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = Pricing.calc_dataset_upload_price(int(request.args["ds_size"]))
     return {"price": price, "txn_id": txn_id}
 
 
 @app.route('/model_train_price', methods=["GET"])
 def report_model_train_price():
-    """Report back the latest training price
+    """Requests to see the price for training a model
 
-    :return: The price of training the given model and the transaction id where the price multiplier was last changed"""
+    **Query Params**
 
-    price, txn_id = Pricing.calc_model_train_price(**request.args)
+    * raw_model (str) - The name of the raw model to train
+    * ds_name (str) - The name of the dataset to train the model on
+    * hidden_dim (int) - The dimension of the hidden layers
+    * num_hidden_layers (int) - The number of hidden layers to put into the model
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = Pricing.calc_model_train_price(request.args["raw_model"], request.args["ds_name"],
+                                                   int(request.args["hidden_dim"]), int(request.args["num_hidden_layers"]))
     return {"price": price, "txn_id": txn_id}
 
 
 @app.route('/model_query_price', methods=["GET"])
 def report_model_query_price():
-    """Report back the latest query price
+    """Requests to see the price for querying a model
 
-    :return: The price of querying the given model and the transaction id where the price multiplier was last changed"""
+    **Query Params**
 
-    price, txn_id = Pricing.calc_model_query_price(**request.args)
+    * trained_model (str) - The name of the trained model to query
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = Pricing.calc_model_query_price(request.args["trained_model"])
     return {"price": price, "txn_id": txn_id}
 
 

@@ -287,11 +287,11 @@ def load_dataset(ds_name: str):
     :param ds_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
-    dataset_attribs = json.loads(dataManager.database.get("<DS>" + ds_name))
+    result = dataManager.database.get("<DS>" + ds_name)
+    if result is None:
+        raise Exception(f"Could not find dataset '{ds_name}'!")
 
-    if len(dataset_attribs) == 0:
-        raise Exception(f"Could not find dataset '{ds_name}'")
-
+    dataset_attribs = json.loads(result)
     handler = LocalDataHandler(ds_name, dataset_attribs["time_attrib"],
                                sub_split_attrib=dataset_attribs.get("sub_split_attrib", ""))
 

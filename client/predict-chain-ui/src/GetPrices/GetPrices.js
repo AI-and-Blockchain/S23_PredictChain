@@ -92,9 +92,9 @@ function GetPrices() {
     }, [user, loading]);
 
     return (
-        <div>
+        <div style={{zIndex: "1"}}>
             <div style={{marginLeft: "950px"}}>
-                <h2 style={{textDecoration: "underline", marginTop: "-10px"}}>Request Dataset Upload Price</h2>
+                <h2 style={{textDecoration: "underline", marginTop: "10px"}}>Request Dataset Upload Price</h2>
                 <div>
                     <input type="number" value={datasetUploadPriceSize} min="0" placeholder="0" onChange={(event) => setDatasetUploadPriceSize(event.target.value)}/>
                     <button style={{marginLeft: "10px"}} onClick={handleDatasetUploadPriceRequest}>Get Price</button>

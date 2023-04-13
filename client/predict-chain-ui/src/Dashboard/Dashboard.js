@@ -55,7 +55,8 @@ function Dashboard() {
         ds_link: addDatasetLink,
         ds_name: addDatasetName,
         ds_size: addDatasetSize,
-        time_attrib: "time_step"
+        time_attrib: "time_step",
+        sub_split_attrib: "stock"
       });
       setPastTxns([
         ...pastTxns,
@@ -135,82 +136,82 @@ function Dashboard() {
       </div>
       <div className="dashboard">
         <div className="dashboard__container">
-        <h1 style={{textAlign: "left", marginLeft: "30px"}}>Welcome {name}!</h1>
-        <h1 style={{textAlign: "left", marginLeft: "30px", color: "blue"}}>Account Info</h1>
-        <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px", marginTop: "-10px"}}>
-          <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Email:</h2>
-          {user?.email}
-        </div>
-        <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px",  marginTop: "-10px"}}>
-          <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Private Key:</h2>
-          <div>{pk}</div>
-        </div>
-        <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px",  marginTop: "-10px"}}>
-          <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Address:</h2>
-          <div>{addr}</div>
-        </div>
-        <div style={{textAlign: "left", marginLeft: "30px", marginTop: "-10px"}}><h2 style={{textDecoration: "underline"}}>Past Transactions:</h2>
-          <ul>{pastTxns.map((item, index) => { return <li key={index}>{item}</li>;})}</ul>
-        </div>
+          <h1 style={{textAlign: "left", marginLeft: "30px"}}>Welcome {name}!</h1>
+          <h1 style={{textAlign: "left", marginLeft: "30px", color: "blue"}}>Account Info</h1>
+          <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px", marginTop: "-10px"}}>
+            <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Email:</h2>
+            {user?.email}
+          </div>
+          <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px",  marginTop: "-10px"}}>
+            <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Private Key:</h2>
+            <div>{pk}</div>
+          </div>
+          <div style={{display: "flex", alignItems: "center", textAlign: "left", marginLeft: "30px",  marginTop: "-10px"}}>
+            <h2 style={{marginRight: "10px", textDecoration: "underline"}}>Address:</h2>
+            <div>{addr}</div>
+          </div>
 
-        <button className="dashboard__btn" onClick={logout}>Logout</button>
-        
-        
-        <h1 style={{marginTop: "-600px", marginLeft: "950px", color: "blue"}}>Get Prices</h1>
-        <GetPrices/>
+          <button className="dashboard__btn" onClick={logout}>Logout</button>
+          
+          
+          <h1 style={{marginTop: "-375px", marginLeft: "950px", color: "blue"}}>Get Prices</h1>
+          <GetPrices/>
 
-        <h1 style={{marginLeft: "950px", color: "blue"}}>Dataset & Model Functions</h1>
-        <div style={{marginLeft: "950px"}}>
-          <h2 style={{textDecoration: "underline"}}>Add Dataset</h2>
-          <form onSubmit={handleAddDataset}>
-            <label style={{marginLeft: "10px"}}>
-              Link to Dataset:
-              <input style={{marginLeft: "10px"}} type="text" placeholder="Link to CSV" value={addDatasetLink} onChange={(e) => setAddDatasetLink(e.target.value)} />
-            </label>
-            <label style={{marginLeft: "10px"}}>
-              New Dataset Name:
-              <input style={{marginLeft: "10px"}} type="text" placeholder="Newly named dataset" value={addDatasetName} onChange={(e) => setAddDatasetName(e.target.value)} />
-            </label>
-            <br/>
-            <label style={{marginLeft: "10px"}}>
-              Dataset Size (bytes):
-              <input  style={{marginLeft: "10px"}} type="number" min="0" placeholder="0" value={addDatasetSize} onChange={(e) => setAddDatasetSize(e.target.value)} />
-            </label>
-            <br/>
-            <button type="submit">Add Dataset</button>
-          </form>
-        </div>
+          <h1 style={{marginLeft: "950px", color: "blue"}}>Dataset & Model Functions</h1>
+          <div style={{marginLeft: "950px"}}>
+            <h2 style={{textDecoration: "underline"}}>Add Dataset</h2>
+            <form onSubmit={handleAddDataset}>
+              <label style={{marginLeft: "10px"}}>
+                Link to Dataset:
+                <input style={{marginLeft: "10px"}} type="text" placeholder="Link to CSV" value={addDatasetLink} onChange={(e) => setAddDatasetLink(e.target.value)} />
+              </label>
+              <label style={{marginLeft: "10px"}}>
+                New Dataset Name:
+                <input style={{marginLeft: "10px"}} type="text" placeholder="Newly named dataset" value={addDatasetName} onChange={(e) => setAddDatasetName(e.target.value)} />
+              </label>
+              <br/>
+              <label style={{marginLeft: "10px"}}>
+                Dataset Size (bytes):
+                <input  style={{marginLeft: "10px"}} type="number" min="0" placeholder="0" value={addDatasetSize} onChange={(e) => setAddDatasetSize(e.target.value)} />
+              </label>
+              <br/>
+              <button type="submit">Add Dataset</button>
+            </form>
+          </div>
 
-        <div style={{marginTop: "10px", marginLeft: "950px"}}>
-          <h2 style={{textDecoration: "underline"}}>Train Model</h2>
-          <form onSubmit={handleModelTraining}>
-            <label style={{marginLeft: "10px"}}>
-              Model Name:
-                <select style={{marginLeft: "10px"}} value={trainRawModelName} onChange={(e) => setTrainRawModelName(e.target.value)}>
-                  <option value="">--Select an option--</option>
-                  <option value="GRU">Gated Recurrent Unit (GRU)</option>
-                  <option value="LSTM">Long Short-Term Memory (LSTM)</option>
-                  <option value="RNN">Recurrent Neural Network (RNN)</option>
-                  <option value="MLP">Multi-Layered Perceptron (MLP)</option>
-                </select>
-            </label>
-            <label style={{marginLeft: "10px"}}>
-              Trained Model Name:
-              <input style={{marginLeft: "10px"}} type="text" placeholder="Newly named model" value={trainNewName} onChange={(e) => setTrainNewName(e.target.value)} />
-            </label>
-            <br/>
-            <label style={{marginLeft: "10px"}}>
-              Dataset Name:
-              <input style={{marginLeft: "10px"}} type="text" placeholder="Pre-existing dataset" value={trainDatasetName} onChange={(e) => setTrainDatasetName(e.target.value)} />
-            </label>
-            <label style={{marginLeft: "10px"}}>
-              Number of Epochs:
-              <input style={{marginLeft: "10px"}} type="number" min="1" placeholder="1" value={trainNumberEpochs} onChange={(e) => setTrainNumberEpochs(e.target.value)} />
-            </label>
-            <br/>
-            <button type="submit">Train Dataset</button>
-          </form>
-        </div>
+          <div style={{marginTop: "10px", marginLeft: "950px"}}>
+            <h2 style={{textDecoration: "underline"}}>Train Model</h2>
+            <form onSubmit={handleModelTraining}>
+              <label style={{marginLeft: "10px"}}>
+                Model Name:
+                  <select style={{marginLeft: "10px"}} value={trainRawModelName} onChange={(e) => setTrainRawModelName(e.target.value)}>
+                    <option value="">--Select an option--</option>
+                    <option value="GRU">Gated Recurrent Unit (GRU)</option>
+                    <option value="LSTM">Long Short-Term Memory (LSTM)</option>
+                    <option value="RNN">Recurrent Neural Network (RNN)</option>
+                    <option value="MLP">Multi-Layered Perceptron (MLP)</option>
+                  </select>
+              </label>
+              <label style={{marginLeft: "10px"}}>
+                Trained Model Name:
+                <input style={{marginLeft: "10px"}} type="text" placeholder="Newly named model" value={trainNewName} onChange={(e) => setTrainNewName(e.target.value)} />
+              </label>
+              <br/>
+              <label style={{marginLeft: "10px"}}>
+                Dataset Name:
+                <input style={{marginLeft: "10px"}} type="text" placeholder="Pre-existing dataset" value={trainDatasetName} onChange={(e) => setTrainDatasetName(e.target.value)} />
+              </label>
+              <label style={{marginLeft: "10px"}}>
+                Number of Epochs:
+                <input style={{marginLeft: "10px"}} type="number" min="1" placeholder="1" value={trainNumberEpochs} onChange={(e) => setTrainNumberEpochs(e.target.value)} />
+              </label>
+              <br/>
+              <button type="submit">Train Dataset</button>
+            </form>
+          </div>
+          <div style={{textAlign: "left", marginLeft: "30px", marginTop: "-575px", zIndex: "0"}}><h2 style={{textDecoration: "underline"}}>Past Transactions:</h2>
+            <ul>{pastTxns.map((item, index) => { return <li key={index}>{item}</li>;})}</ul>
+          </div>
         </div>
       </div>
       <div className="fixed-footer">

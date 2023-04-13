@@ -15,6 +15,8 @@ import {
   collection,
   where,
   addDoc,
+  setDoc,
+  doc,
 } from "firebase/firestore";
 import axios from 'axios';
 
@@ -53,13 +55,14 @@ const signInWithGoogle = async () => {
     const response = await axios.post('http://localhost:8031/new_account');
     const address = response.data.address;
     const privateKey = response.data.private_key;
-    await addDoc(collection(db, "users"), {
-      uid: user.uid,
+    const docRef = doc(db, "users", user.uid);
+    await setDoc(docRef, {
       name: user.displayName,
       authProvider: "google",
       email: user.email,
       privateKey: privateKey,
-      address: address
+      address: address,
+      transactionIDs: [],
     });
   } catch (err) {
     console.error(err);
@@ -86,13 +89,14 @@ const registerWithEmailAndPassword = async (name, email, password) => {
     });
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    await addDoc(collection(db, "users"), {
-      uid: user.uid,
+    const docRef = doc(db, "users", user.uid);
+    await setDoc(docRef, {
       name,
       authProvider: "local",
       email,
       privateKey: privateKey,
       address: address,
+      transactionIDs: [],
     });
   } catch (err) {
     console.error(err);

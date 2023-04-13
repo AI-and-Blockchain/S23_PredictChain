@@ -244,6 +244,22 @@ def add_dataset_api():
     txn_id = add_dataset(**request.json)
     return txn_id
 
+@app.route('/get_model_train_price', methods=["GET"])
+def model_train_price():
+    """Requests to see the price for training a model
+
+    **Query Params**
+
+    * raw_model (str) - The name of the raw model to train
+    * ds_name (str) - The name of the dataset to train the model on
+    * hidden_dim (int) - The dimension of the hidden layers
+    * num_hidden_layers (int) - The number of hidden layers to put into the model
+
+    :return: The price of the transaction and the transaction id where that price was last changed"""
+
+    price, txn_id = get_model_train_price(**request.args)
+    return {"price": price, "txn_id": txn_id}
+
 
 # NEED TO TEST
 @app.route('/train_model', methods=["POST"])
@@ -273,23 +289,6 @@ def train_model_api():
     txn_id = train_model(**request.json)
     return txn_id
 
-
-# NEED TO TEST
-@app.route('/get_model_train_price', methods=["GET"])
-def model_train_price():
-    """Requests to see the price for training a model
-
-    **Query Params**
-
-    * raw_model (str) - The name of the raw model to train
-    * ds_name (str) - The name of the dataset to train the model on
-    * hidden_dim (int) - The dimension of the hidden layers
-    * num_hidden_layers (int) - The number of hidden layers to put into the model
-
-    :return: The price of the transaction and the transaction id where that price was last changed"""
-
-    price, txn_id = get_model_train_price(**request.args)
-    return {"price": price, "txn_id": txn_id}
 
 
 # NEED TO TEST

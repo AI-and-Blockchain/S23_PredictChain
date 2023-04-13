@@ -11,7 +11,11 @@ import oracle.oracleCore as oracleCore
 import client.clientCore as clientCore
 
 
-def sim_transaction(command: dict, txn_id="0txn", user_id="0user", amount=float("inf")):
+DEFAULT_USER_ID = "V5DGWVP6MUKMT5MFVOOELPSARVL5OLBIFTUITOOWQ4OA3RBPU2QJBKNPTQ"
+DEFAULT_TXN_ID = "2DXP26ZTEZXUKL6FHUBWHM6NI3R32IOEOUZGC75TBIRKB4D4TODA"
+DEFAULT_AMNT = 1000000000000000
+
+def sim_transaction(command: dict, txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
     """Simulates a transaction coming from the client to the oracle
 
     :param command: The command that the transaction will tell the oracle to execute
@@ -26,7 +30,7 @@ def sim_transaction(command: dict, txn_id="0txn", user_id="0user", amount=float(
 
 
 def sim_up_dataset(ds_name: str, ds_link: str, ds_size: int, time_attrib: str, endpoint="", sub_split_attrib="",
-                        txn_id="0txn", user_id="0user", amount=float("inf")):
+                        txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
     """Simulates an upload dataset transaction
 
     :param ds_name: The name that will be assigned to the new dataset
@@ -45,7 +49,7 @@ def sim_up_dataset(ds_name: str, ds_link: str, ds_size: int, time_attrib: str, e
 
 
 def sim_train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs: int, target_attrib: str, hidden_dim: int, num_hidden_layers: int,
-                        txn_id="0txn", user_id="0user", amount=float("inf")):
+                        txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
     """Simulates a train model transaction
 
     :param raw_model: The raw model to train
@@ -64,7 +68,7 @@ def sim_train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs
     sim_transaction(command, txn_id, user_id, amount)
 
 
-def sim_query_model(trained_model: str, model_input: list, txn_id="0txn", user_id="0user", amount=float("inf")):
+def sim_query_model(trained_model: str, model_input: list, txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
     """Simulates a query model transaction
 
     :param trained_model: The trained model to query
@@ -73,7 +77,7 @@ def sim_query_model(trained_model: str, model_input: list, txn_id="0txn", user_i
     :param user_id: The id of the simulated sender of the transaction
     :param amount: The amount of micro-algo to give the transaction"""
 
-    command = {"op": utils.OpCodes.UP_DATASET, "trained_model": trained_model, "model_input": model_input}
+    command = {"op": utils.OpCodes.QUERY_MODEL, "trained_model": trained_model, "model_input": model_input}
     sim_transaction(command, txn_id, user_id, amount)
 
 
@@ -81,8 +85,8 @@ def sandbox():
     """Wrapper function for any informal testing code"""
     oracleCore.OracleState.init()
 
-    ds_name = "dow_jones_index"
-    model_name = "testModel"
+    ds_name = "dow_jones_index2"
+    model_name = "testModel2"
 
     model_query = [
             [1, 0, 56, 16.98, 17.15, 15.96, 16.68, 132981863, -1.76678, 66.17769355, 80023895, 16.81, 16.58, -1.36823, 76, 0.179856],
@@ -90,11 +94,11 @@ def sandbox():
             [1, 0, 70, 16.58, 16.75, 15.42, 16.03, 114332562, -3.31725, 4.419900447, 109493077, 15.95, 16.11, 1.00313, 62, 0.187149]
     ]
 
-    # sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
+    sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
 
-    # sim_train_model("GRU", model_name, ds_name, 5, "close", 5, 1)
+    sim_train_model("GRU", model_name, ds_name, 5, "close", 5, 1)
 
-    # sim_query_model(model_name, model_query)
+    sim_query_model(model_name, model_query)
 
 
 if __name__ == "__main__":

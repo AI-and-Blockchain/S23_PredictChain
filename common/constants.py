@@ -20,6 +20,9 @@ ORACLE_SERVER_HOST, ORACLE_SERVER_PORT = "localhost", 8030
 CLIENT_SERVER_HOST, CLIENT_SERVER_PORT = "localhost", 8031
 ORACLE_SERVER_ADDRESS = f"{ORACLE_SERVER_HOST}:{ORACLE_SERVER_PORT}"
 
+ALGO_AMOUNT_CAP = 1000
+"""Hard limit for all transaction amounts.  Prevents test accounts from being drained"""
+
 
 @dataclasses.dataclass
 class OpCodes:

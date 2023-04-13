@@ -113,13 +113,13 @@ class Pricing:
         :param num_hidden_layers: The number of hidden layers to put into the model
         :return: The price of the given operation and the transaction id of the last time the price multiplier was changed"""
 
-        match op:
-            case utils.OpCodes.UP_DATASET:
-                return cls.calc_dataset_upload_price(ds_size)
-            case utils.OpCodes.QUERY_MODEL:
-                return cls.calc_model_query_price(trained_model)
-            case utils.OpCodes.TRAIN_MODEL:
-                return cls.calc_model_train_price(raw_model, ds_name, hidden_dim, num_hidden_layers)
+        if op == utils.OpCodes.UP_DATASET:
+            return cls.calc_dataset_upload_price(ds_size)
+        elif op == utils.OpCodes.QUERY_MODEL:
+            return cls.calc_model_query_price(trained_model)
+        elif op == utils.OpCodes.TRAIN_MODEL:
+            return cls.calc_model_train_price(raw_model, ds_name, hidden_dim, num_hidden_layers)
+
         return 0, ""
 
     @classmethod
@@ -130,8 +130,8 @@ class Pricing:
         :return: The multiplier and the transaction id of the last time the multiplier was changed"""
 
         if not cls.mult_cache.get(mul_op):
-            db_mul = dataManager.database.hgetall("<PRICE>" + mul_op)
-            if not len(db_mul):
+            db_mul = dataManager.database.get("<PRICE>" + mul_op)
+            if not db_mul:
                 db_mul = {"mul": 1, "txn_id": "0txn"}
             cls.mult_cache[mul_op] = db_mul
 
@@ -151,7 +151,7 @@ class Pricing:
 
         cls.mult_cache[mul_op] = {"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id}
         # Save txn_id to database
-        dataManager.database.hset("<PRICE>" + mul_op, mapping={"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id})
+        dataManager.database.set("<PRICE>" + mul_op, {"mul_op": mul_op, "mul": new_mul, "txn_id": txn_id})
 
         return txn_id
 
@@ -219,83 +219,103 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
         op_price, _ = Pricing.calc_op_price(op, **kwargs)
 
         def reject(reason: str):
-            # Reject transaction
-            return utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn["amount"],
+            """Reject the incoming transaction
+
+            :param reason: The reason for rejection"""
+
+            reject_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], txn['payment-transaction']['amount'],
                            note=json.dumps({"op": utils.OpCodes.REJECT, "initial_op": op, "reason": reason}))
+            print(f"Rejecting the incoming transaction with the reason of {reason}.  Reject transaction id: {reject_txn_id}")
+
+        def accept(msg: str, **note_kwargs):
+            """Accept the incoming transaction and sent a confirmation back to the sender
+
+            :param msg: An additional message to print out
+            :param note_kwargs: A dictionary or kwargs to send along with the confirmation"""
+
+            tmp_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], 0,
+                                         note=json.dumps({"op": utils.OpCodes.RESPONSE, "initial_op": op, **note_kwargs}))
+
+            print(f"{msg}. Response transaction id: {tmp_txn_id}")
 
         if txn['payment-transaction']['amount'] < op_price:
             # Reject transaction
             reject("UNDERFUNDED")
             return
 
-        match op:
-            case utils.OpCodes.UP_DATASET:
-                try:
-                    datasets.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
-                except FileExistsError:
-                    print("Dataset already exists!")
-                    reject("DS_EXISTS")
-                    return
+        if op == utils.OpCodes.UP_DATASET:
+            try:
+                datasets.save_dataset("local", **kwargs, txn_id=txn["id"], user_id=txn["sender"])
+            except FileExistsError:
+                print("Dataset already exists!")
+                reject("DS_EXISTS")
+                return
+            
+            # Report result back to the user
+            accept(f"Added a dataset with name {kwargs['ds_name']}")
 
-            case utils.OpCodes.QUERY_MODEL:
-                model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
-                output = model(torch.tensor(kwargs["model_input"]))
+        elif op == utils.OpCodes.TRAIN_MODEL:
+            handler, dataset_attribs = datasets.load_dataset(kwargs["ds_name"])
 
-                # Take only the last prediction of a time series model
-                if output.dim() == 2:
-                    output = output[-1]
-                output = output.tolist()
+            model = models.PredictModel.create(**kwargs, data_handler=handler)
+            accuracy, loss = model.train_model(**kwargs)
 
-                if ds_meta.get("endpoint", ""):
-                    print("Adding event request to event queue")
-                    EventMonitor.query_queue[txn["id"]] = {"endpoint": ds_meta["endpoint"], "output": output,
-                                                     "query_user_id": txn["sender"], "query_txn_id": txn["id"]}
+            models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
 
-                # Report result back to the user
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, txn["sender"], 0,
-                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "output": output}))
+            # Report result back to the user
+            accept(f"Trained a {kwargs['raw_model']} model as {kwargs['trained_model']} on dataset {kwargs['ds_name']}")
 
+            incentive_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, dataset_attribs["user_id"],
+                           Pricing.calc_ds_usage_incentive(int(dataset_attribs["size"]), accuracy)[0],
+                           note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
+            
+            print(f"Database incentive transaction id: {incentive_txn_id}")
 
-            case utils.OpCodes.EVENT_UPDATE:
-                model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
-                loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
-                output, target = kwargs["output"], kwargs["target"]
+        elif op == utils.OpCodes.QUERY_MODEL:
+            model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
+            output = model(torch.tensor(kwargs["model_input"]))
 
-                accuracy = float(torch.sigmoid(-loss_fn(output, target) + math.e ** 2))
+            # Take only the last prediction of a time series model
+            if output.dim() == 2:
+                output = output[-1]
+            output = output.tolist()
 
-                # Report result back to the user
-                event_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, kwargs["query_user_id"], 0,
-                               note=json.dumps({"op": utils.OpCodes.RESPONSE, "output": output, "target": target,
-                                                "accuracy": accuracy}))
+            if ds_meta.get("endpoint", ""):
+                print("Adding event request to event queue")
+                EventMonitor.query_queue[txn["id"]] = {"endpoint": ds_meta["endpoint"], "output": output,
+                                                 "query_user_id": txn["sender"], "query_txn_id": txn["id"]}
 
-                # Reward model trainer
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, meta["user_id"],
-                               Pricing.calc_model_usage_incentive(accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name,
-                                                "query_txn_id": kwargs["query_txn_id"], "event_txn_id": event_txn_id}))
+            # Report result back to the user
+            accept(f"Queried model {kwargs['trained_model']} with a result of {output}", output=output)
 
-                _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
-                # Reward dataset uploader
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta["user_id"],
-                               Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name,
-                                                "query_txn_id": kwargs["query_txn_id"], "event_txn_id": event_txn_id}))
+        elif op == utils.OpCodes.EVENT_UPDATE:
+            model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
+            loss_fn = models.PredictModel.get_loss_fn(model.loss_fn_name)
+            output, target = kwargs["output"], kwargs["target"]
 
-            case utils.OpCodes.UPDATE_PRICE:
-                # Handle any additional price change logic here if needed
-                ...
+            accuracy = float(torch.sigmoid(-loss_fn(output, target) + math.e ** 2))
 
-            case utils.OpCodes.TRAIN_MODEL:
-                handler, dataset_attribs = datasets.load_dataset(kwargs["ds_name"])
+            # Report result back to the user
+            resp_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, kwargs["query_user_id"], 0,
+                           note=json.dumps({"op": utils.OpCodes.RESPONSE, "output": output, "target": target,
+                                            "accuracy": accuracy}))
 
-                model = models.PredictModel.create(**kwargs, data_handler=handler)
-                accuracy, loss = model.train_model(**kwargs)
+            # Reward model trainer
+            utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, meta["user_id"],
+                           Pricing.calc_model_usage_incentive(accuracy)[0],
+                           note=json.dumps({"op": utils.OpCodes.MODEL_INCENTIVE, "trained_model": model.model_name,
+                                            "query_txn_id": kwargs["query_txn_id"], "event_txn_id": resp_txn_id}))
 
-                models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
+            _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
+            # Reward dataset uploader
+            utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, ds_meta["user_id"],
+                           Pricing.calc_ds_usage_incentive(dataset_attribs["size"], accuracy)[0],
+                           note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name,
+                                            "query_txn_id": kwargs["query_txn_id"], "event_txn_id": resp_txn_id}))
 
-                utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, dataset_attribs["user_id"],
-                               Pricing.calc_ds_usage_incentive(int(dataset_attribs["size"]), accuracy)[0],
-                               note=json.dumps({"op": utils.OpCodes.DS_INCENTIVE, "dataset_name": model.data_handler.dataset_name}))
+        elif op == utils.OpCodes.UPDATE_PRICE:
+            # Handle any additional price change logic here if needed
+            ...
 
 
 app = Flask(__name__)

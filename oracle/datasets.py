@@ -276,9 +276,9 @@ def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str
             handler.save_chunk(chunk.decode())
 
     handler.finish()
-    dataManager.database.set("<DS>"+handler.dataset_name, json.dumps({"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
+    dataManager.database.set("<DS>"+handler.dataset_name, {"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
                                                         "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib,
-                                                        "endpoint": endpoint}))
+                                                        "endpoint": endpoint})
 
 
 def load_dataset(ds_name: str):
@@ -287,11 +287,10 @@ def load_dataset(ds_name: str):
     :param ds_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
-    result = dataManager.database.get("<DS>" + ds_name)
-    if result is None:
+    dataset_attribs = dataManager.database.get("<DS>" + ds_name)
+    if dataset_attribs is None:
         raise Exception(f"Could not find dataset '{ds_name}'!")
 
-    dataset_attribs = json.loads(result)
     handler = LocalDataHandler(ds_name, dataset_attribs["time_attrib"],
                                sub_split_attrib=dataset_attribs.get("sub_split_attrib", ""))
 

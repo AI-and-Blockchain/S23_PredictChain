@@ -47,13 +47,12 @@ class PredictModel:
         :param name: The name of the loss function
         :return: The torch loss function"""
 
-        match name.lower():
-            case "l1" | "mae":
-                return torch.nn.L1Loss()
-            case "mse":
-                return torch.nn.MSELoss()
-            case "ce" | "crossentropy":
-                return torch.nn.CrossEntropyLoss()
+        if name.lower() in ["l1", "mae"]:
+            return torch.nn.L1Loss()
+        elif name.lower() in ["l2", "mse"]:
+            return torch.nn.MSELoss()
+        elif name.lower() in ["ce", "crossentropy"]:
+            return torch.nn.CrossEntropyLoss()
 
     @staticmethod
     def get_optimizer(name: str):
@@ -62,11 +61,10 @@ class PredictModel:
         :param name: The name of the optimizer
         :return: The torch optimizer"""
 
-        match name.lower():
-            case "adam":
-                return torch.optim.Adam
-            case "sgd":
-                return torch.optim.SGD
+        if name.lower() == "adam":
+            return torch.optim.Adam
+        elif name.lower() == "sgd":
+            return torch.optim.SGD
 
     @classmethod
     def subclass_walk(cls, target_cls):
@@ -422,13 +420,13 @@ def get_trained_model(model_name: str):
     :param model_name: The name of the trained model to load
     :return: The loaded model and associated metadata"""
 
-    result = dataManager.database.get("<MODEL>" + model_name)
-    if result is None:
+    model_attribs = dataManager.database.get("<MODEL>" + model_name)
+    if model_attribs is None:
         raise Exception(f"Could not find trained model '{model_name}'!")
 
-    model_attribs = json.loads(result)
     # Remove since this is already fulfilled by the model_name param
-    model_attribs.pop("model_name")
+    if "model_name" in model_attribs:
+        model_attribs.pop("model_name")
 
     handler, dataset_attribs = datasets.load_dataset(model_attribs["ds_name"])
     model = PredictModel.create(**model_attribs, trained_model=model_name, data_handler=handler)
@@ -451,7 +449,7 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
     model_attribs["raw_model"] = model_attribs.pop("BASE_MODEL_NAME")
     _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)
 
-    dataManager.database.set("<MODEL>"+model.model_name, json.dumps({"save_location": save_location,
+    dataManager.database.set("<MODEL>"+model.model_name, {"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id, "ds_name": model.data_handler.dataset_name,
-                            "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]}))
+                            "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]})
 

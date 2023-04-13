@@ -17,35 +17,61 @@ the *Client* and *Oracle* nodes.
 
 First, clone this repository and enter its directory.
 
-**All commands must be run from the root project directory unless otherwise specified.**
-
-### Docker
-
-If using Linux, building and running docker containers for the program is the most straightforward
-method of setting up the nodes.
-
-First, build the container using:
-
 ```bash
-docker/buildContainer.sh
+git clone https://github.com/AI-and-Blockchain/S23_PredictChain # Clone the repository
+cd S23_PredictChain # Enter its directory
 ```
 
-Next, run both the client and oracle programs using:
+> **_NOTE:_** All commands must be run from the root project directory unless otherwise specified.
 
-```bash
-docker/runClient.sh
-``` 
-and 
-```bash
-docker/runOracle.sh
-```
+There are two primary methods of building and running the project:
 
-After these containers have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
+### Running From Source
 
-### Building From Source
+The following should work on all platforms.  
 
-The following should work on all platforms.  If using a virtual environment, make sure all python
-commands are run within that environment.
+> **_NOTE:_** If using a python virtual environment, make sure all python commands are run within that environment.
+
+#### Prerequisite Software
+
+Before running the program, the following software must be available.  Once the main software is installed,
+the instructions below will detail how to install the dependencies.
+
+* Python 3.10 or above
+  * Dependencies (from [requirements.txt](requirements.txt)):
+    * pyteal: 0.24.0
+    * py-algorand-sdk: 2.1.2
+    * flask: 2.2.3
+    * requests: 2.28.2
+    * torch: 2.0.0
+    * redis: 4.5.4
+    * web3storage: 0.1.1
+    * beautifulsoup4: 4.12.2
+    * pandas: 2.0.0
+    * flask-cors: 3.0.10
+    * sphinx: 6.1.3
+    * matplotlib: 3.7.1
+  
+* NodeJs 12.22.9 (NPM v8.5.1) or above
+  * Dependencies (from [package.json](client/predict-chain-ui/package.json)):
+    * axios: ^1.3.4
+    * firebase: ^9.19.1
+    * react: ^18.2.0
+    * react-dom: ^18.2.0
+    * react-firebase-hooks: ^5.1.1
+    * react-router-dom: ^6.10.0
+    * react-scripts: 5.0.1
+    * web-vitals: ^2.1.4
+
+The following software is recommended:
+
+* Redis 6.0.16 or above
+
+> **_NOTE:_** Redis is not required for this program to run, but is recommended.  Without it, a special
+> compatability layer will be activated that will use a dictionary instead.  **This dictionary will not persist between runs!**
+
+> **_NOTE:_** Redis does not directly support running on windows.  To install on Windows, install through
+> the Windows Subsystem for Linux (WSL), making sure the database has started before program execution.
 
 First, install the project dependencies using
 
@@ -70,6 +96,33 @@ python oracleMain.py
 ```
 
 After these have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
+
+Additionally, working examples of the three core parts of the project are available in [sandbox.py](sandbox.py).
+Simply comment or uncomment the desired actions inside the `sandbox()` function.  Leave all three uncommented for
+a complete, working example.
+
+### Docker
+
+If using Linux, building and running docker containers for the program is the most straightforward
+method of setting up the nodes.
+
+First, build the container using:
+
+```bash
+docker/buildContainer.sh
+```
+
+Next, run both the client and oracle programs using:
+
+```bash
+docker/runClient.sh
+``` 
+and 
+```bash
+docker/runOracle.sh
+```
+
+After these containers have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
 
 ## User Actions
 

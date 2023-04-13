@@ -50,7 +50,7 @@ class Pricing:
         :return: The reward for having uploaded a useful dataset and the transaction id of the last time the reward multiplier was changed"""
 
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.DS_INCENTIVE)
-        return int(ds_size * mult / accuracy), txn_id
+        return int(ds_size * mult * accuracy), txn_id
 
     @classmethod
     def calc_model_usage_incentive(cls, accuracy: float):
@@ -60,7 +60,7 @@ class Pricing:
         :return: The reward for having trained a useful model and the transaction id of the last time the reward multiplier was changed"""
 
         mult, txn_id = cls.get_price_multiplier(utils.OpCodes.MODEL_INCENTIVE)
-        return int(mult / accuracy), txn_id
+        return int(mult * accuracy), txn_id
 
     @classmethod
     def calc_dataset_upload_price(cls, ds_size: int):

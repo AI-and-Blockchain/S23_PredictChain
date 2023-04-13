@@ -4,11 +4,12 @@ PredictChain is a marketplace for predictive AI models. Our goal is to make pred
 more accessible to more potential users.  We do this through the ease of use and transparency
 of PredictChain.  Users will be able to upload datasets, request the training of train predictive 
 models, or submit queries to those models.  These various models will be operated by a central 
-node or nodes with computing resources available. A variety of models will be made available, 
-ranging from cheap, fast, and simple to more expensive, slower, and more powerful. This will allow 
-for a large variety of predictive abilities for both simple and complex patterns. All the past 
-transactions will be stored on the blockchain for public viewing.  These include dataset creation,
-model training, model queries, and the results of these queries.
+node or nodes with computing resources available. 
+
+A variety of models will be made available, ranging from cheap, fast, and simple to more expensive, 
+slower, and more powerful. This will allow for a large variety of predictive abilities for both 
+simple and complex patterns. All the past transactions will be stored on the blockchain for public viewing.  
+These include dataset creation, model training, model queries, and the results of these queries.
 
 ## Quick Start
 
@@ -132,12 +133,12 @@ trained models for a specific result.
 
 ## Model Classes
 
-There will be several types of models available for use.  These may include:
+There will be several types of models available for use.  These include:
 
-- Decision Trees
 - Multi-layered Perceptrons
-- Linear Neural Networks
 - Recurrent Neural Networks
+- Long Short-term Memory Networks
+- Gated Recurrent Unit Networks
 
 The capabilities of these different methods varies greatly.  To save on costs, users with simple
 classification tasks can opt for models that are cheaper, but will still provide good results.
@@ -180,14 +181,13 @@ of the model and the size of the dataset.
 ### Incentives
 
 To compensate for the payments that users make to the system, they will also be rewarded in the right
-circumstances.
+circumstances.  Each of the below events are triggers when a user queries the model for some event.
 
 - Dataset uploading users will be rewarded both when a model is trained on their dataset and when
 that trained model makes a correct prediction.
 
 - Model training users will be rewarded whenever their model makes a correct prediction.
 
-- Each of the predictions mentioned above are triggered when a user queries the model for some event.
 
 ## User Interface Wireframes
 

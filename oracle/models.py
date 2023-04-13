@@ -3,6 +3,8 @@ import abc
 import dataclasses
 import json
 import math
+import os
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -434,17 +436,18 @@ def get_trained_model(model_name: str):
     return model, model_attribs, dataset_attribs
 
 
-def save_trained_model(model: PredictModel, save_location: str, txn_id: str, user_id: str):
+def save_trained_model(model: PredictModel, txn_id: str, user_id: str):
     """Saves a model to disk and to the database along with user and metadata information
 
     :param model: The model to save
-    :param save_location: The location to save the model to
     :param txn_id: The id of the transaction that initiated the saving of this model
     :param user_id: The address of the user that is saving this model"""
 
     print(f"Saving {model.BASE_MODEL_NAME} model '{model.model_name}'")
 
-    model_attribs = model.save(save_location)
+    os.makedirs("models", exist_ok=True)
+
+    model_attribs = model.save(f"models/{model.model_name}")
     model_attribs.pop("data_handler")
     model_attribs["raw_model"] = model_attribs.pop("BASE_MODEL_NAME")
     _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)

@@ -147,9 +147,8 @@ class LocalDataHandler(DataHandler):
         super().__init__(dataset_name, time_attrib, sub_split_attrib)
         self.file: io.StringIO = None
         ds_dir = f"data/{dataset_name}"
-        if not os.path.exists(ds_dir):
-            os.mkdir(ds_dir)
-        self.file_path = f"data/{dataset_name}/{dataset_name}.csv"
+        os.makedirs(ds_dir, exist_ok=True)
+        self.file_path = f"{ds_dir}/{dataset_name}.csv"
         self.mode = None
         """Locks the handler into one mode until finalization to avoid unexpected behavior"""
 
@@ -160,8 +159,6 @@ class LocalDataHandler(DataHandler):
     def start(self, mode: int):
         self.mode = mode
         if mode == self.SAVE_MODE:
-            if os.path.isfile(self.file_path):
-                raise FileExistsError() # error here?
             self.file = open(self.file_path, "a")
         elif mode == self.LOAD_MODE:
             self.file = open(self.file_path, "r")

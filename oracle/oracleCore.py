@@ -260,7 +260,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
             model = models.PredictModel.create(**kwargs, data_handler=handler)
             accuracy, loss = model.train_model(**kwargs)
 
-            models.save_trained_model(model, f"models/{kwargs['trained_model']}", txn["id"], txn["sender"])
+            models.save_trained_model(model, txn["id"], txn["sender"])
 
             # Report result back to the user
             accept(f"Trained a {kwargs['raw_model']} model as {kwargs['trained_model']} on dataset {kwargs['ds_name']}")

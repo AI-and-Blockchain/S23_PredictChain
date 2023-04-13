@@ -13,7 +13,7 @@
   flex-direction: column;
   text-align: center;
   background-color: #dcdcdc;
-  height: 1000px;
+  height: 2000px;
   width: 95%;
   position: relative;
   border-radius: 10px;
@@ -29,7 +29,7 @@
   background-color: black;
   position: absolute;
   bottom: 30px;
-  right: 40px;
+  left: 40px;
 }
 
 .dashboard__btn:hover{

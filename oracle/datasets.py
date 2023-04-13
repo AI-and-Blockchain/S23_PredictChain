@@ -1,9 +1,12 @@
 import io
-from oracle.dataManager import database, web3
 import abc
+import json
+
 import requests
 import os
 import pandas as pd
+
+from oracle import dataManager
 
 
 class DataHandler:
@@ -239,12 +242,12 @@ class IPFSDataHandler(DataHandler):
         elif self.mode != self.LOAD_MODE:
             raise AttributeError("Cannot perform load operation when not in load mode!")
 
-        return web3.download(self.dataset_id)
+        return dataManager.web3.download(self.dataset_id)
 
     def finish(self):
         out = None
         if self.mode == self.SAVE_MODE:
-            resp = web3.upload_file(self.proxy_handler.file_path)
+            resp = dataManager.web3.upload_file(self.proxy_handler.file_path)
             self.proxy_handler.finish()
             out = resp["cid"]
 
@@ -273,9 +276,9 @@ def save_dataset(env: str, ds_name: str, ds_link: str, txn_id: str, user_id: str
             handler.save_chunk(chunk.decode())
 
     handler.finish()
-    database.hset("<DS>"+handler.dataset_name, mapping={"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
+    dataManager.database.set("<DS>"+handler.dataset_name, json.dumps({"env": handler.env, "size": size, "txn_id": txn_id, "user_id": user_id,
                                                         "time_attrib": time_attrib,"sub_split_attrib": sub_split_attrib,
-                                                        "endpoint": endpoint})
+                                                        "endpoint": endpoint}))
 
 
 def load_dataset(ds_name: str):
@@ -284,7 +287,10 @@ def load_dataset(ds_name: str):
     :param ds_name: The name of the dataset to load
     :return: A handler for the dataset and the metadata associated with the dataset"""
 
-    dataset_attribs = database.hgetall("<DS>" + ds_name)
+    dataset_attribs = json.loads(dataManager.database.get("<DS>" + ds_name))
+
+    if len(dataset_attribs) == 0:
+        raise Exception(f"Could not find dataset '{ds_name}'")
 
     handler = LocalDataHandler(ds_name, dataset_attribs["time_attrib"],
                                sub_split_attrib=dataset_attribs.get("sub_split_attrib", ""))

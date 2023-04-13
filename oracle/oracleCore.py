@@ -86,7 +86,7 @@ class Pricing:
             kwargs["trained_model"] = "tmp"
 
         handler = datasets.load_dataset(ds_name)[0]
-        model = models.PredictModel.create(raw_model, data_handler=handler, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, **kwargs)
+        model = models.PredictModel.create(raw_model, data_handler=handler, hidden_dim=int(hidden_dim), num_hidden_layers=int(num_hidden_layers), **kwargs)
         return int(model.model_complexity * mult * handler.size), txn_id
 
     @classmethod
@@ -237,7 +237,12 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
             case utils.OpCodes.QUERY_MODEL:
                 model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
-                output = model(kwargs["model_input"])
+                output = model(torch.tensor(kwargs["model_input"]))
+
+                # Take only the last prediction of a time series model
+                if output.dim() == 2:
+                    output = output[-1]
+                output = output.tolist()
 
                 if ds_meta.get("endpoint", ""):
                     print("Adding event request to event queue")

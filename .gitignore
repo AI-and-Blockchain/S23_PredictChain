@@ -4,6 +4,7 @@
 venv
 client/predict-chain-ui/node_modules
 data/*
+models/*
 __pycache__
 docs/sphinx/.doctrees
 database.json

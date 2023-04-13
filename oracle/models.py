@@ -1,6 +1,7 @@
 from __future__ import annotations
 import abc
 import dataclasses
+import json
 import math
 
 import numpy as np
@@ -422,11 +423,12 @@ def get_trained_model(model_name: str):
     :param model_name: The name of the trained model to load
     :return: The loaded model and associated metadata"""
 
-    model_attribs = dataManager.database.hgetall("<MODEL>" + model_name)
+    model_attribs = json.loads(dataManager.database.get("<MODEL>" + model_name))
+    # Remove since this is already fulfilled by the model_name param
+    model_attribs.pop("model_name")
 
     handler, dataset_attribs = datasets.load_dataset(model_attribs["ds_name"])
-    model = PredictModel.create(model_attribs["BASE_MODEL_NAME"], model_name,
-                                handler, model_attribs["loss_fn_name"], **model_attribs["kwargs"])
+    model = PredictModel.create(**model_attribs, trained_model=model_name, data_handler=handler)
     model.load(model_attribs["save_location"])
     return model, model_attribs, dataset_attribs
 
@@ -443,9 +445,10 @@ def save_trained_model(model: PredictModel, save_location: str, txn_id: str, use
 
     model_attribs = model.save(save_location)
     model_attribs.pop("data_handler")
-    dataset_attribs = dataManager.database.hgetall("<DS>" + model.data_handler.dataset_name)
+    model_attribs["raw_model"] = model_attribs.pop("BASE_MODEL_NAME")
+    dataset_attribs = json.loads(dataManager.database.get("<DS>" + model.data_handler.dataset_name))
 
-    dataManager.database.hset("<MODEL>"+model.model_name, mapping={"save_location": save_location,
+    dataManager.database.set("<MODEL>"+model.model_name, json.dumps({"save_location": save_location,
                             **model_attribs, "txn_id": txn_id, "user_id": user_id, "ds_name": model.data_handler.dataset_name,
-                            "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]})
+                            "ds_txn_id": dataset_attribs["txn_id"], "ds_user_id": dataset_attribs["user_id"]}))
 

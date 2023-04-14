@@ -29,7 +29,11 @@ function Reset() {
         </button>
 
         <div>
-          Don't have an account? <a href="/register" className="ex1">Register</a> now.
+          Don't have an account?{" "}
+          <a href="/register" className="ex1">
+            Register
+          </a>{" "}
+          now.
         </div>
       </div>
     </div>

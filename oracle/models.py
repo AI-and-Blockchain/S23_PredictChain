@@ -151,7 +151,7 @@ class BaseNN(nn.Module, PredictModel):
         optimizer = self.get_optimizer(optimizer_name)(self.parameters(), lr=learning_rate)
 
         x_train, y_train, x_test, y_test = self.preprocess_data(target_attrib=target_attrib, **kwargs)
-        for epoch in range(num_epochs):
+        for epoch in range(int(num_epochs)):
             for input_sequence, target in zip(x_train, y_train):
                 input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
                 target = torch.tensor([target]).type('torch.FloatTensor')

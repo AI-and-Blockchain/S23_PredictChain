@@ -160,6 +160,7 @@ class LocalDataHandler(DataHandler):
         self.mode = mode
         if mode == self.SAVE_MODE:
             self.file = open(self.file_path, "a")
+            self.file.truncate(0)
         elif mode == self.LOAD_MODE:
             self.file = open(self.file_path, "r")
 

@@ -84,7 +84,6 @@ def search_transactions(limit=10, **kwargs):
 
 class TransactionMonitor:
 
-    last_round_checked = 0
     _halt = False
     PAUSE_DURATION = 10
 
@@ -101,6 +100,7 @@ class TransactionMonitor:
         while len(txns) == 0:
             txns = search_transactions(limit=1, start_time=now_iso)
         self.last_round_checked = txns[-1]["confirmed-round"]
+        self.processed_txns = []
         self.address = address
         self.all_time = all_time
 
@@ -125,7 +125,14 @@ class TransactionMonitor:
             while not self._halt:
                 transactions = search_transactions(address=self.address, address_role="receiver",
                         min_round=self.last_round_checked if not self.all_time else None, limit=10)
-                [self.process_incoming(txn) for txn in transactions]
+
+                for txn in transactions:
+                    if txn["id"] in self.processed_txns:
+                        continue
+
+                    self.processed_txns.append(txn["id"])
+                    self.process_incoming(txn)
+
                 if len(transactions):
                     self.last_round_checked = transactions[-1]["confirmed-round"]
 

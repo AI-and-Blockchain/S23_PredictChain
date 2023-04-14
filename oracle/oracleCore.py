@@ -238,7 +238,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
             print(f"{msg}. Response transaction id: {tmp_txn_id}")
 
-        if txn['payment-transaction']['amount'] < op_price:
+        if txn['payment-transaction']['amount'] < min(op_price, utils.ALGO_AMOUNT_CAP):
             # Reject transaction
             reject("UNDERFUNDED")
             return

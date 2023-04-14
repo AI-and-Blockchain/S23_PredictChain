@@ -2,7 +2,7 @@
 
 PredictChain is a marketplace for predictive AI models. Our goal is to make predictive models
 more accessible to more potential users.  We do this through the ease of use and transparency
-of PredictChain.  Users will be able to upload datasets, request the training of train predictive 
+of PredictChain.  Users will be able to upload datasets, request the training of predictive 
 models, or submit queries to those models.  These various models will be operated by a central 
 node or nodes with computing resources available. 
 
@@ -157,13 +157,14 @@ for better performing models.
 The oracle is a privileged node that helps the blockchain keep up to date with the outside world.
 It can help get information out of the blockchain and to a programmatic API, or it can gather 
 information from the outside world and inject it back into the blockchain.  For example, it would
-listen for the outcomes of user-predicted events and return those results to the users and update
+listen for the outcomes of user-predicted events, return those results to the users, and update
 those who submitted the dataset.
 
 Communication between the blockchain and the oracle is facilitated by transactions.  When a message
 needs to be sent between the two parties, the sending party creates a transaction with a note attached.
 This note contains a json-encoded form of the arguments for the operation being requested.  These 
-arguments are then received and interpreted by the target of the transaction.
+arguments are then received and interpreted by the target of the transaction.  Using this form for communication
+ensures an unbroken, public record of all of PredictChain's functions.
 
 ## Payments and Incentives
 
@@ -175,7 +176,8 @@ to any user upon request.
 
 ### Payments
 - Any user will be able to query previously trained models for predictions of real-world events.
-Each time this is done, these users will make a small payment to the system.
+Each time this is done, these users will make a small payment to the system.  This fee is based off
+of the complexity of the requested model.
 
 - Users who upload their own datasets will also have to pay a small fee.  This fee is based off of
 the size of the dataset that they plan to upload.
@@ -195,12 +197,6 @@ that trained model makes a correct prediction.
 - Model training users will be rewarded whenever their model makes a correct prediction.
 
 
-## User Interface Wireframes
-
-![UIWireframe](img/PredictChainLanding.png)
-
-![UIWireframe](img/PredictChainPortfolio.png)
-
 ## Diagrams
 
 ### Sequence Diagram
@@ -210,3 +206,9 @@ that trained model makes a correct prediction.
 ### Use Case Diagram
 
 ![Sequence Diagram](img/PredictChainUseCase.png)
+
+## User Interface
+
+![UIWireframe](img/PredictChainLanding.png)
+
+![UIWireframe](img/PredictChainPortfolio.png)

@@ -11,7 +11,7 @@ import "./Register.css";
 function Register() {
   const [email, setEmail] = useState(""); // set email
   const [password, setPassword] = useState(""); // set password
-  const [name, setName] = useState(""); // set name 
+  const [name, setName] = useState(""); // set name
   const [user, loading] = useAuthState(auth); // authenticate
   const navigate = useNavigate(); // nav
 
@@ -30,12 +30,23 @@ function Register() {
     <div>
       <div className="header">
         <nav>
-          <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
-        </nav>  
+          <a
+            href="/"
+            style={{
+              fontSize: "xx-large",
+              fontWeight: "900",
+              color: "#ffffff",
+              marginRight: "80px",
+              marginLeft: "100px",
+            }}
+          >
+            PredictChain
+          </a>
+        </nav>
       </div>
       <div className="register">
         <div className="register__container">
-          <h2 style={{marginBottom: "40px"}}>Create Account</h2>
+          <h2 style={{ marginBottom: "40px" }}>Create Account</h2>
           <input
             type="text"
             className="register__textBox"
@@ -68,17 +79,31 @@ function Register() {
           </button>
 
           <div>
-            Already have an account? <a href="/login" className="ex1">Login</a> now.
+            Already have an account?{" "}
+            <a href="/login" className="ex1">
+              Login
+            </a>{" "}
+            now.
           </div>
         </div>
       </div>
       <div className="footer">
         <nav>
           <a href="/faq">FAQ</a>
-          <a href="/mtt" style={{marginLeft: '100px'}}>Meet The Team</a>
-          <a href="http://localhost:8031/docs" style={{marginLeft: '100px'}}>Docs</a>
-          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" target="_blank" style={{ marginLeft: '100px'}}>GitHub</a>
-        </nav>       
+          <a href="/mtt" style={{ marginLeft: "100px" }}>
+            Meet The Team
+          </a>
+          <a href="http://localhost:8031/docs" style={{ marginLeft: "100px" }}>
+            Docs
+          </a>
+          <a
+            href="https://github.com/AI-and-Blockchain/S23_PredictChain"
+            target="_blank"
+            style={{ marginLeft: "100px" }}
+          >
+            GitHub
+          </a>
+        </nav>
       </div>
     </div>
   );

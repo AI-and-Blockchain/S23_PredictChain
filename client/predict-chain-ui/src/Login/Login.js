@@ -10,7 +10,7 @@ function Login() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
-  useEffect(() => { 
+  useEffect(() => {
     if (loading) {
       // maybe trigger a loading screen
       return;
@@ -22,8 +22,19 @@ function Login() {
     <div>
       <div className="header">
         <nav>
-          <a href="/" style={{fontSize: 'xx-large', fontWeight: '900', color: '#ffffff', marginRight: '80px', marginLeft: '100px'}}>PredictChain</a>
-        </nav>  
+          <a
+            href="/"
+            style={{
+              fontSize: "xx-large",
+              fontWeight: "900",
+              color: "#ffffff",
+              marginRight: "80px",
+              marginLeft: "100px",
+            }}
+          >
+            PredictChain
+          </a>
+        </nav>
       </div>
       <div className="login">
         <div className="login__container">
@@ -48,25 +59,43 @@ function Login() {
           >
             Login
           </button>
-          <button className="login__btn login__google" onClick={signInWithGoogle}>
+          <button
+            className="login__btn login__google"
+            onClick={signInWithGoogle}
+          >
             Login with Google
           </button>
           <div>
-            <a href="/reset" className="ex1">Forgot Password</a>
+            <a href="/reset" className="ex1">
+              Forgot Password
+            </a>
           </div>
           <div>
-            Don't have an account? <a href="/register" className="ex1">Register</a> now.
+            Don't have an account?{" "}
+            <a href="/register" className="ex1">
+              Register
+            </a>{" "}
+            now.
           </div>
         </div>
       </div>
       <div className="footer">
         <nav>
           <a href="/faq">FAQ</a>
-          <a href="/mtt" style={{marginLeft: '100px'}}>Meet The Team</a>
-          <a href="http://localhost:8031/docs" style={{marginLeft: '100px'}}>Docs</a>
-          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" target="_blank" style={{marginLeft: '100px'}}>GitHub</a>
-
-        </nav>       
+          <a href="/mtt" style={{ marginLeft: "100px" }}>
+            Meet The Team
+          </a>
+          <a href="http://localhost:8031/docs" style={{ marginLeft: "100px" }}>
+            Docs
+          </a>
+          <a
+            href="https://github.com/AI-and-Blockchain/S23_PredictChain"
+            target="_blank"
+            style={{ marginLeft: "100px" }}
+          >
+            GitHub
+          </a>
+        </nav>
       </div>
     </div>
   );

@@ -76,7 +76,8 @@ function Register() {
         <nav>
           <a href="/faq">FAQ</a>
           <a href="/mtt" style={{marginLeft: '100px'}}>Meet The Team</a>
-          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" style={{marginLeft: '100px'}}>Docs</a>
+          <a href="http://localhost:8031/docs" style={{marginLeft: '100px'}}>Docs</a>
+          <a href="https://github.com/AI-and-Blockchain/S23_PredictChain" target="_blank" style={{ marginLeft: '100px'}}>GitHub</a>
         </nav>       
       </div>
     </div>

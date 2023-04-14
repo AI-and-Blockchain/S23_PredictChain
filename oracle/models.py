@@ -447,7 +447,9 @@ def save_trained_model(model: PredictModel, txn_id: str, user_id: str):
 
     os.makedirs("models", exist_ok=True)
 
-    model_attribs = model.save(f"models/{model.model_name}")
+    save_location = f"models/{model.model_name}"
+
+    model_attribs = model.save(save_location)
     model_attribs.pop("data_handler")
     model_attribs["raw_model"] = model_attribs.pop("BASE_MODEL_NAME")
     _, dataset_attribs = datasets.load_dataset(model.data_handler.dataset_name)

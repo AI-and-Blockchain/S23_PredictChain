@@ -162,7 +162,7 @@ those who submitted the dataset.
 
 Communication between the blockchain and the oracle is facilitated by transactions.  When a message
 needs to be sent between the two parties, the sending party creates a transaction with a note attached.
-This note contains a json-encoded form of the arguments for the operation being requested.  These 
+This note contains a JSON-encoded form of the arguments for the operation being requested.  These 
 arguments are then received and interpreted by the target of the transaction.  Using this form for communication
 ensures an unbroken, public record of all of PredictChain's functions.
 

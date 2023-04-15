@@ -288,8 +288,6 @@ def train_model_api():
     return txn_id
 
 
-
-# NEED TO TEST
 @app.route('/get_model_query_price', methods=["GET"])
 def model_query_price():
     """Requests to see the price for querying a model

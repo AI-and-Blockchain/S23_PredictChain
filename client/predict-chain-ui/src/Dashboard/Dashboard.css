@@ -1,7 +1,8 @@
 .dashboard {
-  top:50%;
-  left:50%;
-  margin-top: 50px; /* this is half the height of your div*/  
+  top: 50%;
+  left: 50%;
+  margin-top: 50px;
+  /* this is half the height of your div*/
   margin-bottom: 50px;
   display: flex;
   align-items: center;
@@ -13,7 +14,7 @@
   flex-direction: column;
   text-align: center;
   background-color: #dcdcdc;
-  height: 2000px;
+  height: 1200px;
   width: 95%;
   position: relative;
   border-radius: 10px;
@@ -32,7 +33,7 @@
   left: 40px;
 }
 
-.dashboard__btn:hover{
+.dashboard__btn:hover {
   background-color: grey;
 }
 
@@ -40,29 +41,31 @@
   margin-top: 7px;
 }
 
-.fixed-footer{
+.fixed-footer {
   width: 100%;
-  position: static;        
+  position: static;
   background: #333;
   padding: 20px 0;
   color: #fff;
 }
-.fixed-footer{
-  bottom: 0;
-}    
 
-.fixed-header{
+.fixed-footer {
+  bottom: 0;
+}
+
+.fixed-header {
   width: 100%;
-  position: static;        
+  position: static;
   background: #333;
   padding: 40px 0;
   color: #fff;
 }
-.fixed-header{
+
+.fixed-header {
   top: 0;
 }
 
-a{
+a {
   font-size: 20px;
   font-weight: 600;
   color: #fff;
@@ -70,10 +73,10 @@ a{
   display: inline-block;
 }
 
-a:hover{
+a:hover {
   color: gray;
 }
 
-.container p{
+.container p {
   line-height: 200px;
 }

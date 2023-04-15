@@ -211,4 +211,4 @@ that trained model makes a correct prediction.
 
 ![UIWireframe](img/PredictChainLanding.png)
 
-![UIWireframe](img/PredictChainDashboard.png)
+![UIWireframe](img/PredictChainDashboard.PNG)

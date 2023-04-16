@@ -4,12 +4,19 @@ PredictChain is a marketplace for predictive AI models. Our goal is to make pred
 more accessible to more potential users.  We do this through the ease of use and transparency
 of PredictChain.  Users will be able to upload datasets, request the training of predictive 
 models, or submit queries to those models.  These various models will be operated by a central 
-node or nodes with computing resources available. 
+node with computing resources available. 
 
 A variety of models will be made available, ranging from cheap, fast, and simple to more expensive, 
 slower, and more powerful. This will allow for a large variety of predictive abilities for both 
 simple and complex patterns. All the past transactions will be stored on the blockchain for public viewing.  
 These include dataset creation, model training, model queries, and the results of these queries.
+
+## Sphinx Documentation
+
+In addition to this readme, we have also created some Sphinx documentation for our python code.  This details the
+usage and qualities of all important functions, classes, and variables within PredictChain.  This documentation
+is in html format and can be found at [docs/sphinx/index.html](docs/sphinx/index.html) or at our 
+[GitHub pages](https://ai-and-blockchain.github.io/S23_PredictChain).
 
 ## Quick Start
 
@@ -130,6 +137,21 @@ docker/runOracle.sh
 ```
 
 After these containers have been run, the web interface should be running on [localhost:3000](http://localhost:3000).
+
+### Front End
+
+After launching the front end, you will be greeted by the welcome screen.  This will provide you with some
+extra information about PredictChain and its project participants.
+
+To access the functionality of the website, create an account of log in.  The account management for this 
+project is through FireBase, although, nothing has to be set up on the user end for this to work.  Before
+you perform any transactions, it may be useful to request the pricing of each operation.  This can be done
+on the dashboard.  Simply input any request information and the front end will communicate with the oracle
+which will calculate the pricing and send it back to you.  After this, you will be able to upload a dataset, 
+request that a model be trained, and query trained models to check their responses.  It is suggested that 
+you upload our testing dataset for the best results.  It can be found 
+[here](https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv).
+
 
 ## User Actions
 

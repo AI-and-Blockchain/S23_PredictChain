@@ -94,10 +94,13 @@ def sandbox():
             [1, 0, 70, 16.58, 16.75, 15.42, 16.03, 114332562, -3.31725, 4.419900447, 109493077, 15.95, 16.11, 1.00313, 62, 0.187149]
     ]
 
+    # Simulate the dataset upload portion of the service
     sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
 
+    # Simulate the model training part of the service
     sim_train_model("GRU", model_name, ds_name, 5, "close", 5, 1)
 
+    # Simulate the model query portion of the service
     sim_query_model(model_name, model_query)
 
 

@@ -263,7 +263,8 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
             models.save_trained_model(model, txn["id"], txn["sender"])
 
             # Report result back to the user
-            accept(f"Trained a {kwargs['raw_model']} model as {kwargs['trained_model']} on dataset {kwargs['ds_name']}")
+            accept(f"Trained a {kwargs['raw_model']} model as {kwargs['trained_model']} on dataset {kwargs['ds_name']}",
+                   accuracy=accuracy, loss=loss)
 
             incentive_txn_id = utils.transact(utils.ORACLE_ALGO_ADDRESS, OracleState.ORACLE_SECRET, dataset_attribs["user_id"],
                            Pricing.calc_ds_usage_incentive(int(dataset_attribs["size"]), accuracy)[0],

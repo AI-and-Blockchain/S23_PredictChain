@@ -97,7 +97,7 @@ class PredictModel:
                 return sub(trained_model, data_handler, loss_fn_name=loss_fn_name, **kwargs)
 
     @abc.abstractmethod
-    def train_model(self, **kwargs):
+    def train_model(self, **kwargs) -> tuple[float, float]:
         """Trains the model using the given parameters"""
         ...
 
@@ -208,7 +208,7 @@ class BaseNN(nn.Module, PredictModel):
 
             outputs.append(float(output))
             targets.append(float(target))
-            total_accuracy += torch.sigmoid(-loss_fn(output, target)+math.e**2)
+            total_accuracy += torch.sigmoid(-loss_fn(output, target)+math.e**2).item()
             total_loss += loss_fn(output, target).item()
             total_entries += 1
 
@@ -272,7 +272,7 @@ class GRU(BaseNN):
     BASE_MODEL_NAME = "GRU"
     COMPLEXITY_MULTIPLIER = 2.5
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **_):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
         """GRU implementation
 
         :param model_name: The name given to this instance of a model
@@ -313,7 +313,7 @@ class LSTM(BaseNN):
     BASE_MODEL_NAME = "LSTM"
     COMPLEXITY_MULTIPLIER = 2
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.2, **_):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
         """LSTM implementation
 
         :param model_name: The name given to this instance of a model

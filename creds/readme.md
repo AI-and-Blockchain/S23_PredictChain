@@ -1,8 +1,10 @@
 # Credential Files
 
 In this folder, there will need to be several `*.creds` files containing the 
-credentials for the project.  These have been omitted from the public repository for
-security reasons and will have to be filled manually with the help of project contributors.
+credentials for the project.
+
+> **_NOTE_:** You may ignore the below instructions if this folder
+has already been filled out with the recommended files.
 
 These are as follows:
 

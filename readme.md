@@ -16,7 +16,8 @@ These include dataset creation, model training, model queries, and the results o
 In addition to this readme, we have also created some Sphinx documentation for our python code.  This details the
 usage and qualities of all important functions, classes, and variables within PredictChain.  This documentation
 is in html format and can be found at [docs/sphinx/index.html](docs/sphinx/index.html) or at our 
-[GitHub pages](https://ai-and-blockchain.github.io/S23_PredictChain).
+[GitHub pages](https://ai-and-blockchain.github.io/S23_PredictChain).  For the best viewing experience, we recommend
+cloning the repository and opening up the index.html file locally in a web browser.
 
 ## Quick Start
 

@@ -1,6 +1,6 @@
 .idea
 .vscode
-creds/*creds
+# creds/*creds
 venv
 client/predict-chain-ui/node_modules
 data/*

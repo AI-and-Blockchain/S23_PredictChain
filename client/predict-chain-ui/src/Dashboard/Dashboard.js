@@ -393,6 +393,7 @@ function Dashboard() {
               </h2>
               <div>
                 <input
+                  style={{ marginLeft: "-100px" }}
                   type="number"
                   value={datasetUploadPriceSize}
                   min="0"
@@ -469,6 +470,7 @@ function Dashboard() {
               </h2>
               <div>
                 <input
+                  style={{ marginLeft: "-100px" }}
                   type="text"
                   value={queryPriceModelName}
                   placeholder="Pre-existing model"

@@ -1,7 +1,7 @@
 .idea
 .vscode
 # creds/*creds
-creds/main_creds
+creds/main_creds*
 venv
 client/predict-chain-ui/node_modules
 data/*

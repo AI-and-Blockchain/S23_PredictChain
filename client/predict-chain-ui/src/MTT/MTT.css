@@ -17,7 +17,8 @@
 .card {
   box-shadow: 4px 8px 8px 4px rgba(0, 0, 0, 0.2);
   margin-left: 100px;
-  text-align: center; /* Add this line */
+  text-align: center;
+  /* Add this line */
 }
 
 /* Center the image inside the card */

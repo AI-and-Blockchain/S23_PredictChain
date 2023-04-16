@@ -322,25 +322,25 @@ function Dashboard() {
           <h1 style={{ textAlign: "left", marginLeft: "30px", color: "blue" }}>
             Account Info
           </h1>
-          <div
-           className="credentials__txt"
-          >
-            <h2 style={{ fontSize: "24px", marginRight: "10px", textDecoration: "underline" }}>
+          <div className="credentials__txt">
+            <h2
+              style={{
+                fontSize: "24px",
+                marginRight: "10px",
+                textDecoration: "underline",
+              }}
+            >
               Email:
             </h2>
             {user?.email}
           </div>
-          <div
-            className="credentials__txt"
-          >
+          <div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Private Key:
             </h2>
             <div>{pk}</div>
           </div>
-          <div
-            className="credentials__txt"
-          >
+          <div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Address:
             </h2>
@@ -418,16 +418,17 @@ function Dashboard() {
                   />
                 </label>
                 <br />
-                <button className="regular__btn" style={{ marginTop: "5px", marginLeft: "-70px" }}>
+                <button
+                  className="regular__btn"
+                  style={{ marginTop: "5px", marginLeft: "-70px" }}
+                >
                   Get Price
                 </button>
               </form>
               <br />
               {modelTrainPrice >= 0 && (
                 <div>
-                  <h3 style={{ marginTop: "5px" }}>
-                    Price: {modelTrainPrice}
-                  </h3>
+                  <h3 style={{ marginTop: "5px" }}>Price: {modelTrainPrice}</h3>
                 </div>
               )}
             </div>
@@ -503,7 +504,11 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Add Dataset
               </button>
             </form>
@@ -559,7 +564,11 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Train Dataset
               </button>
             </form>
@@ -579,7 +588,11 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit"  className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Query Model
               </button>
             </form>
@@ -592,7 +605,9 @@ function Dashboard() {
               zIndex: "0",
             }}
           >
-            <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>Past Transaction(s):</h2>
+            <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>
+              Past Transaction(s):
+            </h2>
             <ul>
               {pastTxns.map((item, index) => {
                 return <li key={index}>{item}</li>;

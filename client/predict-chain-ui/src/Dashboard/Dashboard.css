@@ -53,7 +53,8 @@
   color: white;
   background-color: darkblue;
   position: absolute;
-  transform: scale(0.8); /* change the scale value to adjust the font size */
+  transform: scale(0.8);
+  /* change the scale value to adjust the font size */
 }
 
 .regular__btn:hover {

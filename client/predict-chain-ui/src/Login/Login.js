@@ -7,7 +7,7 @@ import "./Login.css";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,7 +91,7 @@ function Login() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "100px" }}
+            style={{ marginLeft: "100px" }} rel="noreferrer"
           >
             GitHub
           </a>

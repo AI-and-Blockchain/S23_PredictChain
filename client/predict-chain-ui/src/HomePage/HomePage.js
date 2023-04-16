@@ -14,6 +14,7 @@ function HomePage() {
           <img
             src={require("../img/prediction.png")}
             style={{ width: "400px", height: "400px" }}
+            alt="Prediction"
           />
         </div>
         <div
@@ -66,6 +67,7 @@ function HomePage() {
           <img
             src={require("../img/differentiate.jpg")}
             style={{ width: "600px", height: "400px", borderRadius: "80px" }}
+            alt="Differentiate"
           />
         </div>
       </div>

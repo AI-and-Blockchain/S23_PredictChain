@@ -34,14 +34,14 @@ function Footer() {
         <a
           href="http://localhost:8031/docs"
           target="_blank"
-          style={{ fontSize: "x-large", marginLeft: "100px" }}
+          style={{ fontSize: "x-large", marginLeft: "100px" }} rel="noreferrer"
         >
           Docs
         </a>
         <a
           href="https://github.com/AI-and-Blockchain/S23_PredictChain"
           target="_blank"
-          style={{ fontSize: "x-large", marginLeft: "100px" }}
+          style={{ fontSize: "x-large", marginLeft: "100px" }} rel="noreferrer"
         >
           GitHub
         </a>

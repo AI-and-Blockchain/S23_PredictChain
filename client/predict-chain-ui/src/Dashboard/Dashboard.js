@@ -70,15 +70,15 @@ function Dashboard() {
     // get price for training a model
     event.preventDefault();
     if (
-      modelTrainNamePrice == "--Select an option--" ||
-      modelTrainNamePrice == ""
+      modelTrainNamePrice === "--Select an option--" ||
+      modelTrainNamePrice === ""
     ) {
       // edge case
       alert("Please select a model");
       return;
     }
 
-    if (modelTrainDatasetNamePrice == "") {
+    if (modelTrainDatasetNamePrice === "") {
       // edge case
       alert("Please enter a dataset name");
       return;
@@ -166,14 +166,14 @@ function Dashboard() {
     // next on agenda
     event.preventDefault();
     if (
-      trainRawModelName == "--Select an option--" ||
-      trainRawModelName == ""
+      trainRawModelName === "--Select an option--" ||
+      trainRawModelName === ""
     ) {
       alert("Please select a model");
       return;
     }
 
-    if (trainNewName == "" || trainDatasetName == "") {
+    if (trainNewName === "" || trainDatasetName === "") {
       alert("Please enter a new trained model name/dataset name");
       return;
     }
@@ -233,7 +233,7 @@ function Dashboard() {
   const handleQueryModel = async (event) => {
     // next on agenda
     event.preventDefault();
-    if (queryModelName == "") {
+    if (queryModelName === "") {
       alert("Please enter a name");
       return;
     }
@@ -326,7 +326,7 @@ function Dashboard() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "200px" }}
+            style={{ marginLeft: "200px" }} rel="noreferrer"
           >
             GitHub
           </a>
@@ -677,7 +677,7 @@ function Dashboard() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "150px" }}
+            style={{ marginLeft: "150px" }} rel="noreferrer"
           >
             GitHub
           </a>

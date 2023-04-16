@@ -35,14 +35,14 @@ function Header() {
           <a
             href="http://localhost:8031/docs"
             target="_blank"
-            style={{ fontSize: "x-large", marginLeft: "150px" }}
+            style={{ fontSize: "x-large", marginLeft: "150px" }} rel="noreferrer"
           >
             Docs
           </a>
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ fontSize: "x-large", marginLeft: "150px" }}
+            style={{ fontSize: "x-large", marginLeft: "150px" }} rel="noreferrer"
           >
             GitHub
           </a>

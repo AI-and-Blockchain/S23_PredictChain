@@ -99,7 +99,7 @@ function Register() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "100px" }}
+            style={{ marginLeft: "100px" }} rel="noreferrer"
           >
             GitHub
           </a>

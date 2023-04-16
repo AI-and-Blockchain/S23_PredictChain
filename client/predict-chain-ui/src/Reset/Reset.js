@@ -9,6 +9,11 @@ function Reset() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
+  const handleSendPassword = async (email) => {
+    await sendPasswordReset(email);
+    setEmail("")
+  } 
+
   useEffect(() => {
     if (loading) return;
     if (user) navigate("/dashboard");
@@ -24,7 +29,7 @@ function Reset() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
-        <button className="reset__btn" onClick={() => sendPasswordReset(email)}>
+        <button className="reset__btn" onClick={() => handleSendPassword(email)}>
           Send password reset email
         </button>
 

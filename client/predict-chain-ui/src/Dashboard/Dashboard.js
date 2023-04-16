@@ -323,27 +323,15 @@ function Dashboard() {
             Account Info
           </h1>
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              marginLeft: "30px",
-              marginTop: "-10px",
-            }}
+           className="credentials__txt"
           >
-            <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
+            <h2 style={{ fontSize: "24px", marginRight: "10px", textDecoration: "underline" }}>
               Email:
             </h2>
             {user?.email}
           </div>
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              marginLeft: "30px",
-              marginTop: "-10px",
-            }}
+            className="credentials__txt"
           >
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Private Key:
@@ -351,13 +339,7 @@ function Dashboard() {
             <div>{pk}</div>
           </div>
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              marginLeft: "30px",
-              marginTop: "-10px",
-            }}
+            className="credentials__txt"
           >
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Address:
@@ -369,13 +351,13 @@ function Dashboard() {
           </button>
 
           <h1
-            style={{ marginTop: "-375px", marginLeft: "950px", color: "blue" }}
+            style={{ marginTop: "-400px", marginLeft: "950px", color: "blue" }}
           >
             Get Prices
           </h1>
           <div style={{ zIndex: "1" }}>
             <div style={{ marginLeft: "950px" }}>
-              <h2 style={{ textDecoration: "underline", marginTop: "10px" }}>
+              <h2 style={{ textDecoration: "underline", marginTop: "-10px" }}>
                 Request Dataset Upload Price
               </h2>
               <div>
@@ -389,7 +371,8 @@ function Dashboard() {
                   }
                 />
                 <button
-                  style={{ marginLeft: "10px" }}
+                  className="regular__btn"
+                  style={{ marginLeft: "0px" }}
                   onClick={handleDatasetUploadPriceRequest}
                 >
                   Get Price
@@ -435,13 +418,14 @@ function Dashboard() {
                   />
                 </label>
                 <br />
-                <button type="submit" style={{ marginTop: "10px" }}>
+                <button className="regular__btn" style={{ marginTop: "5px", marginLeft: "-70px" }}>
                   Get Price
                 </button>
               </form>
+              <br />
               {modelTrainPrice >= 0 && (
                 <div>
-                  <h3 style={{ marginTop: "-5px" }}>
+                  <h3 style={{ marginTop: "5px" }}>
                     Price: {modelTrainPrice}
                   </h3>
                 </div>
@@ -461,7 +445,8 @@ function Dashboard() {
                   }
                 />
                 <button
-                  style={{ marginLeft: "10px" }}
+                  className="regular__btn"
+                  style={{ marginLeft: "0px" }}
                   onClick={handleQueryModelPriceRequest}
                 >
                   Get Price
@@ -518,13 +503,13 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button type="submit" className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
                 Add Dataset
               </button>
             </form>
           </div>
 
-          <div style={{ marginTop: "10px", marginLeft: "950px" }}>
+          <div style={{ marginTop: "30px", marginLeft: "950px" }}>
             <h2 style={{ textDecoration: "underline" }}>Train Dataset</h2>
             <form onSubmit={handleModelTraining}>
               <label style={{ marginLeft: "10px" }}>
@@ -574,13 +559,13 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button type="submit" className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
                 Train Dataset
               </button>
             </form>
           </div>
 
-          <div style={{ marginTop: "10px", marginLeft: "950px" }}>
+          <div style={{ marginTop: "30px", marginLeft: "950px" }}>
             <h2 style={{ textDecoration: "underline" }}>Query Model</h2>
             <form onSubmit={handleQueryModel}>
               <label style={{ marginLeft: "10px" }}>
@@ -594,7 +579,7 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button type="submit"  className="regular__btn" style={{ marginTop: "10px", marginLeft: "-70px" }}>
                 Query Model
               </button>
             </form>
@@ -603,11 +588,11 @@ function Dashboard() {
             style={{
               textAlign: "left",
               marginLeft: "30px",
-              marginTop: "-700px",
+              marginTop: "-610px",
               zIndex: "0",
             }}
           >
-            <h2 style={{ textDecoration: "underline" }}>Past Transactions:</h2>
+            <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>Past Transaction(s):</h2>
             <ul>
               {pastTxns.map((item, index) => {
                 return <li key={index}>{item}</li>;

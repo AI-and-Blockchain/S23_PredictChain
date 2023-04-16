@@ -19,7 +19,7 @@ function MTT() {
         <div class="column">
           <div class="card">
             <img
-              src={require("../img/image-src.png")}
+              src={require("../img/blank-prof.png")}
               alt="Jane"
               style={{ width: "80%" }}
             />
@@ -27,7 +27,6 @@ function MTT() {
               <h2>William Hawkins</h2>
               <p class="title">Group Member</p>
               <p>Graduate CS student @ RPI</p>
-              <p>BIO HERE</p>
               <p>
                 <button class="button">
                   <a href="mailto:hawkiw2@rpi.edu">Contact</a>
@@ -40,7 +39,7 @@ function MTT() {
         <div class="column">
           <div class="card">
             <img
-              src={require("../img/image-src.png")}
+              src={require("../img/blank-prof.png")}
               alt="Mike"
               style={{ width: "80%" }}
             />
@@ -48,7 +47,6 @@ function MTT() {
               <h2>Connor Patterson</h2>
               <p class="title">Group Member</p>
               <p>Undergraduate CS student @ RPI</p>
-              <p>BIO HERE</p>
               <p>
                 <button class="button">
                   <a href="mailto:pattec3@rpi.edu">Contact</a>
@@ -61,7 +59,7 @@ function MTT() {
         <div class="column">
           <div class="card">
             <img
-              src={require("../img/image-src.png")}
+              src={require("../img/blank-prof.png")}
               alt="John"
               style={{ width: "80%" }}
             />
@@ -69,7 +67,6 @@ function MTT() {
               <h2>Matthew Pisano</h2>
               <p class="title">Group Member</p>
               <p>Graduate CS student @ RPI</p>
-              <p>BIO HERE</p>
               <p>
                 <button class="button">
                   <a href="mailto:pisanm2@rpi.edu">Contact</a>

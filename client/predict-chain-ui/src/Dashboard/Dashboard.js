@@ -137,13 +137,21 @@ function Dashboard() {
       });
       setPastTxns([
         ...pastTxns,
-        "Added Dataset (" + response.data + ") - " + addDatasetName,
+        "Added Dataset: '" +
+          addDatasetName +
+          "' (TXN ID: " +
+          response.data +
+          ")",
       ]);
 
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         transactionIDs: arrayUnion(
-          "Added Dataset (" + response.data + ") - " + addDatasetName
+          "Added Dataset: '" +
+            addDatasetName +
+            "' (TXN ID: " +
+            response.data +
+            ")"
         ),
       });
       setAddDatasetLink("");
@@ -193,10 +201,11 @@ function Dashboard() {
         ...pastTxns,
         "Trained Dataset: '" +
           trainDatasetName +
-          "' (" +
+          "' to create '" +
+          trainNewName +
+          "' (TXN ID: " +
           response.data +
-          ") - " +
-          trainNewName,
+          ")",
       ]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
@@ -205,10 +214,11 @@ function Dashboard() {
         transactionIDs: arrayUnion(
           "Trained Dataset: '" +
             trainDatasetName +
-            "' (" +
+            "' to create '" +
+            trainNewName +
+            "' (TXN ID: " +
             response.data +
-            ") - " +
-            trainNewName
+            ")"
         ),
       });
       setTrainRawModelName("");
@@ -257,14 +267,22 @@ function Dashboard() {
 
       setPastTxns([
         ...pastTxns,
-        "Queried Model: '" + queryModelName + "' (" + response.data + ")",
+        "Queried Model: '" +
+          queryModelName +
+          "' (TXN ID: " +
+          response.data +
+          ")",
       ]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
       await updateDoc(userRef, {
         transactionIDs: arrayUnion(
-          "Queried Model: '" + queryModelName + "' (" + response.data + ")"
+          "Queried Model: '" +
+            queryModelName +
+            "' (TXN ID: " +
+            response.data +
+            ")"
         ),
       });
       setQueryModelName("");
@@ -316,10 +334,19 @@ function Dashboard() {
       </div>
       <div className="dashboard">
         <div className="dashboard__container">
-          <h1 style={{ textAlign: "left", marginLeft: "30px" }}>
+          <h1
+            style={{
+              textAlign: "left",
+              marginLeft: "30px",
+              color: "white",
+              fontSize: "40px",
+            }}
+          >
             Welcome {name}!
           </h1>
-          <h1 style={{ textAlign: "left", marginLeft: "30px", color: "blue" }}>
+          <h1
+            style={{ textAlign: "left", marginLeft: "30px", color: "darkblue" }}
+          >
             Account Info
           </h1>
           <div className="credentials__txt">
@@ -351,7 +378,11 @@ function Dashboard() {
           </button>
 
           <h1
-            style={{ marginTop: "-400px", marginLeft: "950px", color: "blue" }}
+            style={{
+              marginTop: "-400px",
+              marginLeft: "950px",
+              color: "darkblue",
+            }}
           >
             Get Prices
           </h1>
@@ -463,7 +494,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <h1 style={{ marginLeft: "950px", color: "blue" }}>
+          <h1 style={{ marginLeft: "950px", color: "darkblue" }}>
             Dataset & Model Functions
           </h1>
           <div style={{ marginLeft: "950px" }}>
@@ -610,7 +641,11 @@ function Dashboard() {
             </h2>
             <ul>
               {pastTxns.map((item, index) => {
-                return <li key={index}>{item}</li>;
+                return (
+                  <li key={index} style={{ fontSize: "16px" }}>
+                    {item}
+                  </li>
+                );
               })}
             </ul>
           </div>

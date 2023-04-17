@@ -98,10 +98,10 @@ def sandbox():
     ]
 
     # Simulate the dataset upload portion of the service
-    # sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
+    sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
 
     # Simulate the model training part of the service
-    sim_train_model("LSTM", model_name, ds_name, 5, "close", 5, 1, time_lag=4, training_lookback=6)
+    sim_train_model("MLP", model_name, ds_name, 5, "close", 5, 1, time_lag=4, training_lookback=6)
 
     # Simulate the model query portion of the service
     sim_query_model(model_name, model_query)

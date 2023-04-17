@@ -159,7 +159,7 @@ class BaseNN(nn.Module, PredictModel):
         for epoch in range(int(num_epochs)):
             for input_sequence, target in zip(x_train, y_train):
                 input_sequence: torch.FloatTensor = torch.from_numpy(input_sequence).type('torch.FloatTensor')
-                target = torch.tensor([target]).type('torch.FloatTensor')
+                target = torch.tensor(target).type('torch.FloatTensor')
 
                 # Query model
                 output = self.query_model(input_sequence)
@@ -467,7 +467,34 @@ class MLP(BaseNN):
     def query_model(self, input_sequence: torch.FloatTensor, **kwargs):
         # Forward pass
         output = self.forward(input_sequence)
-        return output
+        return output[0]
+
+    def preprocess_data(self, target_attrib: str, sub_split_value=None, **_):
+
+        selected_data = self.data_handler.dataframe
+
+        if sub_split_value is not None:
+            selected_data = self.data_handler.sub_splits()[sub_split_value]
+
+        selected_data = selected_data.astype(dtype=float).to_numpy()
+        time_series = []
+
+        # Sliding window data
+        for index in range(len(selected_data) - 2):
+            time_series.append(selected_data[index: index + 2])
+
+        train_len = int(0.8*len(time_series))
+        time_series = np.array(time_series)
+
+        # Split into training and testing sets
+        x_train = time_series[:train_len, :-1, :]
+        x_test = time_series[train_len:, :-1]
+
+        target_attrib_idx = self.data_handler.dataframe.columns.get_loc(target_attrib)
+        y_train = time_series[:train_len, -1:, target_attrib_idx]
+        y_test = time_series[train_len:, -1:, target_attrib_idx]
+
+        return x_train, y_train, x_test, y_test
 
 
 def get_trained_model(model_name: str):

@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
+\usepackage{makecell}
+\usepackage{booktabs}
 
 \title{Predict Chain}
 \author{Matthew Pisano, William Hawkins}
@@ -39,8 +41,23 @@
     the authors propose an architecture that enforces a 'constant \ldots error flow through internal states' inside the
     model.
 
-    Through a series of experiments, that the authors propose in the paper, they show that LSTMs can outperform RNNs
-    on long, minimal time lag data.  In this data, the window that the
+    Before this paper, it was well known that traditional RNNs performed very poorly when given long time lagged
+    datasets.   In this data, the time window that the input data is set in is several time steps ahead of the window
+    that contains the target prediction.  This was so pronounced that, in another paper\cite{weightGuessing}, the authors
+    showed that other contemporary RNN algorithms can be outperformed my random guessing.  To show that their new
+    architecture is superior in areas that RNNs fall short in, the authors devise a series of six experiments.
+    Through these experiments, hey show that LSTMs can outperform RNNs on long, minimal time lag data.  Through their
+    papers, the authors show that their new LSTMs can perform well in both short and long time lagged situations.
+
+    \subsubsection*{Relation to Our Work}
+
+    The work of Hochreiter and Schmidhuber has been incredibly useful in our development of PredictChain.  As part of
+    our goal, our project is designed to accept a wide variety of datasets and is also designed to train models on
+    a wide range of parameters.  Part of this promise of variety is our models' abilities to work with both short
+    and long time lagged datasets.  While some of our models fall short in some areas, such as RNNs in a long lagged
+    context, others are able to excell in those areas, such as our LSTM and GRU type models.  Through our incorporation
+    of the authors' work, we are able to provide a large range of models for a wide variety of use cases.  This helps
+    the project to achieve its goal of greater accessibility in the field of predictive modeling.
 
 
     \subsection{Recurrent Sequence Modeling}
@@ -97,6 +114,97 @@
     each other and to more traditional RNNs.  Overall, this paper has been important for our project as it has
     helped us to reflect upon our models and how to best evaluate them.
 
+    \subsection{Stock Predictions}
+
+    This next paper is closely aligned with the example dataset that we are using for PredictChain.  They focus on
+    using big data to train predictive machine learning models to forecast the short-term future behavior of stocks
+    within the Chinese stock market~\cite{deepPrediction}.  Within their paper, they utilize several techniques designed
+    to cut down on the noise that is inherent to the stock market to allow for better predictions.  In their paper,
+    they focus mainly on three methods that they use to accomplish this goal:
+
+    \begin{itemize}
+        \item Creating a new dataset, gathered primarily from the \textit{Tushare} API
+        \item Performing feature engineering on their dataset to ensure that it can be better used by their model
+        \item Customizing a Long Short-Term Memory model for the actual predictions
+    \end{itemize}
+
+    For their dataset, they had gathered the past performance of 3558 stocks from the Chinese stock market over
+    a period of two years.  Each entry in their dataset contains many attributes including the daily price of a
+    given stock and the ID of that stock.  In order to gather this data, they utilized the \textit{Tushare} API, along
+    with web-scraping from \textit{Sina Finance} and the \textit{SWS Research} website.
+
+    As part of their feature engineering, they utilized three primary techniques.  First, they applied feature extension
+    to their dataset.  Through the use of this technique, they added additional meta-attributes to the entries, such
+    as polarizing or calculating the fluctuation percentage.  Adding this meta-data to the dataset helps to give the model
+    a more complex picture of the stock and how it performs over time.  Next, they eliminated some features by using the
+    Recursive Feature Elimination (RFE) algorithm.  This algorithm evaluated each feature based on the degree to which
+    that feature influenced the stock's performance.  By eliminating unnecessary features, they allow their model to
+    pay more attention to the most influential features, improving its predictive capabilities.
+
+    Finally, they developed their models.  They used a two layered LSTM model, with the model only having an input layer
+    and an output layer.  As for their output, they kept the output as simple as possible to make sure the model
+    was focussed only on predicting the movement of the stock.  The model either outputted a one for the stock going up at
+    a given time step, or a zero if the model believed the stock would go down.  Their hope is that this simplicity
+    will also simplify the complexity of the information that investors will have to interact with.
+
+    \subsubsection*{Relation to Our Work}
+
+    As mentioned previously, the general purpose of this work mirrors part of the functionality of our project.
+    The main difference here, being that it is much more focused on the predictive aspect.  Along with their
+    LSTM model, they test several other models on their dataset as a comparison.  Out of these models,
+    the LSTM performed the best, with the multi-layered perceptron and the other, non-neural network, algorithms
+    falling behind.  Their observed performance matches our initial assumption and the modifications we had made
+    after reviewing~\cite{recurrentModeling}.
+
+    One notable feature that this paper has that our project implicitly lacks is their complex preprocessing of
+    the dataset.  At present, PredictChain leaves the majority of dataset preprocessing up to the uploading user.
+    That is, our project does not perform any feature engineering before submitting the dataset to models.  A future
+    improvement that we could make to our project is to give users the option of having feature extension or elimination
+    automatically applied to their dataset after submission.  This change may result in yet better performance of our
+    models after training on user-submitted datasets.
+
+    \section{Closing Thoughts}
+
+    After researching and reading these relevant papers, we were able to gain valuable insight into projects similar to
+    our own, implement relevant features, and take note of some features that could be added in future revisions of
+    PredictChain.  The knowledge that we have gained from these papers falls broadly into two categories: improvements
+    that we could make to our usage of artificial intelligence and improvements that we could make to our usage of
+    blockchain.
+
+    The papers that had focused on the AI component helped us to re-revaluate how we rate our models and how we can best
+    improve the data processing and training aspects of the project.~\cite{LSTM}~and~\cite{recurrentModeling} helped
+    us to better understand how we should rank the potential effectiveness of our models through our usage of
+    their $model\_complexity$ values.  Specifically, \cite{LSTM} encouraged us to expand the degree to
+    which users could customize the time lag that is present in the dataset upon model training.~\cite{deepPrediction}
+    helped us to better understand some of the future improvements that we could make to both our dataset preprocessing
+    and model training.
+
+    % Blockchain papers
+
+    As a summary, this chary illustrates the impact that each of the papers had on our work and our knowledge:
+
+    \begin{table}[h!]
+        \begin{center}
+            \caption{Impact of Each Paper}
+            \label{tab:paperSummary}
+            \bgroup
+            \def\arraystretch{3}
+            \begin{tabular}{c|c}
+                \textbf{Paper} & \textbf{Notable Impact}\\
+                \hline
+                Long Short-Term Memory\cite{LSTM} & \makecell{Encouraged us to expand our support for forcing time lag\\
+                    in datasets and expanding the degree to which users\\could customize the lookback windows}\\
+                \hline
+                \makecell{Empirical Evaluation of Gated Recurrent\\Neural Networks on Sequence Modeling\cite{recurrentModeling}} &
+                    \makecell{Helping us to better understand the relative performances\\ofRNNs, LSTMs, and GRU networks}\\
+                \hline
+                \makecell{Short-term stock market price trend prediction\\using a comprehensive deep learning system\cite{deepPrediction}} &
+                    \makecell{Inspiring possible future improvements to our dataset\\preprocessing and model training}\\
+
+            \end{tabular}
+            \egroup
+        \end{center}
+    \end{table}
 
     \pagebreak
     \bibliographystyle{abbrv}

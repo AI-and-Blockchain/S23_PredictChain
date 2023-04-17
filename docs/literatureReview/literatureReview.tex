@@ -27,6 +27,22 @@
     % But please include a table to compare specific attributes of the related work with your project.
     % Use the references.bib file to include the citations in biblatex format.
 
+    \subsection{Long Short-Term Memory Networks}
+
+    Long Short-Term Memory Networks\cite{LSTM} is one of the most influential, and useful, types of network that we work
+    with in our project.  These networks introduce several important improvements on classical backpropagation-through-time
+    recurrent neural networks.  One of the most notable contributions of LSTMs is their resolution of the 'exploding
+    and vanishing gradients' problem.  In RNNs, it is common, and often disruptive, to observe error signals either
+    grow to extreme values or disappear entirely when updating the weights of the model.  This either leads to
+    extreme unpredictability in the next value that weights will take on, or it leads to the weights not being
+    updated at all. In both cases, the effectiveness of the model is greatly impacted.  To help remedy this issue,
+    the authors propose an architecture that enforces a 'constant \ldots error flow through internal states' inside the
+    model.
+
+    Through a series of experiments, that the authors propose in the paper, they show that LSTMs can outperform RNNs
+    on long, minimal time lag data.  In this data, the window that the
+
+
     \subsection{Recurrent Sequence Modeling}
 
     One of the core aspects of our project is our usage of various types of neural network for predictive modeling.
@@ -56,14 +72,16 @@
     This paper both confirmed some of the initial assumptions that we had about the models and changed some others.
     In the design of the project, we had initially marked GRU models to be better than all the other models.
     We denoted this perceived difference in output quality through the constant multiplier we applied to each of their
-    $model\_complexity$ values.  After our analysis of this peper, we decided to update these values to better
-    reflect the experimental performance of these models.
+    $model\_complexity$ values.  After our analysis of this paper, we ran several tests to see if this paper's results
+    also applied to our project.  In our tests, we noticed something very similar to the paper.  GRUs and LSTMs
+    has more similar performance than we initially thought.  Meanwhile, vanilla RNNs lagged behind.  Based off of
+    this evidence, we decided to update these values to better reflect the experimental performance of these models.
 
     \begin{table}[h!]
         \begin{center}
             \caption{$model\_complexity$ Values of Our Models}
             \label{tab:modelComplexity}
-            \begin{tabular}{l|c|r}
+            \begin{tabular}{c|c|c}
                 \textbf{Model} & \textbf{Initial Value} & \textbf{Final value}\\
                 \hline
                 MLP & 1 & 1\\
@@ -74,11 +92,11 @@
         \end{center}
     \end{table}
 
-    \pagebreak
-
     In our changes, we amplified the values related to all RNN-based networks.  We also brought the complexities
     of the LSTM and GRU networks closer together.  This change was made to reflect their relative performances to
-    each other and to more traditional RNNs.
+    each other and to more traditional RNNs.  Overall, this paper has been important for our project as it has
+    helped us to reflect upon our models and how to best evaluate them.
+
 
     \pagebreak
     \bibliographystyle{abbrv}

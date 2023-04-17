@@ -107,6 +107,11 @@ class PredictModel:
         ...
 
     @abc.abstractmethod
+    def query_model(self, input_sequence, **kwargs):
+        """Queries the model"""
+        ...
+
+    @abc.abstractmethod
     def save(self, save_location) -> dict:
         """Saves the model to disk and returns a dict of its attributes
 
@@ -135,7 +140,7 @@ class BaseNN(nn.Module, PredictModel):
 
         super(BaseNN, self).__init__()
         self.input_size = len(data_handler.dataframe.columns)
-        self.output_size = 1 # self.input_size
+        self.output_size = 1
         local_args = utils.flatten_locals(locals())
         self.init(**local_args)
 
@@ -153,14 +158,12 @@ class BaseNN(nn.Module, PredictModel):
         x_train, y_train, x_test, y_test = self.preprocess_data(target_attrib=target_attrib, **kwargs)
         for epoch in range(int(num_epochs)):
             for input_sequence, target in zip(x_train, y_train):
-                input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
+                input_sequence: torch.FloatTensor = torch.from_numpy(input_sequence).type('torch.FloatTensor')
                 target = torch.tensor([target]).type('torch.FloatTensor')
 
-                # Forward pass
-                output = self.forward(input_sequence)
-                # If output is given in batches, choose the last in the sequence
-                if len(output.shape) == 2:
-                    output = output[-1]
+                # Query model
+                output = self.query_model(input_sequence)
+
                 loss = loss_fn(output, target)
 
                 # Backward pass
@@ -198,16 +201,13 @@ class BaseNN(nn.Module, PredictModel):
         targets = []
         for input_sequence, target in zip(x_test, y_test):
             input_sequence = torch.from_numpy(input_sequence).type('torch.FloatTensor')
-            target = torch.tensor([target]).type('torch.FloatTensor')
+            target = torch.tensor(target).type('torch.FloatTensor')
 
-            # Forward pass
-            output = self.forward(input_sequence)
-            # If output is given in batches, choose the last in the sequence
-            if len(output.shape) == 2:
-                output = output[-1]
+            # Query model
+            output = self.query_model(input_sequence)
 
-            outputs.append(float(output))
-            targets.append(float(target))
+            outputs.append(output.tolist())
+            targets.append(target.tolist())
             total_accuracy += torch.sigmoid(-loss_fn(output, target)+math.e**2).item()
             total_loss += loss_fn(output, target).item()
             total_entries += 1
@@ -220,16 +220,83 @@ class BaseNN(nn.Module, PredictModel):
 
         return total_accuracy / total_entries, total_loss / total_entries
 
-    def preprocess_data(self, target_attrib: str, training_lookback=2, sub_split_value=None, **_):
+    def save(self, save_location):
+        torch.save(self.state_dict(), save_location)
+        model_attribs = {"BASE_MODEL_NAME": self.BASE_MODEL_NAME, **self.kwargs}
+        return model_attribs
+
+    def load(self, save_location):
+        self.load_state_dict(torch.load(save_location))
+
+    @abc.abstractmethod
+    def query_model(self, input_sequence, **kwargs):
+        """Queries the model"""
+        ...
+
+    @abc.abstractmethod
+    def preprocess_data(self, target_attrib: str, sub_split_value=None, **kwargs):
         """Processes the dataframe from the data handler into labeled training and testing sets
 
         :param target_attrib: The attribute of the dataset to serve as the classifier
-        :param training_lookback: The size of the sliding time window to give to recurrent models
         :param sub_split_value: The value used to split the data along the saved sub_split attribute
         :return: The labeled training and testing sets"""
+        ...
 
-        if training_lookback < 2:
-            raise ValueError("lookback must be greater than 1!")
+
+class RNN(BaseNN):
+    """RNN implementation"""
+
+    # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
+
+    BASE_MODEL_NAME = "RNN"
+    COMPLEXITY_MULTIPLIER = 1.7
+
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
+                 loss_fn_name="mae", time_lag=1, training_lookback=2, **_):
+        """RNN implementation
+
+        :param model_name: The name given to this instance of a model
+        :param data_handler: The handler for the dataset that the model will use
+        :param hidden_dim: The dimension of the hidden layers
+        :param num_hidden_layers: The number of hidden layers to put into the model
+        :param loss_fn_name: The name of the loss function that the model will use
+        :param time_lag: The time lag between the input and output sequences
+        :param training_lookback: The size of the sliding time window to give to recurrent models"""
+
+        if training_lookback <= time_lag:
+            raise ValueError(f"lookback ({training_lookback}) must be greater than the current network time lag ({time_lag})!")
+
+        super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name, time_lag=time_lag,
+                                  training_lookback=training_lookback)
+        self.output_size = time_lag
+        self.hidden_dim = hidden_dim
+        self.num_hidden_layers = num_hidden_layers
+
+        # RNN
+        self.rnn = nn.RNN(self.input_size, hidden_dim, num_hidden_layers, nonlinearity='relu')
+        # Fully connected
+        self.fc = nn.Linear(hidden_dim, self.output_size)
+
+        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim*num_hidden_layers + self.output_size)
+
+    def forward(self, x):
+        # Initialize hidden state with zeros
+
+        # One time step
+        out, h = self.rnn(x)
+        out = self.fc(out)
+        return out
+
+    def query_model(self, input_sequence: torch.FloatTensor, **kwargs):
+        # Forward pass
+        output = self.forward(input_sequence)
+        # If output is given in batches, choose the output that matches the time lag
+        if len(output.shape) == 2:
+            output = output[self.kwargs["time_lag"] - 1]
+
+        return output
+
+    def preprocess_data(self, target_attrib: str, sub_split_value=None, **_):
 
         selected_data = self.data_handler.dataframe
 
@@ -240,31 +307,24 @@ class BaseNN(nn.Module, PredictModel):
         time_series = []
 
         # Sliding window data
-        for index in range(len(selected_data) - training_lookback):
-            time_series.append(selected_data[index: index + training_lookback])
+        for index in range(len(selected_data) - self.kwargs["training_lookback"]):
+            time_series.append(selected_data[index: index + self.kwargs["training_lookback"]])
 
         train_len = int(0.8*len(time_series))
         time_series = np.array(time_series)
 
-        x_train = time_series[:train_len, :-1, :]
-        x_test = time_series[train_len:, :-1]
+        # Split into training and testing sets
+        x_train = time_series[:train_len, :-self.kwargs["time_lag"], :]
+        x_test = time_series[train_len:, :-self.kwargs["time_lag"]]
 
         target_attrib_idx = self.data_handler.dataframe.columns.get_loc(target_attrib)
-        y_train = time_series[:train_len, -1, target_attrib_idx]
-        y_test = time_series[train_len:, -1, target_attrib_idx]
+        y_train = time_series[:train_len, -self.kwargs["time_lag"]:, target_attrib_idx]
+        y_test = time_series[train_len:, -self.kwargs["time_lag"]:, target_attrib_idx]
 
         return x_train, y_train, x_test, y_test
 
-    def save(self, save_location):
-        torch.save(self.state_dict(), save_location)
-        model_attribs = {"BASE_MODEL_NAME": self.BASE_MODEL_NAME, **self.kwargs}
-        return model_attribs
 
-    def load(self, save_location):
-        self.load_state_dict(torch.load(save_location))
-
-
-class GRU(BaseNN):
+class GRU(RNN):
     """GRU implementation"""
 
     # https://blog.floydhub.com/gru-with-pytorch/
@@ -272,7 +332,8 @@ class GRU(BaseNN):
     BASE_MODEL_NAME = "GRU"
     COMPLEXITY_MULTIPLIER = 2.4
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
+                 loss_fn_name="mae", time_lag=1, training_lookback=2, drop_prob=0.0, **_):
         """GRU implementation
 
         :param model_name: The name given to this instance of a model
@@ -280,9 +341,12 @@ class GRU(BaseNN):
         :param hidden_dim: The dimension of the hidden layers
         :param num_hidden_layers: The number of hidden layers to put into the model
         :param loss_fn_name: The name of the loss function that the model will use
+        :param time_lag: The time lag between the input and output sequences
+        :param training_lookback: The size of the sliding time window to give to recurrent models
         :param drop_prob: Probability of dropout"""
 
-        super(GRU, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        super(GRU, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name, time_lag=time_lag,
+                                  training_lookback=training_lookback, drop_prob=drop_prob)
         self.hidden_dim = hidden_dim
         self.num_hidden_layers = num_hidden_layers
 
@@ -303,8 +367,17 @@ class GRU(BaseNN):
         hidden = weight.new(self.num_hidden_layers, batch_size, self.hidden_dim).zero_()
         return hidden
 
+    def query_model(self, input_sequence: torch.FloatTensor, **kwargs):
+        # Forward pass
+        output = self.forward(input_sequence)
+        # If output is given in batches, choose the output that matches the time lag
+        if len(output.shape) == 2:
+            output = output[self.kwargs["time_lag"]-1]
 
-class LSTM(BaseNN):
+        return output
+
+
+class LSTM(RNN):
     """LSTM implementation"""
 
     # https://medium.com/@gpj/predict-next-number-using-pytorch-47187c1b8e33
@@ -313,7 +386,8 @@ class LSTM(BaseNN):
     BASE_MODEL_NAME = "LSTM"
     COMPLEXITY_MULTIPLIER = 2.2
 
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
+    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
+                 loss_fn_name="mae", time_lag=1, training_lookback=2, drop_prob=0.0, **_):
         """LSTM implementation
 
         :param model_name: The name given to this instance of a model
@@ -321,9 +395,12 @@ class LSTM(BaseNN):
         :param hidden_dim: The dimension of the hidden layers
         :param num_hidden_layers: The number of hidden layers to put into the model
         :param loss_fn_name: The name of the loss function that the model will use
+        :param time_lag: The time lag between the input and output sequences
+        :param training_lookback: The size of the sliding time window to give to recurrent models
         :param drop_prob: Probability of dropout"""
 
-        super(LSTM, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
+        super(LSTM, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name, time_lag=time_lag,
+                                   training_lookback=training_lookback, drop_prob=drop_prob)
         self.hidden_dim = hidden_dim
         self.num_hidden_layers = num_hidden_layers
 
@@ -346,42 +423,14 @@ class LSTM(BaseNN):
                   weight.new(self.n_layers, batch_size, self.hidden_dim).zero_())
         return hidden
 
+    def query_model(self, input_sequence: torch.FloatTensor, **kwargs):
+        # Forward pass
+        output = self.forward(input_sequence)
+        # If output is given in batches, choose the output that matches the time lag
+        if len(output.shape) == 2:
+            output = output[-1]
 
-class RNN(BaseNN):
-    """RNN implementation"""
-
-    # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
-
-    BASE_MODEL_NAME = "RNN"
-    COMPLEXITY_MULTIPLIER = 1.7
-
-    def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **_):
-        """RNN implementation
-
-        :param model_name: The name given to this instance of a model
-        :param data_handler: The handler for the dataset that the model will use
-        :param hidden_dim: The dimension of the hidden layers
-        :param num_hidden_layers: The number of hidden layers to put into the model
-        :param loss_fn_name: The name of the loss function that the model will use"""
-
-        super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name)
-        self.hidden_dim = hidden_dim
-        self.num_hidden_layers = num_hidden_layers
-
-        # RNN
-        self.rnn = nn.RNN(self.input_size, hidden_dim, num_hidden_layers, nonlinearity='relu')
-        # Fully connected
-        self.fc = nn.Linear(hidden_dim, self.output_size)
-
-        self.model_complexity = self.COMPLEXITY_MULTIPLIER * (self.input_size + hidden_dim*num_hidden_layers + self.output_size)
-
-    def forward(self, x):
-        # Initialize hidden state with zeros
-
-        # One time step
-        out, h = self.rnn(x)
-        out = self.fc(out)
-        return out
+        return output
 
 
 class MLP(BaseNN):
@@ -414,6 +463,11 @@ class MLP(BaseNN):
     def forward(self, x):
         out = self.seq(x)
         return out
+
+    def query_model(self, input_sequence: torch.FloatTensor, **kwargs):
+        # Forward pass
+        output = self.forward(input_sequence)
+        return output
 
 
 def get_trained_model(model_name: str):

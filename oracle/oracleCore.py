@@ -274,11 +274,10 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
         elif op == utils.OpCodes.QUERY_MODEL:
             model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])
-            output = model(torch.tensor(kwargs["model_input"]))
 
-            # Take only the last prediction of a time series model
-            if output.dim() == 2:
-                output = output[-1]
+            # Query model
+            output = model.query_model(torch.tensor(kwargs["model_input"]))
+
             output = output.tolist()
 
             if ds_meta.get("endpoint", ""):

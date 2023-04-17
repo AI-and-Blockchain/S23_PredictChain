@@ -14,10 +14,17 @@
   }
 }
 
-/* Add some shadows to create a card effect */
 .card {
   box-shadow: 4px 8px 8px 4px rgba(0, 0, 0, 0.2);
   margin-left: 100px;
+  text-align: center;
+  /* Add this line */
+}
+
+/* Center the image inside the card */
+.card img {
+  display: block;
+  margin: 0 auto;
 }
 
 /* Some left and right padding inside the container */

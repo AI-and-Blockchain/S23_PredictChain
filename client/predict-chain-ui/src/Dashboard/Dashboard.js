@@ -70,15 +70,15 @@ function Dashboard() {
     // get price for training a model
     event.preventDefault();
     if (
-      modelTrainNamePrice == "--Select an option--" ||
-      modelTrainNamePrice == ""
+      modelTrainNamePrice === "--Select an option--" ||
+      modelTrainNamePrice === ""
     ) {
       // edge case
       alert("Please select a model");
       return;
     }
 
-    if (modelTrainDatasetNamePrice == "") {
+    if (modelTrainDatasetNamePrice === "") {
       // edge case
       alert("Please enter a dataset name");
       return;
@@ -137,13 +137,21 @@ function Dashboard() {
       });
       setPastTxns([
         ...pastTxns,
-        "Added Dataset (" + response.data + ") - " + addDatasetName,
+        "Added Dataset: '" +
+          addDatasetName +
+          "' (TXN ID: " +
+          response.data +
+          ")",
       ]);
 
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         transactionIDs: arrayUnion(
-          "Added Dataset (" + response.data + ") - " + addDatasetName
+          "Added Dataset: '" +
+            addDatasetName +
+            "' (TXN ID: " +
+            response.data +
+            ")"
         ),
       });
       setAddDatasetLink("");
@@ -158,14 +166,14 @@ function Dashboard() {
     // next on agenda
     event.preventDefault();
     if (
-      trainRawModelName == "--Select an option--" ||
-      trainRawModelName == ""
+      trainRawModelName === "--Select an option--" ||
+      trainRawModelName === ""
     ) {
       alert("Please select a model");
       return;
     }
 
-    if (trainNewName == "" || trainDatasetName == "") {
+    if (trainNewName === "" || trainDatasetName === "") {
       alert("Please enter a new trained model name/dataset name");
       return;
     }
@@ -193,10 +201,11 @@ function Dashboard() {
         ...pastTxns,
         "Trained Dataset: '" +
           trainDatasetName +
-          "' (" +
+          "' to create '" +
+          trainNewName +
+          "' (TXN ID: " +
           response.data +
-          ") - " +
-          trainNewName,
+          ")",
       ]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
@@ -205,10 +214,11 @@ function Dashboard() {
         transactionIDs: arrayUnion(
           "Trained Dataset: '" +
             trainDatasetName +
-            "' (" +
+            "' to create '" +
+            trainNewName +
+            "' (TXN ID: " +
             response.data +
-            ") - " +
-            trainNewName
+            ")"
         ),
       });
       setTrainRawModelName("");
@@ -223,7 +233,7 @@ function Dashboard() {
   const handleQueryModel = async (event) => {
     // next on agenda
     event.preventDefault();
-    if (queryModelName == "") {
+    if (queryModelName === "") {
       alert("Please enter a name");
       return;
     }
@@ -257,14 +267,22 @@ function Dashboard() {
 
       setPastTxns([
         ...pastTxns,
-        "Queried Model: '" + queryModelName + "' (" + response.data + ")",
+        "Queried Model: '" +
+          queryModelName +
+          "' (TXN ID: " +
+          response.data +
+          ")",
       ]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
       await updateDoc(userRef, {
         transactionIDs: arrayUnion(
-          "Queried Model: '" + queryModelName + "' (" + response.data + ")"
+          "Queried Model: '" +
+            queryModelName +
+            "' (TXN ID: " +
+            response.data +
+            ")"
         ),
       });
       setQueryModelName("");
@@ -308,7 +326,7 @@ function Dashboard() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "200px" }}
+            style={{ marginLeft: "200px" }} rel="noreferrer"
           >
             GitHub
           </a>
@@ -316,49 +334,40 @@ function Dashboard() {
       </div>
       <div className="dashboard">
         <div className="dashboard__container">
-          <h1 style={{ textAlign: "left", marginLeft: "30px" }}>
-            Welcome {name}!
-          </h1>
-          <h1 style={{ textAlign: "left", marginLeft: "30px", color: "blue" }}>
-            Account Info
-          </h1>
-          <div
+          <h1
             style={{
-              display: "flex",
-              alignItems: "center",
               textAlign: "left",
               marginLeft: "30px",
-              marginTop: "-10px",
+              color: "white",
+              fontSize: "40px",
             }}
           >
-            <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
+            Welcome {name}!
+          </h1>
+          <h1
+            style={{ textAlign: "left", marginLeft: "30px", color: "darkblue" }}
+          >
+            Account Info
+          </h1>
+          <div className="credentials__txt">
+            <h2
+              style={{
+                fontSize: "24px",
+                marginRight: "10px",
+                textDecoration: "underline",
+              }}
+            >
               Email:
             </h2>
             {user?.email}
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              marginLeft: "30px",
-              marginTop: "-10px",
-            }}
-          >
+          <div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Private Key:
             </h2>
             <div>{pk}</div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              marginLeft: "30px",
-              marginTop: "-10px",
-            }}
-          >
+          <div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
               Address:
             </h2>
@@ -369,17 +378,22 @@ function Dashboard() {
           </button>
 
           <h1
-            style={{ marginTop: "-375px", marginLeft: "950px", color: "blue" }}
+            style={{
+              marginTop: "-400px",
+              marginLeft: "950px",
+              color: "darkblue",
+            }}
           >
             Get Prices
           </h1>
           <div style={{ zIndex: "1" }}>
             <div style={{ marginLeft: "950px" }}>
-              <h2 style={{ textDecoration: "underline", marginTop: "10px" }}>
+              <h2 style={{ textDecoration: "underline", marginTop: "-10px" }}>
                 Request Dataset Upload Price
               </h2>
               <div>
                 <input
+                  style={{ marginLeft: "-100px" }}
                   type="number"
                   value={datasetUploadPriceSize}
                   min="0"
@@ -389,7 +403,8 @@ function Dashboard() {
                   }
                 />
                 <button
-                  style={{ marginLeft: "10px" }}
+                  className="regular__btn"
+                  style={{ marginLeft: "0px" }}
                   onClick={handleDatasetUploadPriceRequest}
                 >
                   Get Price
@@ -435,15 +450,17 @@ function Dashboard() {
                   />
                 </label>
                 <br />
-                <button type="submit" style={{ marginTop: "10px" }}>
+                <button
+                  className="regular__btn"
+                  style={{ marginTop: "5px", marginLeft: "-70px" }}
+                >
                   Get Price
                 </button>
               </form>
+              <br />
               {modelTrainPrice >= 0 && (
                 <div>
-                  <h3 style={{ marginTop: "-5px" }}>
-                    Price: {modelTrainPrice}
-                  </h3>
+                  <h3 style={{ marginTop: "5px" }}>Price: {modelTrainPrice}</h3>
                 </div>
               )}
             </div>
@@ -453,6 +470,7 @@ function Dashboard() {
               </h2>
               <div>
                 <input
+                  style={{ marginLeft: "-100px" }}
                   type="text"
                   value={queryPriceModelName}
                   placeholder="Pre-existing model"
@@ -461,7 +479,8 @@ function Dashboard() {
                   }
                 />
                 <button
-                  style={{ marginLeft: "10px" }}
+                  className="regular__btn"
+                  style={{ marginLeft: "0px" }}
                   onClick={handleQueryModelPriceRequest}
                 >
                   Get Price
@@ -477,7 +496,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <h1 style={{ marginLeft: "950px", color: "blue" }}>
+          <h1 style={{ marginLeft: "950px", color: "darkblue" }}>
             Dataset & Model Functions
           </h1>
           <div style={{ marginLeft: "950px" }}>
@@ -518,13 +537,17 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Add Dataset
               </button>
             </form>
           </div>
 
-          <div style={{ marginTop: "10px", marginLeft: "950px" }}>
+          <div style={{ marginTop: "30px", marginLeft: "950px" }}>
             <h2 style={{ textDecoration: "underline" }}>Train Dataset</h2>
             <form onSubmit={handleModelTraining}>
               <label style={{ marginLeft: "10px" }}>
@@ -574,13 +597,17 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Train Dataset
               </button>
             </form>
           </div>
 
-          <div style={{ marginTop: "10px", marginLeft: "950px" }}>
+          <div style={{ marginTop: "30px", marginLeft: "950px" }}>
             <h2 style={{ textDecoration: "underline" }}>Query Model</h2>
             <form onSubmit={handleQueryModel}>
               <label style={{ marginLeft: "10px" }}>
@@ -594,7 +621,11 @@ function Dashboard() {
                 />
               </label>
               <br />
-              <button type="submit" style={{ marginTop: "10px" }}>
+              <button
+                type="submit"
+                className="regular__btn"
+                style={{ marginTop: "10px", marginLeft: "-70px" }}
+              >
                 Query Model
               </button>
             </form>
@@ -603,14 +634,20 @@ function Dashboard() {
             style={{
               textAlign: "left",
               marginLeft: "30px",
-              marginTop: "-700px",
+              marginTop: "-610px",
               zIndex: "0",
             }}
           >
-            <h2 style={{ textDecoration: "underline" }}>Past Transactions:</h2>
+            <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>
+              Past Transaction(s):
+            </h2>
             <ul>
               {pastTxns.map((item, index) => {
-                return <li key={index}>{item}</li>;
+                return (
+                  <li key={index} style={{ fontSize: "16px" }}>
+                    {item}
+                  </li>
+                );
               })}
             </ul>
           </div>
@@ -642,7 +679,7 @@ function Dashboard() {
           <a
             href="https://github.com/AI-and-Blockchain/S23_PredictChain"
             target="_blank"
-            style={{ marginLeft: "150px" }}
+            style={{ marginLeft: "150px" }} rel="noreferrer"
           >
             GitHub
           </a>

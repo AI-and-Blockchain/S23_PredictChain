@@ -13,11 +13,21 @@
   display: flex;
   flex-direction: column;
   text-align: center;
-  background-color: #dcdcdc;
+  background-color: grey;
   height: 1200px;
   width: 95%;
   position: relative;
   border-radius: 10px;
+}
+
+.credentials__txt {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  margin-left: 30px;
+  margin-top: -20px;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .dashboard__btn {
@@ -28,13 +38,31 @@
   border: none;
   color: white;
   background-color: black;
+  border-radius: 3px;
   position: absolute;
   bottom: 30px;
   left: 40px;
 }
 
+.regular__btn {
+  font-size: 20px;
+  margin-top: 2px;
+  border-radius: 3px;
+  width: 140px;
+  border: none;
+  color: white;
+  background-color: darkblue;
+  position: absolute;
+  transform: scale(0.8);
+  /* change the scale value to adjust the font size */
+}
+
+.regular__btn:hover {
+  background-color: rgb(82, 82, 172);
+}
+
 .dashboard__btn:hover {
-  background-color: grey;
+  background-color: rgb(56, 56, 56);
 }
 
 .dashboard div {

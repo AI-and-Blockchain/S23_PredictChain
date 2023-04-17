@@ -8,17 +8,80 @@
 
 \begin{document}
 
-\maketitle
+    \maketitle
 
-\section*{Related Work}
-\emph{Please feel free to add any subsections as necessary to elaborate on different key facets of the related work.
-However, your writing must follow a cohesive structure (i.e., it should not read like an annotated bibliography!).
-But please include a table to compare specific attributes of the related work with your project.
-Use the references.bib file to include the citations in biblatex format.
-}
-\cite{test}
+    \section{Introduction}
 
-\bibliographystyle{abbrv}
-\bibliography{references}
+    Throughout our project, we have built upon, or have related to, the ideas of many other projects and papers.
+    Some of these relations were explicit, such as our work with, and utilization of, various types of neural
+    network.  Others were implicit, like the relation that our project has to the many other implementations of
+    blockchain-based predictive projects.  It is important to acknowledge the influences that other works have
+    has on our project, and it is equally important to analyze the similarities between our project and the
+    other papers that we have referenced here.  Through this, we hope to better understand the perspective of
+    others on similar topics to our project and hopefully improve upon our work and techniques in the future.
+
+
+    \section{Related Work}
+    % Please feel free to add any subsections as necessary to elaborate on different key facets of the related work.
+    % However, your writing must follow a cohesive structure (i.e., it should not read like an annotated bibliography!).
+    % But please include a table to compare specific attributes of the related work with your project.
+    % Use the references.bib file to include the citations in biblatex format.
+
+    \subsection{Recurrent Sequence Modeling}
+
+    One of the core aspects of our project is our usage of various types of neural network for predictive modeling.
+    Most of our neural networks have some recurrent capability, specifically our RNN, LSTM, and GRU model types.
+    Additionally, the data that we suggest that these models be trained on is sequential data, exactly what these
+    types of model were designed for.  One paper that aligns especially closely with this component of our project
+    is \textit{Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling}\cite{recurrentModeling}.
+
+    Within this paper, the authors aim to evaluate the relative performance of RNNs, LSTM networks, and GRU networks.
+    Similar to our use case, they perform this evaluation using sequential signal data, similar in nature to the
+    stock market dataset that we use in our example.  Primarily, they focus on the LSTM and GRU variants of
+    recurrent neural networks, rather than vanilla RNNs themselves.  As part of their evaluation, they compare
+    the performance of LSTM unit, GRU unit, and tanh unit RNNs on modeling sequences of polyphonic music and
+    speech signals.
+
+    As part of their evaluation, they utilize three publicly available music datasets along with two internal speech
+    datasets from Ubisoft.  The design of their experiment is to compare the negative log probabilities of the models
+    after they are given 20 consecutive samples of audio data and are then tasked to predict the next 10 consecutive
+    samples.  In the results that they gathered, they concluded that, overall, the GRU unit outperformed the other
+    two evaluated models.  These results are amplified in the Ubisoft datasets, where GRU unis significantly
+    outperform the others in one of the test cases and have similar performance to LSTMs in the other.  Additionally,
+    in the Ubisoft Dataset B, the negative log-likelihood of the GRU model continues to shrink in a super-linear manner,
+    whereas the other models become asymptotic.
+
+    \subsubsection*{Relation to Our Work}
+
+    This paper both confirmed some of the initial assumptions that we had about the models and changed some others.
+    In the design of the project, we had initially marked GRU models to be better than all the other models.
+    We denoted this perceived difference in output quality through the constant multiplier we applied to each of their
+    $model\_complexity$ values.  After our analysis of this peper, we decided to update these values to better
+    reflect the experimental performance of these models.
+
+    \begin{table}[h!]
+        \begin{center}
+            \caption{$model\_complexity$ Values of Our Models}
+            \label{tab:modelComplexity}
+            \begin{tabular}{l|c|r}
+                \textbf{Model} & \textbf{Initial Value} & \textbf{Final value}\\
+                \hline
+                MLP & 1 & 1\\
+                RNN & 1.5 & 1.7\\
+                LSTM & 2 & 2.2\\
+                GRU & 2.5 & 2.4
+            \end{tabular}
+        \end{center}
+    \end{table}
+
+    \pagebreak
+
+    In our changes, we amplified the values related to all RNN-based networks.  We also brought the complexities
+    of the LSTM and GRU networks closer together.  This change was made to reflect their relative performances to
+    each other and to more traditional RNNs.
+
+    \pagebreak
+    \bibliographystyle{abbrv}
+    \bibliography{references}
 
 \end{document}

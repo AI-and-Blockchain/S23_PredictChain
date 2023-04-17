@@ -270,7 +270,7 @@ class GRU(BaseNN):
     # https://blog.floydhub.com/gru-with-pytorch/
 
     BASE_MODEL_NAME = "GRU"
-    COMPLEXITY_MULTIPLIER = 2.5
+    COMPLEXITY_MULTIPLIER = 2.4
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
         """GRU implementation
@@ -311,7 +311,7 @@ class LSTM(BaseNN):
     # https://blog.floydhub.com/gru-with-pytorch/
 
     BASE_MODEL_NAME = "LSTM"
-    COMPLEXITY_MULTIPLIER = 2
+    COMPLEXITY_MULTIPLIER = 2.2
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", drop_prob=0.0, **_):
         """LSTM implementation
@@ -353,7 +353,7 @@ class RNN(BaseNN):
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
     BASE_MODEL_NAME = "RNN"
-    COMPLEXITY_MULTIPLIER = 1.5
+    COMPLEXITY_MULTIPLIER = 1.7
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **_):
         """RNN implementation

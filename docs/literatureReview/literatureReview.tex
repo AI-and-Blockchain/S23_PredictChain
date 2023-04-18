@@ -1,9 +1,10 @@
 \documentclass{article}
+\usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{makecell}
 \usepackage{booktabs}
-
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \title{Predict Chain}
 \author{Matthew Pisano, William Hawkins}
 \date{Spring 2023}
@@ -28,6 +29,88 @@
     % However, your writing must follow a cohesive structure (i.e., it should not read like an annotated bibliography!).
     % But please include a table to compare specific attributes of the related work with your project.
     % Use the references.bib file to include the citations in biblatex format.
+    
+    \subsection{Sharing Updatable Models}
+
+    Decentralized \& Collaborative AI on Blockchain\cite{sharingModels} is a great example of a project that combines
+    both artificial intelligence and blockchain technologies in a similar manner to our own.  In this paper, Microsoft
+    outlines a blockchain-based predictive marketplace that utilizes AI for predictive analysis.  In this system, there
+    exists an initial model that is trained on the data collaboratively provided by multiple users.  To encourage
+    the submission of high-quality data, they propose an incentive mechanism that rewards honest users, and punishes
+    dishonest ones.  This model is trained off-chain on the client's machine.  All the logic involving the
+    data submission and incentives are done within an Ethereum smart contract.
+    
+    \paragraph{The Model}
+    This system leaves the exact definition of the model flexible between different clients running the system.  They
+    suggest that the specific class of model would be some type of neural network, giving examples of CRF-RNNs and
+    Support Vector Machines.  Notable, both of these models are geared towards regression and series analysis as the
+    focus of this system is on predictive analysis.  Depending on the model that is used, the authors mention that the
+    corresponding mechanism would change from model to model.
+
+    \paragraph{Incentives}
+    Similarly to the models, the authors leave the incentive mechanism of the project also without an exact definition.
+    This is to give end users flexibility in their individual implementations.  They do give several examples and
+    specifications of this mechanism, however.  These examples fall into two categories: gamification and monetary
+    incentives.  In the gamification strategy, they suggest that there should be no monetary incentive for contributing
+    data.  This would create a system that encourages a collaborative effort in building a model for the common good.
+    In thi strategy, instead of money, they would have tokens or badges that are awarded to users for good data.  The
+    contract would evaluate contributed data as 'good' if it increases the accuracy of the model on a testing set.
+    For the monetary route, they suggest that users who choose to upload data may have to also submit some stake into
+    the contract.  Using this stake as collateral, the contract uses a similar evaluation of 'goodness' to distribute
+    awards or punishments.
+
+    \paragraph{Relation to Our Work}
+    This paper shares a very large similarity with our project.  However, while the core ideas are quite similar, there
+    are some notable differences.  Both of the project involve creating a model, open to public query, and trained on
+    user-provided data.  Both of these projects have the goal of making machine learning predictions more accessible
+    to more people.  In comparison, our project is more centralized and with a larger focus on incentives.  For
+    example, in our project, models are trained on a special, central node instead of on a node managed by a client.
+    Each model in our project has only one user-uploaded dataset as its source instead of each model being a collaborative
+    effort from many users.  In PredictChain, there is a greater focus on costs and incentives than in the sharing models
+    project.  Specifically, our project is built around encouraging usage through the possibility of monetary reward,
+    but in the author's system, the usage is achieved by either gamification or a monetary incentive.  Additionally,
+    queries are not free in PredictChain as they are in Decentralized \& Collaborative AI on Blockchain.  In both systems,
+    individual users make contributions in the form of data, one initial user controls the model hyperparameters and
+    which dataset the model will be trained on, and all users can query the publicly available models.
+
+    \subsection{}
+
+    \subsection{Table Comparison}
+
+    As a summary, this chart illustrates the commonalities and differences between our project and these related works:
+
+    \begin{table}[h!]
+        \begin{center}
+            \caption{Comparison of Each Paper}
+            \label{tab:relatedSummary}
+            \bgroup
+            \def\arraystretch{3}
+            \begin{tabular}{c|c|c|c}
+                \textbf{Paper} & \makecell{\textbf{PredictChain's}\\\textbf{Specification}} & \textbf{Paper's Specification} & \textbf{Commonalities}\\
+                \hline
+                Harris et al. 2019\cite{sharingModels} &
+                \makecell[l]{
+                    \tabitem Model run and trained\\on special node\\
+                    \tabitem Datasests from one\\user only\\
+                    \tabitem Always has incentives\\
+                    \tabitem Paid queries\\
+                } & \makecell[l]{
+                    \tabitem Model run and trained\\on client node\\
+                    \tabitem Datasets collaborative\\from many users\\
+                    \tabitem Has optional\\gamification\\
+                    \tabitem Free queries\\
+                } & \makecell[l]{
+                    \tabitem Community dataset\\contributions\\
+                    \tabitem User-specified models\\and hyperparams\\
+                    \tabitem All users can query\\public models\\
+                }\\
+                \hline
+            \end{tabular}
+            \egroup
+        \end{center}
+    \end{table}
+
+    \section{Background Knowledge}
 
     \subsection{Long Short-Term Memory Networks}
 
@@ -49,7 +132,7 @@
     Through these experiments, hey show that LSTMs can outperform RNNs on long, minimal time lag data.  Through their
     papers, the authors show that their new LSTMs can perform well in both short and long time lagged situations.
 
-    \subsubsection*{Relation to Our Work}
+    \paragraph{Relation to Our Work}
 
     The work of Hochreiter and Schmidhuber has been incredibly useful in our development of PredictChain.  As part of
     our goal, our project is designed to accept a wide variety of datasets and is also designed to train models on
@@ -84,7 +167,7 @@
     in the Ubisoft Dataset B, the negative log-likelihood of the GRU model continues to shrink in a super-linear manner,
     whereas the other models become asymptotic.
 
-    \subsubsection*{Relation to Our Work}
+    \paragraph{Relation to Our Work}
 
     This paper both confirmed some of the initial assumptions that we had about the models and changed some others.
     In the design of the project, we had initially marked GRU models to be better than all the other models.
@@ -147,7 +230,7 @@
     a given time step, or a zero if the model believed the stock would go down.  Their hope is that this simplicity
     will also simplify the complexity of the information that investors will have to interact with.
 
-    \subsubsection*{Relation to Our Work}
+    \paragraph{Relation to Our Work}
 
     As mentioned previously, the general purpose of this work mirrors part of the functionality of our project.
     The main difference here, being that it is much more focused on the predictive aspect.  Along with their
@@ -162,6 +245,33 @@
     improvement that we could make to our project is to give users the option of having feature extension or elimination
     automatically applied to their dataset after submission.  This change may result in yet better performance of our
     models after training on user-submitted datasets.
+
+    \subsection{Table Comparison}
+
+    As a summary, this chart illustrates the impact that each of the papers had on our work and our knowledge:
+
+    \begin{table}[h!]
+        \begin{center}
+            \caption{Impact of Each Paper}
+            \label{tab:backgroundSummary}
+            \bgroup
+            \def\arraystretch{3}
+            \begin{tabular}{c|c}
+                \textbf{Paper} & \textbf{Notable Impact}\\
+                \hline
+                \makecell{Hochreiter et al. 1997\cite{LSTM}} & \makecell{Encouraged us to expand our support for forcing time lag\\
+                    in datasets and expanding the degree to which users\\could customize the lookback windows}\\
+                \hline
+                \makecell{Chung et al. 2014\cite{recurrentModeling}} &
+                    \makecell{Helping us to better understand the relative performances\\ofRNNs, LSTMs, and GRU networks}\\
+                \hline
+                \makecell{Shen et al. 2020\cite{deepPrediction}} &
+                    \makecell{Inspiring possible future improvements to our dataset\\preprocessing and model training}\\
+
+            \end{tabular}
+            \egroup
+        \end{center}
+    \end{table}
 
     \section{Closing Thoughts}
 
@@ -182,33 +292,6 @@
 
     \subsection{Blockchain Papers}
     The papers that had focused on blockchain instead
-
-    \subsection{Table Comparison}
-
-    As a summary, this chary illustrates the impact that each of the papers had on our work and our knowledge:
-
-    \begin{table}[h!]
-        \begin{center}
-            \caption{Impact of Each Paper}
-            \label{tab:paperSummary}
-            \bgroup
-            \def\arraystretch{3}
-            \begin{tabular}{c|c}
-                \textbf{Paper} & \textbf{Notable Impact}\\
-                \hline
-                Long Short-Term Memory\cite{LSTM} & \makecell{Encouraged us to expand our support for forcing time lag\\
-                    in datasets and expanding the degree to which users\\could customize the lookback windows}\\
-                \hline
-                \makecell{Empirical Evaluation of Gated Recurrent\\Neural Networks on Sequence Modeling\cite{recurrentModeling}} &
-                    \makecell{Helping us to better understand the relative performances\\ofRNNs, LSTMs, and GRU networks}\\
-                \hline
-                \makecell{Short-term stock market price trend prediction\\using a comprehensive deep learning system\cite{deepPrediction}} &
-                    \makecell{Inspiring possible future improvements to our dataset\\preprocessing and model training}\\
-
-            \end{tabular}
-            \egroup
-        \end{center}
-    \end{table}
 
     \pagebreak
     \bibliographystyle{abbrv}

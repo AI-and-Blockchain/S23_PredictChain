@@ -62,6 +62,7 @@ const signInWithGoogle = async () => {
       privateKey: privateKey,
       address: address,
       transactionIDs: [],
+      urlList: [],
     });
   } catch (err) {
     console.error(err);
@@ -96,6 +97,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       privateKey: privateKey,
       address: address,
       transactionIDs: [],
+      urlList: [],
     });
   } catch (err) {
     console.error(err);

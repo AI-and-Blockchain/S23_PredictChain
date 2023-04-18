@@ -93,6 +93,17 @@
   top: 0;
 }
 
+.urllist {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+  display: inline-block;
+}
+
+.urllist:hover {
+  color:rgb(56, 56, 56);
+}
+
 a {
   font-size: 20px;
   font-weight: 600;

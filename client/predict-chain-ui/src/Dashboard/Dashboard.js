@@ -13,6 +13,7 @@ function Dashboard() {
   const [pk, setPK] = useState("");
   const [addr, setAddr] = useState("");
   const [pastTxns, setPastTxns] = useState([]);
+  const [pastURLs, setPastURLs] = useState([]);
 
   const [datasetUploadPriceSize, setDatasetUploadPriceSize] = useState("");
   const [datasetUploadPrice, setDatasetUploadPrice] = useState(0);
@@ -50,6 +51,7 @@ function Dashboard() {
     setPK(docSnap.data().privateKey);
     setAddr(docSnap.data().address);
     setPastTxns(docSnap.data().transactionIDs);
+    setPastURLs(docSnap.data().urlList);
   };
 
   const handleDatasetUploadPriceRequest = async () => {
@@ -139,20 +141,20 @@ function Dashboard() {
         ...pastTxns,
         "Added Dataset: '" +
           addDatasetName +
-          "' (TXN ID: " +
-          response.data +
-          ")",
+          "' (TXN ID: ",
       ]);
+
+      const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
+      setPastURLs([...pastURLs, newURL]);
 
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         transactionIDs: arrayUnion(
           "Added Dataset: '" +
             addDatasetName +
-            "' (TXN ID: " +
-            response.data +
-            ")"
+            "' (TXN ID: ",
         ),
+        urlList: arrayUnion(newURL)
       });
       setAddDatasetLink("");
       setAddDatasetName("");
@@ -203,10 +205,11 @@ function Dashboard() {
           trainDatasetName +
           "' to create '" +
           trainNewName +
-          "' (TXN ID: " +
-          response.data +
-          ")",
+          "' (TXN ID: ",
       ]);
+
+      const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
+      setPastURLs([...pastURLs, newURL]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
@@ -216,10 +219,9 @@ function Dashboard() {
             trainDatasetName +
             "' to create '" +
             trainNewName +
-            "' (TXN ID: " +
-            response.data +
-            ")"
+            "' (TXN ID: ",
         ),
+        urlList: arrayUnion(newURL)
       });
       setTrainRawModelName("");
       setTrainNewName("");
@@ -269,10 +271,11 @@ function Dashboard() {
         ...pastTxns,
         "Queried Model: '" +
           queryModelName +
-          "' (TXN ID: " +
-          response.data +
-          ")",
+          "' (TXN ID: ",
       ]);
+
+      const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
+      setPastURLs([...pastURLs, newURL]);
       // Get the user document reference
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
@@ -280,10 +283,9 @@ function Dashboard() {
         transactionIDs: arrayUnion(
           "Queried Model: '" +
             queryModelName +
-            "' (TXN ID: " +
-            response.data +
-            ")"
+            "' (TXN ID: ",
         ),
+        urlList: arrayUnion(newURL)
       });
       setQueryModelName("");
     } catch (error) {
@@ -642,13 +644,15 @@ function Dashboard() {
               Past Transaction(s):
             </h2>
             <ul>
-              {pastTxns.map((item, index) => {
-                return (
-                  <li key={index} style={{ fontSize: "16px" }}>
-                    {item}
-                  </li>
-                );
-              })}
+            {pastTxns.map((item, index) => {
+              const url = pastURLs[index];
+              const urlText = url ? `${url.substring(url.length - 52)}` : "";
+              return (
+                <li key={index} style={{ fontSize: "16px" }}>
+                  {item} <a className="urllist" target="_blank" href={url}>{urlText}</a>)
+                </li>
+              );
+            })}
             </ul>
           </div>
         </div>

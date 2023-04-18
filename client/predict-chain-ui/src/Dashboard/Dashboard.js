@@ -293,6 +293,11 @@ function Dashboard() {
     }
   };
 
+  const handleButtonCall = async () => {
+    const newResponse = await axios.get("http://localhost:8031/get_acc_loss");
+    console.log(newResponse);
+  }
+
   useEffect(() => {
     if (loading) return;
     if (!user) return navigate("/");
@@ -608,6 +613,9 @@ function Dashboard() {
                 Train Dataset
               </button>
             </form>
+            <br/>
+            <br/>
+            <button onClick={handleButtonCall}>Accuracy/Loss Button</button>
           </div>
 
           <div style={{ marginTop: "30px", marginLeft: "950px" }}>

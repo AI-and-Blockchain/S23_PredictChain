@@ -302,7 +302,6 @@ def model_query_price():
     return {"price": price, "txn_id": txn_id}
 
 
-# NEED TO TEST
 @app.route('/query_model', methods=["POST"])
 def query_model_api():
     """Requests to query a model from the UI to the client
@@ -316,3 +315,12 @@ def query_model_api():
 
     txn_id = query_model(**request.json)
     return txn_id
+
+
+@app.route('/get_acc_loss', methods=["GET"])
+def get_acc_loss():
+    # Prints out TXN ID with 'J' and 'y' ??
+    tmp = [txn for txn in ClientState.monitor.txn_queue]
+    print(tmp)
+    ClientState.monitor.txn_queue = []
+    return tmp

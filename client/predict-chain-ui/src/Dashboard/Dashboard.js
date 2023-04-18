@@ -356,6 +356,7 @@ function Dashboard() {
               style={{
                 fontSize: "24px",
                 marginRight: "10px",
+                marginTop: "20px",
                 textDecoration: "underline",
               }}
             >
@@ -364,13 +365,13 @@ function Dashboard() {
             {user?.email}
           </div>
           <div className="credentials__txt">
-            <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
+            <h2 style={{ marginRight: "10px", textDecoration: "underline", marginTop: "20px"}}>
               Private Key:
             </h2>
             <div>{pk}</div>
           </div>
           <div className="credentials__txt">
-            <h2 style={{ marginRight: "10px", textDecoration: "underline" }}>
+            <h2 style={{ marginRight: "10px", textDecoration: "underline", marginTop: "20px" }}>
               Address:
             </h2>
             <div>{addr}</div>
@@ -490,7 +491,7 @@ function Dashboard() {
               </div>
               {queryPriceModel >= 0 && (
                 <div>
-                  <h3 style={{ marginTop: "-5px" }}>
+                  <h3 style={{ marginTop: "-5px"}}>
                     Price: {queryPriceModel}
                   </h3>
                 </div>
@@ -636,8 +637,7 @@ function Dashboard() {
             style={{
               textAlign: "left",
               marginLeft: "30px",
-              marginTop: "-610px",
-              zIndex: "0",
+              marginTop: "-570px",
             }}
           >
             <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>

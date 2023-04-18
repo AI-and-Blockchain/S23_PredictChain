@@ -7,7 +7,6 @@ import HomePage from "./HomePage/HomePage";
 import Reset from "./Reset/Reset";
 import MTT from "./MTT/MTT";
 import FAQ from "./FAQ/FAQ";
-//import Testing from "./Testing/Testing";
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
           <Route exact path="/dashboard" element={<Dashboard />} />
           <Route exact path="/mtt" element={<MTT />} />
           <Route exact path="/faq" element={<FAQ />} />
-          {/*<Route exact path="/testingurl" element={<Testing />} />*/}
         </Routes>
       </Router>
     </div>

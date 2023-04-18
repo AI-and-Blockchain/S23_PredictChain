@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
 \usepackage{subfiles}
 \usepackage{float}
 
@@ -22,7 +23,7 @@
     predictions form these models will be stored on the blockchain for public viewing.
 
     \subsection{Problem Solved}
-    \emph{Clearly state the problem your project solves}
+    % Clearly state the problem your project solves
 
     PredictChain helps to solve one of the main issues that involve AI models today: accessibility.  Our project fulfils this
     need in two ways.  Oftentimes, individuals or groups poses data that they would wish to be used in predictive analysis.
@@ -37,7 +38,7 @@
     leaving a public record for other users to view.
 
     \subsection{Background}
-    \emph{Why is this an important and relevant problem within the context of AI and Blockchain}
+    % Why is this an important and relevant problem within the context of AI and Blockchain
 
     As the trend of ever-growing machine learning morels continues, this problem becomes increasingly relevant.
     As the scale and power of models steadily grows, the resources required to train them grows as well.  This makes training
@@ -54,7 +55,7 @@
 
 
     \subsection{Use Cases and User Stories}
-    \emph{Use case or motivating user story detailing how someone would use the system you have built}
+    % Use case or motivating user story detailing how someone would use the system you have built
 
     \subsubsection*{User Story \#1}
     \textit{Scenario:} As a data analyst, I want to have access to trends of various stock markets so that I can create
@@ -126,9 +127,33 @@
 
     \section{Implementation Details}
 
-    \emph{Provide details of how you implemented your solution. Please add as many diagrams as necessary and explain the
-    diagrams you added in the text. Any external libraries used and rationale for using them
-    Links to all the resources produced (GitHub source code, demo link, link to the recorded video of the demo, etc.)}
+    % Provide details of how you implemented your solution. Please add as many diagrams as necessary and explain the
+    % diagrams you added in the text. Any external libraries used and rationale for using them
+    % Links to all the resources produced (GitHub source code, demo link, link to the recorded video of the demo, etc.)
+
+    The following table will provide links to the various resources relevant to our project and its evaluation:
+
+    \begin{table}[h!]
+        \begin{center}
+            \caption{{Project Resources}}
+            \label{tab:resources}
+            \bgroup
+            \def\arraystretch{1.2}
+            \begin{tabular}{|c|c|}
+                \hline\\
+                \textbf{Resource} & \textbf{Link}\\
+                \hline
+                GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
+                \hline
+                Python Documentation & \href{https://github.com/AI-and-Blockchain/S23_PredictChain/docs/sphinx/index.html}{github.com/AI-and-Blockchain/S23\_PredictChain/docs/sphinx/index.html}\\
+                \hline
+                Demo Video & \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}\\
+                \hline
+            \end{tabular}
+            \egroup
+        \end{center}
+    \end{table}
+
 
     The structure of PredictChain is primarily broken up into two parts: the client and the oracle.  Both of these parts
     interact with each other through the blockchain.

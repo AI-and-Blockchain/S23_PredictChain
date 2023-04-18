@@ -1,6 +1,7 @@
 .idea
 .vscode
 # creds/*creds
+docs/jsdoc/fonts
 creds/main_creds*
 venv
 client/predict-chain-ui/node_modules

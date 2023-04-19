@@ -68,16 +68,19 @@ def search_transactions(limit=10, **kwargs):
     batch_size = 10 if limit > 10 else limit
     # loop using next_page to paginate until there are
     # no more transactions in the response
-    while has_results and len(transactions) < limit:
-        response = INDEXER_CLIENT.search_transactions(**kwargs, next_page=next_token, limit=batch_size)
+    try:
+        while has_results and len(transactions) < limit:
+            response = INDEXER_CLIENT.search_transactions(**kwargs, next_page=next_token, limit=batch_size)
 
-        has_results = len(response["transactions"]) > 0
+            has_results = len(response["transactions"]) > 0
 
-        if has_results:
-            next_token = response["next-token"]
-            transactions.extend(response["transactions"])
+            if has_results:
+                next_token = response["next-token"]
+                transactions.extend(response["transactions"])
 
-        page += 1
+            page += 1
+    except Exception as e:
+        print("Could not get transactions with error", e)
 
     return transactions
 

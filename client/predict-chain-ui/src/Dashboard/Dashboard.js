@@ -12,6 +12,7 @@ function Dashboard() {
   const [name, setUserName] = useState("");
   const [pk, setPK] = useState("");
   const [addr, setAddr] = useState("");
+  const [backStateText, setBackStateText] = useState("");
   const [pastTxns, setPastTxns] = useState([]);
   const [pastURLs, setPastURLs] = useState([]);
 
@@ -41,6 +42,7 @@ function Dashboard() {
 
   // Query Model function
   const [queryModelName, setQueryModelName] = useState("");
+    const [queryModelData, setQueryModelData] = useState("");
 
   const navigate = useNavigate();
   const fetchUserName = async () => {
@@ -52,6 +54,25 @@ function Dashboard() {
     setAddr(docSnap.data().address);
     setPastTxns(docSnap.data().transactionIDs);
     setPastURLs(docSnap.data().urlList);
+  };
+
+  const fetchBackendState = async () => {
+    let updatedText = "";
+    try {
+      const ds_response = await axios.get(`http://localhost:8031/get_datasets`);
+      updatedText += "Available datasets: ";
+      for(let ds of Object.keys(ds_response.data))
+        updatedText += ds+", ";
+
+      const model_response = await axios.get(`http://localhost:8031/get_models`);
+      updatedText += "Available models: ";
+      for(let ds of Object.keys(model_response.data))
+        updatedText += ds+", ";
+    } catch (error) {
+      console.error(error);
+      alert("Error fetching backend state");
+    }
+    setBackStateText(updatedText);
   };
 
   const handleDatasetUploadPriceRequest = async () => {
@@ -239,32 +260,23 @@ function Dashboard() {
       alert("Please enter a name");
       return;
     }
+    if (queryModelData === "") {
+      alert("Please enter some input");
+      return;
+    }
 
     try {
       const containsWord = pastTxns.some((pastTxn) =>
         pastTxn.includes(queryModelName)
       );
       if (!containsWord) {
-        alert("Cannot find dataset");
-        return;
+        //alert("Cannot find model");
+        //return;
       }
 
       const response = await axios.post("http://localhost:8031/query_model", {
         trained_model: queryModelName,
-        model_input: [
-          [
-            1, 0, 56, 16.98, 17.15, 15.96, 16.68, 132981863, -1.76678,
-            66.17769355, 80023895, 16.81, 16.58, -1.36823, 76, 0.179856,
-          ],
-          [
-            1, 0, 63, 16.81, 16.94, 16.13, 16.58, 109493077, -1.36823,
-            -17.66315005, 132981863, 16.58, 16.03, -3.31725, 69, 0.180941,
-          ],
-          [
-            1, 0, 70, 16.58, 16.75, 15.42, 16.03, 114332562, -3.31725,
-            4.419900447, 109493077, 15.95, 16.11, 1.00313, 62, 0.187149,
-          ],
-        ],
+        model_input: JSON.parse(queryModelData),
       });
 
       setPastTxns([
@@ -288,6 +300,7 @@ function Dashboard() {
         urlList: arrayUnion(newURL)
       });
       setQueryModelName("");
+      setQueryModelData("");
     } catch (error) {
       console.error(error);
     }
@@ -296,13 +309,14 @@ function Dashboard() {
   const handleButtonCall = async () => {
     const newResponse = await axios.get("http://localhost:8031/get_acc_loss");
     console.log(newResponse);
-  }
+  };
 
   useEffect(() => {
     if (loading) return;
     if (!user) return navigate("/");
 
     fetchUserName();
+    fetchBackendState();
   }, [user, loading]);
 
   return (
@@ -381,6 +395,7 @@ function Dashboard() {
             </h2>
             <div>{addr}</div>
           </div>
+          <div className="left-aligned" style={{maxWidth: "50%"}}><p>{backStateText}</p></div>
           <button className="dashboard__btn" onClick={logout}>
             Logout
           </button>
@@ -628,6 +643,17 @@ function Dashboard() {
                   placeholder="Pre-existing trained model"
                   value={queryModelName}
                   onChange={(e) => setQueryModelName(e.target.value)}
+                />
+              </label>
+              <br/>
+              <label style={{ marginLeft: "10px" }}>
+                Query Input:
+                <input
+                  style={{ marginLeft: "10px" }}
+                  type="text"
+                  placeholder="JSON-encoded input"
+                  value={queryModelData}
+                  onChange={(e) => setQueryModelData(e.target.value)}
                 />
               </label>
               <br />

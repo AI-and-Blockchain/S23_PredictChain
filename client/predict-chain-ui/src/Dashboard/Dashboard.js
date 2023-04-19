@@ -615,7 +615,6 @@ function Dashboard() {
             </form>
             <br/>
             <br/>
-            <button onClick={handleButtonCall}>Accuracy/Loss Button</button>
           </div>
 
           <div style={{ marginTop: "30px", marginLeft: "950px" }}>

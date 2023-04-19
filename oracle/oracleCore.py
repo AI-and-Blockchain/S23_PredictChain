@@ -282,7 +282,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
 
             if ds_meta.get("endpoint", ""):
                 print("Adding event request to event queue")
-                EventMonitor.query_queue[txn["id"]] = {"endpoint": ds_meta["endpoint"], "output": output,
+                EventMonitor.query_queue[txn["id"]] = {"endpoint": ds_meta["endpoint"], "output": output, "input": kwargs["model_input"],
                                                  "query_user_id": txn["sender"], "query_txn_id": txn["id"]}
 
             # Report result back to the user

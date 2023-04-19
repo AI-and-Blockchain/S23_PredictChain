@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import base64
 from typing import Any
 import sys, os
 import requests
@@ -43,8 +45,9 @@ class ClientTransactionMonitor(utils.TransactionMonitor):
 
         :param txn: The incoming transaction dictionary"""
 
-        # TODO: Alert user of incoming transaction
-        print("Incoming transaction: ", txn)
+        txn["note"] = json.loads(base64.b64decode(txn["note"]).decode())
+
+        print("Incoming transaction: ", txn['payment-transaction']['amount'], txn["note"])
         self.txn_queue.append(txn)
 
     def clear_queue(self):
@@ -317,10 +320,10 @@ def query_model_api():
     return txn_id
 
 
-@app.route('/get_acc_loss', methods=["GET"])
-def get_acc_loss():
+@app.route('/incoming_transactions', methods=["GET"])
+def get_incoming_transactions():
     # Prints out TXN ID with 'J' and 'y' ??
     tmp = [txn for txn in ClientState.monitor.txn_queue]
-    print(tmp)
+    print("Returning incoming transactions: ", [txn["note"] for txn in tmp])
     ClientState.monitor.txn_queue = []
     return tmp

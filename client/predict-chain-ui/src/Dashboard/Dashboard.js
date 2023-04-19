@@ -12,9 +12,11 @@ function Dashboard() {
   const [name, setUserName] = useState("");
   const [pk, setPK] = useState("");
   const [addr, setAddr] = useState("");
-  const [backStateText, setBackStateText] = useState("");
+  const [dsState, setDsState] = useState([]);
+  const [modelState, setModelState] = useState([]);
   const [pastTxns, setPastTxns] = useState([]);
   const [pastURLs, setPastURLs] = useState([]);
+  const [incomingRespTxns, setIncomingRespTxns] = useState([]);
 
   const [datasetUploadPriceSize, setDatasetUploadPriceSize] = useState("");
   const [datasetUploadPrice, setDatasetUploadPrice] = useState(0);
@@ -57,22 +59,21 @@ function Dashboard() {
   };
 
   const fetchBackendState = async () => {
-    let updatedText = "";
+    let updates = [[], []];
     try {
       const ds_response = await axios.get(`http://localhost:8031/get_datasets`);
-      updatedText += "Available datasets: ";
       for(let ds of Object.keys(ds_response.data))
-        updatedText += ds+", ";
+        updates[0].push(ds.replace("<DS>", ""));
 
       const model_response = await axios.get(`http://localhost:8031/get_models`);
-      updatedText += "Available models: ";
-      for(let ds of Object.keys(model_response.data))
-        updatedText += ds+", ";
+      for(let model of Object.keys(model_response.data))
+        updates[1].push(model.replace("<MODEL>", ""));
     } catch (error) {
       console.error(error);
       alert("Error fetching backend state");
     }
-    setBackStateText(updatedText);
+    setDsState(updates[0]);
+    setModelState(updates[1]);
   };
 
   const handleDatasetUploadPriceRequest = async () => {
@@ -92,10 +93,7 @@ function Dashboard() {
   const handleModelTrainPrice = async (event) => {
     // get price for training a model
     event.preventDefault();
-    if (
-      modelTrainNamePrice === "--Select an option--" ||
-      modelTrainNamePrice === ""
-    ) {
+    if (modelTrainNamePrice === "--Select an option--" || modelTrainNamePrice === "") {
       // edge case
       alert("Please select a model");
       return;
@@ -108,11 +106,8 @@ function Dashboard() {
     }
 
     try {
-      // Check if any of the past transactions have the dataset name
-      const containsWord = pastTxns.some((pastTxn) =>
-        pastTxn.includes(modelTrainDatasetNamePrice)
-      );
-      if (!containsWord) {
+      // Check if the dataset exists in the oracle's database
+      if (!dsState.includes(modelTrainDatasetNamePrice)) {
         alert("Cannot find dataset");
         return;
       }
@@ -130,6 +125,11 @@ function Dashboard() {
   };
 
   const handleQueryModelPriceRequest = async () => {
+    if (queryPriceModelName === "") {
+      alert("Enter a model name!");
+      return;
+    }
+
     try {
       const response = await axios.get(
         `http://localhost:8031/get_model_query_price?trained_model=${queryPriceModelName}`
@@ -144,10 +144,8 @@ function Dashboard() {
 
   const handleAddDataset = async (event) => {
     event.preventDefault();
-    const containsWord = pastTxns.some((pastTxn) =>
-      pastTxn.includes(addDatasetName)
-    );
-    if (containsWord) {
+
+    if (dsState.includes(addDatasetName)) {
       alert("Enter a different dataset name!");
       return;
     }
@@ -158,23 +156,14 @@ function Dashboard() {
         ds_size: addDatasetSize,
         time_attrib: "time_step",
       });
-      setPastTxns([
-        ...pastTxns,
-        "Added Dataset: '" +
-          addDatasetName +
-          "' (TXN ID: ",
-      ]);
+      setPastTxns([...pastTxns, "Added Dataset: '" + addDatasetName + "' (TXN ID: ",]);
 
       const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
       setPastURLs([...pastURLs, newURL]);
 
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
-        transactionIDs: arrayUnion(
-          "Added Dataset: '" +
-            addDatasetName +
-            "' (TXN ID: ",
-        ),
+        transactionIDs: arrayUnion("Added Dataset: '" + addDatasetName + "' (TXN ID: ",),
         urlList: arrayUnion(newURL)
       });
       setAddDatasetLink("");
@@ -202,10 +191,7 @@ function Dashboard() {
     }
 
     try {
-      const containsWord = pastTxns.some((pastTxn) =>
-        pastTxn.includes(trainDatasetName)
-      );
-      if (!containsWord) {
+      if (!dsState.includes(trainDatasetName)) {
         alert("Cannot find dataset");
         return;
       }
@@ -220,14 +206,8 @@ function Dashboard() {
         num_hidden_layers: 2,
       });
 
-      setPastTxns([
-        ...pastTxns,
-        "Trained Dataset: '" +
-          trainDatasetName +
-          "' to create '" +
-          trainNewName +
-          "' (TXN ID: ",
-      ]);
+      setPastTxns([...pastTxns, "Trained Dataset: '" + trainDatasetName +
+        "' to create '" + trainNewName + "' (TXN ID: ",]);
 
       const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
       setPastURLs([...pastURLs, newURL]);
@@ -235,13 +215,8 @@ function Dashboard() {
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
       await updateDoc(userRef, {
-        transactionIDs: arrayUnion(
-          "Trained Dataset: '" +
-            trainDatasetName +
-            "' to create '" +
-            trainNewName +
-            "' (TXN ID: ",
-        ),
+        transactionIDs: arrayUnion("Trained Dataset: '" + trainDatasetName +
+            "' to create '" + trainNewName + "' (TXN ID: ",),
         urlList: arrayUnion(newURL)
       });
       setTrainRawModelName("");
@@ -266,12 +241,9 @@ function Dashboard() {
     }
 
     try {
-      const containsWord = pastTxns.some((pastTxn) =>
-        pastTxn.includes(queryModelName)
-      );
-      if (!containsWord) {
-        //alert("Cannot find model");
-        //return;
+      if (!modelState.includes(queryModelName)) {
+        alert("Cannot find model");
+        return;
       }
 
       const response = await axios.post("http://localhost:8031/query_model", {
@@ -279,12 +251,7 @@ function Dashboard() {
         model_input: JSON.parse(queryModelData),
       });
 
-      setPastTxns([
-        ...pastTxns,
-        "Queried Model: '" +
-          queryModelName +
-          "' (TXN ID: ",
-      ]);
+      setPastTxns([...pastTxns, "Queried Model: '" + queryModelName + "' (TXN ID: ",]);
 
       const newURL = `https://testnet.algoexplorer.io/tx/${response.data}`;
       setPastURLs([...pastURLs, newURL]);
@@ -292,11 +259,7 @@ function Dashboard() {
       const userRef = doc(db, "users", user?.uid);
       // Update the transaction IDs array with the new transaction ID
       await updateDoc(userRef, {
-        transactionIDs: arrayUnion(
-          "Queried Model: '" +
-            queryModelName +
-            "' (TXN ID: ",
-        ),
+        transactionIDs: arrayUnion("Queried Model: '" + queryModelName + "' (TXN ID: ",),
         urlList: arrayUnion(newURL)
       });
       setQueryModelName("");
@@ -306,9 +269,10 @@ function Dashboard() {
     }
   };
 
-  const handleButtonCall = async () => {
-    const newResponse = await axios.get("http://localhost:8031/get_acc_loss");
-    console.log(newResponse);
+  const handleGetIncoming = async () => {
+    const response = await axios.get("http://localhost:8031/incoming_transactions");
+    setIncomingRespTxns([...incomingRespTxns, ...response.data]);
+    console.log(response);
   };
 
   useEffect(() => {
@@ -395,14 +359,18 @@ function Dashboard() {
             </h2>
             <div>{addr}</div>
           </div>
-          <div className="left-aligned" style={{maxWidth: "50%"}}><p>{backStateText}</p></div>
+          <div className="left-aligned" style={{maxWidth: "50%"}}>
+            <p>Existing datasets: {JSON.stringify(dsState).replace(/"|\[|]/g, "")}</p>
+            <br/>
+            <p>Existing models: {JSON.stringify(modelState).replace(/"|\[|]/g, "")}</p>
+          </div>
           <button className="dashboard__btn" onClick={logout}>
             Logout
           </button>
 
           <h1
             style={{
-              marginTop: "-400px",
+              marginTop: "-550px",
               marginLeft: "950px",
               color: "darkblue",
             }}
@@ -420,7 +388,7 @@ function Dashboard() {
                   type="number"
                   value={datasetUploadPriceSize}
                   min="0"
-                  placeholder="0"
+                  placeholder="dataset size"
                   onChange={(event) =>
                     setDatasetUploadPriceSize(event.target.value)
                   }
@@ -447,7 +415,7 @@ function Dashboard() {
               </h2>
               <form onSubmit={handleModelTrainPrice}>
                 <label style={{ marginLeft: "10px" }}>
-                  Model Name:
+                  Model Type:
                   <select
                     style={{ marginLeft: "10px" }}
                     value={modelTrainNamePrice}
@@ -462,15 +430,16 @@ function Dashboard() {
                 </label>
                 <label style={{ marginLeft: "10px" }}>
                   Dataset Name:
-                  <input
+                  <select
                     style={{ marginLeft: "10px" }}
-                    type="text"
-                    placeholder="Pre-existing dataset"
                     value={modelTrainDatasetNamePrice}
-                    onChange={(e) =>
-                      setModelTrainDatasetNamePrice(e.target.value)
-                    }
-                  />
+                    onChange={(e) => setModelTrainDatasetNamePrice(e.target.value)}
+                  >
+                    <option value="">--Select an option--</option>
+                    {dsState.map((item,index)=>{
+                        return <option key={index} value={item}>{item}</option>
+                    })}
+                  </select>
                 </label>
                 <br />
                 <button
@@ -492,15 +461,19 @@ function Dashboard() {
                 Request Model Query Price
               </h2>
               <div>
-                <input
-                  style={{ marginLeft: "-100px" }}
-                  type="text"
-                  value={queryPriceModelName}
-                  placeholder="Pre-existing model"
-                  onChange={(event) =>
-                    setQueryPriceModelName(event.target.value)
-                  }
-                />
+                <label style={{ marginLeft: "10px" }}>
+                Trained Model Name:
+                  <select
+                      style={{ marginLeft: "10px" }}
+                      value={queryPriceModelName}
+                      onChange={(e) => setQueryPriceModelName(e.target.value)}
+                    >
+                      <option value="">--Select an option--</option>
+                      {modelState.map((item,index)=>{
+                          return <option key={index} value={item}>{item}</option>
+                      })}
+                  </select>
+                </label>
                 <button
                   className="regular__btn"
                   style={{ marginLeft: "0px" }}
@@ -574,7 +547,7 @@ function Dashboard() {
             <h2 style={{ textDecoration: "underline" }}>Train Dataset</h2>
             <form onSubmit={handleModelTraining}>
               <label style={{ marginLeft: "10px" }}>
-                Model Name:
+                Model Type:
                 <select
                   style={{ marginLeft: "10px" }}
                   value={trainRawModelName}
@@ -600,13 +573,16 @@ function Dashboard() {
               <br />
               <label style={{ marginLeft: "10px" }}>
                 Dataset Name:
-                <input
-                  style={{ marginLeft: "10px" }}
-                  type="text"
-                  placeholder="Pre-existing dataset"
-                  value={trainDatasetName}
-                  onChange={(e) => setTrainDatasetName(e.target.value)}
-                />
+                <select
+                      style={{ marginLeft: "10px" }}
+                      value={trainDatasetName}
+                      onChange={(e) => setTrainDatasetName(e.target.value)}
+                    >
+                      <option value="">--Select an option--</option>
+                      {dsState.map((item,index)=>{
+                          return <option key={index} value={item}>{item}</option>
+                      })}
+                  </select>
               </label>
               <label style={{ marginLeft: "10px" }}>
                 Number of Epochs:
@@ -637,13 +613,16 @@ function Dashboard() {
             <form onSubmit={handleQueryModel}>
               <label style={{ marginLeft: "10px" }}>
                 Trained Model Name:
-                <input
-                  style={{ marginLeft: "10px" }}
-                  type="text"
-                  placeholder="Pre-existing trained model"
-                  value={queryModelName}
-                  onChange={(e) => setQueryModelName(e.target.value)}
-                />
+                <select
+                    style={{ marginLeft: "10px" }}
+                    value={queryModelName}
+                    onChange={(e) => setQueryModelName(e.target.value)}
+                  >
+                    <option value="">--Select an option--</option>
+                    {modelState.map((item,index)=>{
+                        return <option key={index} value={item}>{item}</option>
+                    })}
+                </select>
               </label>
               <br/>
               <label style={{ marginLeft: "10px" }}>
@@ -670,7 +649,7 @@ function Dashboard() {
             style={{
               textAlign: "left",
               marginLeft: "30px",
-              marginTop: "-570px",
+              marginTop: "-470px",
             }}
           >
             <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>
@@ -687,6 +666,24 @@ function Dashboard() {
               );
             })}
             </ul>
+            <br/>
+
+            <button onClick={handleGetIncoming}>
+              Get Incoming Responses
+            </button>
+            <br/>
+            <label>
+              Responses
+              <ul>{incomingRespTxns.map((txn) => {
+                let filtered = {}
+                for(let key of Object.keys(txn["note"]))
+                  if(!key.includes("op"))
+                    filtered[key] = txn["note"][key]
+                return <li>
+                  Response for: {txn["note"]["initial_op"]}, Details: {JSON.stringify(filtered)}
+                </li>})}</ul>
+            </label>
+
           </div>
         </div>
       </div>

@@ -3,7 +3,9 @@
   left: 50%;
   margin-top: 50px;
   /* this is half the height of your div*/
-  margin-bottom: 50px;
+  font-weight: lighter;
+  font-size: 20px;
+  margin-bottom: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +15,7 @@
   display: flex;
   flex-direction: column;
   text-align: center;
-  background-color: grey;
+  /*background-color: grey;*/
   height: 1200px;
   width: 95%;
   position: relative;
@@ -57,7 +59,7 @@
   width: 140px;
   border: none;
   color: white;
-  background-color: darkblue;
+  background-color: #77acf1;
   position: absolute;
   transform: scale(0.8);
   /* change the scale value to adjust the font size */
@@ -102,7 +104,7 @@
 .urllist {
   font-size: 16px;
   font-weight: 500;
-  color: #000;
+  color: #77acf1;
   display: inline-block;
   z-index: 2;
 }
@@ -117,6 +119,10 @@ a {
   color: #fff;
   text-decoration: none;
   display: inline-block;
+}
+
+h1 {
+  color: #77acf1;;
 }
 
 a:hover {

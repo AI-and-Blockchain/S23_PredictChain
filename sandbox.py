@@ -49,7 +49,7 @@ def sim_up_dataset(ds_name: str, ds_link: str, ds_size: int, time_attrib: str, e
 
 
 def sim_train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs: int, target_attrib: str, hidden_dim: int,
-                    num_hidden_layers: int, time_lag=1, training_lookback=2, txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
+                    num_hidden_layers: int, time_lag=1, training_lookback=2, sub_split_value=None, txn_id=DEFAULT_TXN_ID, user_id=DEFAULT_USER_ID, amount=DEFAULT_AMNT):
     """Simulates a train model transaction
 
     :param raw_model: The raw model to train
@@ -61,13 +61,15 @@ def sim_train_model(raw_model: str, trained_model: str, ds_name: str, num_epochs
     :param num_hidden_layers: The number of hidden layers
     :param time_lag: The time lag between the input and output sequences
     :param training_lookback: The size of the sliding time window to give to recurrent models
+    :param sub_split_value: The value used to split the data along the saved sub_split attribute
     :param txn_id: The id of the simulated transaction
     :param user_id: The id of the simulated sender of the transaction
     :param amount: The amount of micro-algo to give the transaction"""
 
     command = {"op": utils.OpCodes.TRAIN_MODEL, "raw_model": raw_model, "trained_model": trained_model, "ds_name": ds_name,
                "num_epochs": num_epochs, "target_attrib": target_attrib, "hidden_dim": hidden_dim,
-               "num_hidden_layers": num_hidden_layers, "time_lag": time_lag, "training_lookback": training_lookback}
+               "num_hidden_layers": num_hidden_layers, "time_lag": time_lag, "training_lookback": training_lookback,
+               "sub_split_value": sub_split_value}
     sim_transaction(command, txn_id, user_id, amount)
 
 
@@ -98,10 +100,10 @@ def sandbox():
     ]
 
     # Simulate the dataset upload portion of the service
-    sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
+    # sim_up_dataset(ds_name, "https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv", 420, "time_step", sub_split_attrib="stock")
 
     # Simulate the model training part of the service
-    sim_train_model("MLP", model_name, ds_name, 5, "close", 5, 1, time_lag=4, training_lookback=6)
+    sim_train_model("mlp", model_name, ds_name, 70, "close", 5, 1, time_lag=0, training_lookback=10, sub_split_value=0)
 
     # Simulate the model query portion of the service
     sim_query_model(model_name, model_query)

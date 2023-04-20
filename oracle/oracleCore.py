@@ -252,7 +252,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                 return
             
             # Report result back to the user
-            accept(f"Added a dataset with name {kwargs['ds_name']}")
+            accept(f"Added a dataset with name {kwargs['ds_name']}", ds_name=kwargs['ds_name'])
 
         elif op == utils.OpCodes.TRAIN_MODEL:
             handler, dataset_attribs = datasets.load_dataset(kwargs["ds_name"])
@@ -286,7 +286,7 @@ class OracleTransactionMonitor(utils.TransactionMonitor):
                                                  "query_user_id": txn["sender"], "query_txn_id": txn["id"]}
 
             # Report result back to the user
-            accept(f"Queried model {kwargs['trained_model']} with a result of {output}", output=output)
+            accept(f"Queried model {kwargs['trained_model']} with a result of {output}", output=output, trained_model=kwargs["trained_model"])
 
         elif op == utils.OpCodes.EVENT_UPDATE:
             model, meta, ds_meta = models.get_trained_model(kwargs["trained_model"])

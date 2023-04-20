@@ -183,7 +183,7 @@ class BaseNN(nn.Module, PredictModel):
 
         return accuracy, loss
 
-    def eval_model(self, target_attrib: str, plot_eval=False, **kwargs):
+    def eval_model(self, target_attrib: str, plot_eval=True, **kwargs):
         """Evaluates the performance of the network
 
         :param target_attrib: The attribute of the dataset to serve as the classifier
@@ -195,6 +195,7 @@ class BaseNN(nn.Module, PredictModel):
         total_accuracy = 0
         total_entries = 0
 
+        target_attrib_idx = self.data_handler.dataframe.columns.get_loc(target_attrib)
         _, _, x_test, y_test = self.preprocess_data(target_attrib=target_attrib, **kwargs)
 
         outputs = []
@@ -206,16 +207,19 @@ class BaseNN(nn.Module, PredictModel):
             # Query model
             output = self.query_model(input_sequence)
 
-            outputs.append(output.tolist())
-            targets.append(target.tolist())
+            outputs.append(input_sequence[:, target_attrib_idx].tolist()+([0]*self.kwargs.get("time_lag", 0))+output.tolist())
+            targets.append(input_sequence[:, target_attrib_idx].tolist()+([0]*self.kwargs.get("time_lag", 0))+target.tolist())
             total_accuracy += torch.sigmoid(-loss_fn(output, target)+math.e**2).item()
             total_loss += loss_fn(output, target).item()
             total_entries += 1
 
         if plot_eval:
-            plt.plot(range(len(outputs)), outputs)
-            plt.plot(range(len(outputs)), targets, '-.')
+            plt.plot(range(len(outputs[-1])), outputs[-1])
+            plt.plot(range(len(outputs[-1])), targets[-1], '-.')
             plt.ylabel('Output')
+            plt.xlabel('Time')
+            plt.title(f"{self.BASE_MODEL_NAME} predictions with a time lag of {self.kwargs.get('time_lag', 0)}\n"
+                      f"Acc: {round(total_accuracy / total_entries, 2)}, Loss: {round(total_loss / total_entries, 2)}")
             plt.show()
 
         return total_accuracy / total_entries, total_loss / total_entries
@@ -268,7 +272,7 @@ class RNN(BaseNN):
 
         super(RNN, self).__init__(model_name, data_handler, hidden_dim, num_hidden_layers, loss_fn_name, time_lag=time_lag,
                                   training_lookback=training_lookback)
-        self.output_size = time_lag
+        self.output_size = 1
         self.hidden_dim = hidden_dim
         self.num_hidden_layers = num_hidden_layers
 
@@ -292,7 +296,7 @@ class RNN(BaseNN):
         output = self.forward(input_sequence)
         # If output is given in batches, choose the output that matches the time lag
         if len(output.shape) == 2:
-            output = output[self.kwargs["time_lag"] - 1]
+            output = output[:, -1]
 
         return output
 
@@ -313,13 +317,15 @@ class RNN(BaseNN):
         train_len = int(0.8*len(time_series))
         time_series = np.array(time_series)
 
+        output_window = self.kwargs["training_lookback"] - self.kwargs["time_lag"]
+
         # Split into training and testing sets
-        x_train = time_series[:train_len, :-self.kwargs["time_lag"], :]
-        x_test = time_series[train_len:, :-self.kwargs["time_lag"]]
+        x_train = time_series[:train_len, :, :]
+        x_test = time_series[train_len:, :]
 
         target_attrib_idx = self.data_handler.dataframe.columns.get_loc(target_attrib)
-        y_train = time_series[:train_len, -self.kwargs["time_lag"]:, target_attrib_idx]
-        y_test = time_series[train_len:, -self.kwargs["time_lag"]:, target_attrib_idx]
+        y_train = time_series[:train_len, -output_window:, target_attrib_idx]
+        y_test = time_series[train_len:, -output_window:, target_attrib_idx]
 
         return x_train, y_train, x_test, y_test
 
@@ -372,7 +378,7 @@ class GRU(RNN):
         output = self.forward(input_sequence)
         # If output is given in batches, choose the output that matches the time lag
         if len(output.shape) == 2:
-            output = output[self.kwargs["time_lag"]-1]
+            output = output[self.kwargs["time_lag"]:, 0]
 
         return output
 
@@ -428,7 +434,7 @@ class LSTM(RNN):
         output = self.forward(input_sequence)
         # If output is given in batches, choose the output that matches the time lag
         if len(output.shape) == 2:
-            output = output[-1]
+            output = output[:, -1]
 
         return output
 

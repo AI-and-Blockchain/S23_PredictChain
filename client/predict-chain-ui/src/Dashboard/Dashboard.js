@@ -271,15 +271,17 @@ function Dashboard() {
 
   const handleGetIncoming = async () => {
     const response = await axios.get("http://localhost:8031/incoming_transactions");
-    console.log("Incoming response", response.data);
-    setIncomingRespTxns([...incomingRespTxns, ...response.data]);
+    //console.log("Incoming response", response.data);
+    let tmp = [...incomingRespTxns, ...response.data];
+    console.log("Tmp", tmp, incomingRespTxns);
+    setIncomingRespTxns(tmp);
   };
 
   const mainLoop = async () => {
     while(true){
-      console.log("Event loop");
       fetchBackendState();
-      handleGetIncoming();
+      // Not really reactive, but this gets rid of a lot of async state nonsense
+      document.getElementById("getIncomingButton").click();
       await new Promise(r => setTimeout(r, 5000));
     }
   };
@@ -338,9 +340,7 @@ function Dashboard() {
           >
             Welcome {name}!
           </h1>
-          <h1
-            style={{ textAlign: "left", marginLeft: "30px", color: "darkblue" }}
-          >
+          <h1 style={{ textAlign: "left", marginLeft: "30px" }}>
             Account Info
           </h1>
           <div className="credentials__txt">
@@ -377,13 +377,7 @@ function Dashboard() {
             Logout
           </button>
 
-          <h1
-            style={{
-              marginTop: "-550px",
-              marginLeft: "950px",
-              color: "darkblue",
-            }}
-          >
+          <h1 style={{marginTop: "-600px", marginLeft: "950px",}}>
             Get Prices
           </h1>
           <div style={{ zIndex: "1" }}>
@@ -501,7 +495,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <h1 style={{ marginLeft: "950px", color: "darkblue" }}>
+          <h1 style={{ marginLeft: "950px" }}>
             Dataset & Model Functions
           </h1>
           <div style={{ marginLeft: "950px" }}>
@@ -679,15 +673,12 @@ function Dashboard() {
             </ul>
             <br/>
 
-            <button onClick={handleGetIncoming}>
-              Get Incoming Responses
-            </button>
+            <button id="getIncomingButton" style={{visibility: "hidden"}} onClick={handleGetIncoming}>Manually Get Incoming Responses</button>
             <br/>
             <label>
-              Responses
-              <ul>{incomingRespTxns.map((txn) => {
+              Transaction Responses:
+              <ul style={{minHeight: "10px", borderStyle: "solid"}}>{incomingRespTxns.map((txn) => {
                 let filtered = {}
-                console.log("Mapping", txn)
                 for(let key of Object.keys(txn["note"]))
                   if(!key.includes("op"))
                     filtered[key] = txn["note"][key]

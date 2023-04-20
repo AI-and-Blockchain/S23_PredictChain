@@ -88,7 +88,7 @@ def search_transactions(limit=10, **kwargs):
 class TransactionMonitor:
 
     _halt = False
-    PAUSE_DURATION = 10
+    PAUSE_DURATION = 5
 
     def __init__(self, address: str, all_time=False):
         """Polling monitor that periodically checks the blockchain to recent transactions

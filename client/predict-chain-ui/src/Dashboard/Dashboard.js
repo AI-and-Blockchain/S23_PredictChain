@@ -271,8 +271,17 @@ function Dashboard() {
 
   const handleGetIncoming = async () => {
     const response = await axios.get("http://localhost:8031/incoming_transactions");
+    console.log("Incoming response", response.data);
     setIncomingRespTxns([...incomingRespTxns, ...response.data]);
-    console.log(response);
+  };
+
+  const mainLoop = async () => {
+    while(true){
+      console.log("Event loop");
+      fetchBackendState();
+      handleGetIncoming();
+      await new Promise(r => setTimeout(r, 5000));
+    }
   };
 
   useEffect(() => {
@@ -280,7 +289,7 @@ function Dashboard() {
     if (!user) return navigate("/");
 
     fetchUserName();
-    fetchBackendState();
+    mainLoop();
   }, [user, loading]);
 
   return (
@@ -510,6 +519,7 @@ function Dashboard() {
                   onChange={(e) => setAddDatasetLink(e.target.value)}
                 />
               </label>
+              <br/>
               <label style={{ marginLeft: "10px" }}>
                 New Dataset Name:
                 <input
@@ -650,6 +660,7 @@ function Dashboard() {
               textAlign: "left",
               marginLeft: "30px",
               marginTop: "-470px",
+              maxWidth: "50%"
             }}
           >
             <h2 style={{ fontSize: "24px", textDecoration: "underline" }}>
@@ -676,10 +687,11 @@ function Dashboard() {
               Responses
               <ul>{incomingRespTxns.map((txn) => {
                 let filtered = {}
+                console.log("Mapping", txn)
                 for(let key of Object.keys(txn["note"]))
                   if(!key.includes("op"))
                     filtered[key] = txn["note"][key]
-                return <li>
+                return <li key={txn["id"]}>
                   Response for: {txn["note"]["initial_op"]}, Details: {JSON.stringify(filtered)}
                 </li>})}</ul>
             </label>

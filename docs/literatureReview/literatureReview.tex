@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{hyperref}
+\usepackage{float}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{makecell}
@@ -32,7 +33,7 @@
     
     \subsection{Sharing Updatable Models}
 
-    Decentralized \& Collaborative AI on Blockchain\cite{sharingModels} is a great example of a project that combines
+    Decentralized \& Collaborative AI on Blockchain~\cite{sharingModels} is a great example of a project that combines
     both artificial intelligence and blockchain technologies in a similar manner to our own.  In this paper, Microsoft
     outlines a blockchain-based predictive marketplace that utilizes AI for predictive analysis.  In this system, there
     exists an initial model that is trained on the data collaboratively provided by multiple users.  To encourage
@@ -73,13 +74,53 @@
     individual users make contributions in the form of data, one initial user controls the model hyperparameters and
     which dataset the model will be trained on, and all users can query the publicly available models.
 
-    \subsection{}
+    \subsection{The Price You Pay For Trust}
+
+    Blockchain Enabled AI Marketplace: The Price You Pay For Trust~\cite{priceOfTrust} is another example of a marketplace
+    that uses both AI and blockchain technologies effectively.  One of the main focuses of this project is on privacy.
+    It explicitly gives examples of health or insurance entities needing models trained on confidential data.  The principles
+    that this project are \textit{trust}, \textit{fairness}, and \textit{auditability}.
+
+    \paragraph{Datasets}
+    The datasets in this system are unique since the bulk of the data is not tied directly to any one training request.
+    In this project, a user uploads only a small chunk of data.  This data will then be used as the validation set for
+    the training.  The majority of the training data for this query is pulled from private sources.  This serves the purpose
+    of only requiring users to upload a small portion of their data.  However, this has the disadvantage of requiring
+    external data to train models.  To acomodate this, the authors implement several layers of security to protect private
+    data sources.
+
+    \paragraph{Models}
+    The models that this paper targets are much less integrated than those of other papers.  Also unlike other implementations,
+    these models are trained in a decentralized nature.  This training strategy is reflective of federated learning.  No
+    one model is given all the data in bulk, it is only given sections with the confidential information stripped out.
+    To add to their security, they also use hashing algorithms to further secure their data.  Additionally, the models
+    themselves are eventually shared with the requesting user along with the model results.
+
+    \paragraph{Blockchain Communication}
+    Like other project, this implementation uses a significant off-chain component.  This component communicates
+    with the private, permissioned blockchain that this system uses.  This is to allow for more complexities
+    in the training of the models ad on-chain training has significant speed and memory constraints.  Additionally,
+    the authors utilize Hyperledger Fabric to aid in the distribution of the data between the nodes and the aggregator.
+    By using this bridge, data can be selectively distributed to only the nodes that need the data for training will
+    have access to it.
+
+    \paragraph{Relation to Our Work}
+    This paper also has a notable similarity to PredictChain.  Both of these projects utilize blockchain as an important
+    means of communication and record-keeping in an AI marketplace environment.  Similar to the updatable models
+    project, this project implements this idea in a more decentralized manner.  Instead of only keeping models on the
+    client nodes, like PredictChain, this project allows users to query the content of the models directly, provided that
+    the users is the one who asked for the training or if the user is a training node.  Also unlike our project,
+    the training of these models is a collaborative effort.  Instead of one, monolithic node, this project used
+    a federated style of learning.  Finally, the authors have implemented a data system that is more decentralized than
+    monolithic.  Instead of users uploading data directly, it is pulled form a variety of sources, including the original
+    user.  In this system, the private data owners must submit bids to the aggregator for the chance that their data
+    gets included in a trained model.
 
     \subsection{Table Comparison}
 
     As a summary, this chart illustrates the commonalities and differences between our project and these related works:
 
-    \begin{table}[h!]
+    \begin{table}[H]
         \begin{center}
             \caption{Comparison of Each Paper}
             \label{tab:relatedSummary}
@@ -88,7 +129,7 @@
             \begin{tabular}{c|c|c|c}
                 \textbf{Paper} & \makecell{\textbf{PredictChain's}\\\textbf{Specification}} & \textbf{Paper's Specification} & \textbf{Commonalities}\\
                 \hline
-                Harris et al. 2019\cite{sharingModels} &
+                \makecell{Harris et al.\\2019~\cite{sharingModels}} &
                 \makecell[l]{
                     \tabitem Model run and trained\\on special node\\
                     \tabitem Datasests from one\\user only\\
@@ -103,8 +144,20 @@
                     \tabitem Community dataset\\contributions\\
                     \tabitem User-specified models\\and hyperparams\\
                     \tabitem All users can query\\public models\\
-                }\\
-                \hline
+                }\\\hline
+                \makecell[l]{Sarpatwar et al.\\2019~\cite{priceOfTrust}} &
+                \makecell[l]{
+                    \tabitem Model run and trained\\on special node\\
+                    \tabitem Models kept only on\\one node\\
+                    \tabitem Datasests from one\\user only\\
+                } & \makecell[l]{
+                    \tabitem Models run and trained\\on multiple nodes\\in a federated manner\\
+                    \tabitem Models can be shared\\between nodes for training\\
+                    \tabitem Datasets are submitted\\by users with additional\\data submitted by\\private soucres\\
+                } & \makecell[l]{
+                    \tabitem Users can submit\\custom datasets\\
+                    \tabitem Data from different\\users can be used for a\\common purpose\\
+                }\\\hline
             \end{tabular}
             \egroup
         \end{center}
@@ -177,7 +230,7 @@
     has more similar performance than we initially thought.  Meanwhile, vanilla RNNs lagged behind.  Based off of
     this evidence, we decided to update these values to better reflect the experimental performance of these models.
 
-    \begin{table}[h!]
+    \begin{table}[H]
         \begin{center}
             \caption{$model\_complexity$ Values of Our Models}
             \label{tab:modelComplexity}
@@ -250,7 +303,7 @@
 
     As a summary, this chart illustrates the impact that each of the papers had on our work and our knowledge:
 
-    \begin{table}[h!]
+    \begin{table}[H]
         \begin{center}
             \caption{Impact of Each Paper}
             \label{tab:backgroundSummary}

@@ -6,7 +6,7 @@
 \usepackage{subfiles}
 \usepackage{makecell}
 \usepackage{float}
-
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \title{PredictChain}
 \author{Matthew Pisano, Connor Patterson, William Hawkins}
 \date{Spring 2023}
@@ -17,34 +17,27 @@
 
     \section{Project Description}
 
-    PredictChain is a marketplace for predictive AI models. Users are able to upload datasets for training predictive models,
-    request that some basic models be trained on any previously uploaded datasets, or submit queries to those trained models.
-    These various models will be operated by a central node or nodes with computing resources available. A variety of
-    models will be made available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful.
-    This will allow for a large variety of predictive abilities for both simple and complex patterns.  All the past
-    predictions form these models will be stored on the blockchain for public viewing.
-
     \subsection{Problem Solved}
     % Clearly state the problem your project solves
 
     PredictChain helps to solve one of the main issues that involve AI models today: accessibility.  Our project fulfils this
     need in two ways.  Oftentimes, individuals or groups poses data that they would wish to be used in predictive analysis.
-    However, these people may not have access to the compute capacity to train predictive models on this data.  Additionally,
+    However, these people may not have access to the compute capacity needed to train predictive models on this data.  Additionally,
     yet other people have neither access to predictive training data, nor do they have access to computational resources.
-    PredictChain solved both of these problems simultaneously.
+    PredictChain solves both of these problems simultaneously.
 
-    When users upload their datasets, they allow model to be trained on those datasets.  Higher quality datasets will produce
+    When users upload their datasets, they allow a model to be trained on those datasets.  Higher quality datasets will produce
     higher quality models.  When users submit parameters for training, they allow the model that their parameters produce to
-    be used publicly.  Both of these users are rewarded for their work when a model is queried, and it produces a correct
-    prediction.  This encourages users to participate in contributing the resources needed for good predictions, while
-    leaving a public record for other users to view.
+    be used publicly.  Both of these users are rewarded for their work when a model is queried.  The amount of this reward
+    is based off of the correctness of the prediction.  This encourages users to participate in contributing the
+    resources needed for good predictions, while leaving a public record for other users to view.
 
     \subsection{Background}
     % Why is this an important and relevant problem within the context of AI and Blockchain
 
     As the trend of ever-growing machine learning models continues, this problem becomes increasingly relevant.
-    As the scale and power of these models grow, the resources required to train them grow as well.  This makes training
-    useful machine learning models unattainable for most people.  In order to get useful results from these models,
+    As the scale and power of these models grow, the resources required to train them grow as well.  This makes the training
+    of useful machine learning models unattainable for most people.  In order to get useful results from these models,
     users often have to pay large, centralized organizations, without any reward if they provide a good dataset or model
     parameters.  PredictChain changes this paradigm by incentiveizing the thoughtful creation of useful models and
     datasets.
@@ -68,14 +61,14 @@
     I can get an idea as to which is better.
 
     \subsubsection*{Use Cases}
-    For the sake of space, we will only go over two simple Use Cases; one that allows the user to add a dataset and
+    For the sake of space, we will only go over two simple use cases; one that allows the user to add a dataset and
     another where a user queries a prediction from an existing model.
 
     \begin{table}[H]
         \caption{Add Dataset}
         \label{tab:add-ds}
         \centering
-        \begin{tabular}{|p{3cm}|p{8cm}|}
+        \begin{tabular}{|p{3cm}|p{12cm}|}
             \hline
             \textbf{Identifier:} & UC1 \\
             \hline
@@ -95,7 +88,12 @@
                 \item The user presses "Submit"
             \end{enumerate} \\
             \hline
-            \textbf{Postcondition(s):} & The website displays the information onto the dashboard corresponding to the outcome \\
+            \textbf{Postcondition(s):} &
+            \begin{enumerate}
+                \item A dataset has been created and is stored in the oracle
+                \item The transaction has been stored on the blockchain
+                \item The website displays the information onto the dashboard corresponding to the outcome
+            \end{enumerate}\\
             \hline
         \end{tabular}
     \end{table}
@@ -104,7 +102,7 @@
         \caption{Model Query}
         \label{tab:model-query}
         \centering
-        \begin{tabular}{|p{3cm}|p{8cm}|}
+        \begin{tabular}{|p{3cm}|p{12cm}|}
             \hline
             \textbf{Identifier:} & UC2 \\
             \hline
@@ -122,7 +120,11 @@
                 \item The user submits their request using the submission button in that section
             \end{enumerate} \\
             \hline
-            \textbf{Postcondition(s):} & The website displays the result of the query onto the dashboard\\
+            \textbf{Postcondition(s):} &
+            \begin{enumerate}
+                \item The website displays the result of the query onto the dashboard
+                \item The result of the query is stored on the blockchain
+            \end{enumerate}\\
             \hline
         \end{tabular}
     \end{table}
@@ -136,26 +138,23 @@
     The following table will provide links to the various resources relevant to our project and its evaluation:
 
     \begin{table}[H]
-        \begin{center}
-            \caption{{Project Resources}}
-            \label{tab:resources}
-            \bgroup
-            \def\arraystretch{1.2}
-            \begin{tabular}{|c|c|}
-                \hline\\
-                \textbf{Resource} & \textbf{Link}\\
-                \hline
-                GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
-                \hline
-                Python Documentation & \href{https://github.com/AI-and-Blockchain/S23_PredictChain/docs/sphinx/index.html}{github.com/AI-and-Blockchain/S23\_PredictChain/docs/sphinx/index.html}\\
-                \hline
-                Demo Video(s) & \makecell{
-                    \href{https://drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}{drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}\\
-                    \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}}\\
-                \hline
-            \end{tabular}
-            \egroup
-        \end{center}
+        \caption{{Project Resources}}
+        \label{tab:resources}
+        \centering
+        \begin{tabular}{|p{2cm}|p{13cm}|}
+            \hline
+            \textbf{Resource} & \textbf{Link}\\
+            \hline
+            GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
+            \hline
+            Python Documentation & \href{https://github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}{github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}
+            (Best viewed when opened locally with a web browser)\\
+            \hline
+            Overall Demo Video & \href{https://drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}{drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}\\
+            \hline
+            Technical Demo Video & \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}\\
+            \hline
+        \end{tabular}
     \end{table}
 
 
@@ -178,7 +177,7 @@
     Although not directly related to the AI or the blockchain parts of the product, it is still important to discuss the
     UI aspect of our project. The UI sets the user's impression of PredictChain by having multiple pages that create a more
     pleasant experience for the user. For example, the home page talks about our mission, how we differ from our
-    competitors and example model sets we provide. The addition of FAQ pages and Meet the Team pages allow users to
+    competitors and example model sets we provide. The addition of the \textit{FAQ} and \textit{Meet the Team} pages allow users to
     understand who created PredictChain, as well as get answers about any privacy/security concerns they might have.
     Lastly, users can create an account or login to a pre-existing account. Then users are able to use PredictChain
     to its fullest functionality such as adding datasets, checking prices, or querying models with provided datasets.
@@ -205,13 +204,13 @@
         \item Querying one of the trained models on user inputted data and comparing it to the real-world result
     \end{itemize}
 
-    After each of these operations, the oracle sends out several transactions.  These can be either rewards to contributors
-    of a model or confirmations/results of the operation that has been performed.
+    After each of these operations, the oracle sends out several to the blockchain transactions.  These can be either
+    rewards to contributors of a model or confirmations/results of the operation that has been performed.
 
     When working with user-submitted datasets, the oracle uses a handler to manage the operations performed on that dataset.
     The handler can save datasets to a specified environment, load datasets from a specified environment, parse that dataset
-    as a pandas dataframe, and split the dataset by the values of one of its attributes.  The environments that the handler's
-    recognize are \textit{local} and \textit{IPFS}.  When using either of these environments, the handler abstracts away the
+    as a pandas dataframe, and split the dataset by the values of one of its attributes.  The environments that the handler
+    recognizes are \textit{local} and \textit{IPFS}.  When using either of these environments, the handler abstracts away the
     complexities of working with either of them into a unified interface.
 
     When working with user-trained models, the oracle uses a similar, common interface.  This interface can create the model
@@ -222,14 +221,14 @@
     \begin{itemize}
         \item Multi-layered perceptron neural network
         \item Recurrent neural network
-        \item Long short-term memory neural networks
-        \item Gated recurrent unit neural networks
+        \item Long short-term memory neural network
+        \item Gated recurrent unit neural network
     \end{itemize}
 
     Each of these models has a \textit{model\_complexity} attribute.  This is a simple float value, designed to give users
     a general idea of how performant a model can be once trained and serves as a method of calculating the cost of using
     or training that given model.  The attribute itself is calculated using the size of the network and a linear multiplier to
-    account for more complex model architectures.  For models like GRUs or LSTMs, the complexity is higher as they are mode complex, and often
+    account for more complex model architectures.  For models like GRUs or LSTMs, the complexity is higher as they are more complex and often
     better performing models.  For models like MLPs, the complexity is lower.  This gives the desired effect of faster, simpler
     models being cheaper than the slower, more complex models without any heavy calculations.   The interface abstracts most
     of the complexities of training, querying, and evaluating these models.  The only difference between them is the inclusion
@@ -240,8 +239,8 @@
     In PredictChain, the blockchain serves as both a records keeper and a messenger between the client and the oracle.
     This is accomplished by using transactions as a form of direct communication.  With every transaction sent, there is a note.
     This note is a json-encoded string (encoded in base64) that communicates information about the operation that the transaction
-    is requesting and arguments for that operation.  The operations in the note are represented by a series
-    of op codes.  These codes are abbreviations of the operation name enclosed in angle brackets, for example \textit{<QUERY\_MODEL>}.
+    is requesting and arguments for that operation.  These operations are represented by a series
+    of op codes.  These codes are abbreviations of the operation name enclosed in angle brackets, for example $\langle$\textit{QUERY\_MODEL}$\rangle$.
     The arguments to these operations are represented as a named dictionary, with each key being the name of the argument and each
     value being the argument itself.  This named strategy allows the program to be very flexible without worrying about the exact
     ordering of the arguments.  Blockchain is quite useful in its role due to its immutability and its transparency.  Using
@@ -249,7 +248,9 @@
     for specific datasets and what results those models have produced.
 
     \subsection{Software and Libraries}
-
+    
+    \subsubsection*{Python Libraries}
+    
     This project is primarily built in Python, using the Algorand SDK.  The SDK makes interacting with the blockchain
     very straightforward.  Through the tools provided by this library, we can easily read and write transactions from
     the Algorand blockchain.
@@ -265,12 +266,14 @@
     client-oracle communication to cut down on the amount of trivial transactions that would otherwise be made.  For example,
     it would not benefit the accessibility or transparency of the project greatly if the exchanged transactions were
     dominated by simple '\textit{what is the price of \ldots}' requests.
-
+    
+    \paragraph{Node Libraries}
     Additionally, the front end utilizes the React framework and firebase.  React was useful to us as it streamlined the process of making
     dynamic, modular code for the web interface.  Firebase was invaluable for handling administrative tasks such as keeping
     track of registered users and their associated metadata.
-
-    For the recommended configuration of the project, we use Reds as well.  Redis helps to provide a reliable store for
+    
+    \paragraph{Redis}
+    For the recommended configuration of the project, we use Redis as well.  Redis helps to provide a reliable store for
     our metadata about models and datasets in a simple, persistent manner.
 
     \section{Evaluation}
@@ -285,8 +288,8 @@
     \subsection{Transactions}
 
     The usage of transactions is central to the communications protocol of PredictChain, so making sure the protocol
-    functions correctly is critical to the evaluation of the project.  There are few issues with encoding the
-    notes and actually sending the transactions, thanks to the SDK.  Where problems can potentially arise is within the
+    functions correctly is critical to the evaluation of the project.  Thanks to the SDK, There is little issue with encoding the
+    notes and actually sending the transactions.  Where problems can potentially arise is within the
     client and oracle monitors.
 
     The monitors are classes inside the client and oracle that listen for any transactions that have their node address
@@ -295,10 +298,9 @@
     these issues, we constantly evaluated the performance of the monitor.  This was done through programmatically sending
     one or more transactions to the client or oracle address and checking to see how the monitor handled them.  By comparing
     the unique transaction ids of the sent transactions to those processed, we were able to evaluate the monitor,
-    identify issues, and create fixes.
-
-    For example, we now constantly update the minimum timestamp the indexer can look for transactions after and we also
-    keep a registry of the ids of all past transactions.  This helps to eliminate duplicate transactions getting through.
+    identify issues, and create fixes. For example, we now constantly update the minimum timestamp the indexer can look
+    for transactions after and we also keep a registry of the ids of all past transactions.  This helps to eliminate
+    the duplicate transactions that were getting through.
 
     \subsection{Models}
 
@@ -318,7 +320,7 @@
             \bgroup
             \def\arraystretch{1.2}
             \begin{tabular}{|c|c|c|}
-                \hline\\
+                \hline
                 \textbf{Parameter Name} & \textbf{Value} & \textbf{Description}\\
                 \hline
                 \textit{epochs} & 70 & The number of epochs that the model would train for\\
@@ -404,35 +406,36 @@
     use them.  To address these issues, we made several additions.  To address the issue of users having to input the
     exact names, we added a dropdown feature instead of a test input.  We now store a list of all current datasets and
     models in the system.  This is updated upon the reloading of the page or when a user submits a transaction.  This
-    ensures the list if always updated for better seas of use.  To address the feedback issue, we added a feedback section
+    ensures the list is always updated for better ease of use.  To address the feedback issue, we added a feedback section
     that periodically pinged the client to see if any new response transactions came in from the oracle.  If these
     transactions did come in, we would display both the operation, the model or dataset name, and any extra data (like
     the result of a query) to the user.  This way, the user would not have to manually check the transaction note on
     the Algorand block explorer.
 
     By performing these tests, we were able to both evaluate the quality of the project as a whole and make important
-    additions to improve the user experience.  Our transaction tests helped us to verify that the primary communication
-    protocol was working properly.  Our model tests helped us to confirm our previous assumptions about the nature of
-    our various models and which scenarios they are most useful in.  Finally, our end-to-end testing confirmed the
-    overall functioning of the project and inspired us to make some valuable improvements to the user experience.
+    additions to improve the user experience.  Our transaction tests helped us to identify the issues that had
+    previously existed and to verify that the current communication protocol was working properly.  Our model tests
+    helped us to confirm our previous assumptions about the nature of our various models and which scenarios they are
+    most useful in.  Finally, our end-to-end testing confirmed the overall functioning of the project and inspired us
+    to make some valuable improvements to the user experience.
 
     \section{Conclusion}
 
     \subsection{Summary}
     % A short summary of the project
 
-    PredictChain is a blockchain-based marketplace for predictive AI models.
-    Through PredictChain, users are able to upload datasets for training predictive models, request that basic models
+    Over the course of our work, we have made PredictChain into a working blockchain-based marketplace for predictive AI models.
+    Through PredictChain, users are now able to upload datasets for training predictive models, request that basic models
     be trained on any previously uploaded datasets, or submit queries to those trained models.
-    These various models will be operated by a central node or nodes with computing resources available. A variety of
-    models will be made available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful.
+    These various models will be operated by a central node with computing resources available. A variety of
+    models are available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful.
     This will allow for a large variety of predictive abilities for both simple and complex patterns.  All the past predictions
     form these models will be stored on the blockchain for public viewing.
 
     \subsection{Limitations}
     % Limitations of the work
 
-    A notable limitation that we experienced during this project was constraints on both our time and the amount of
+    A notable limitation that we experienced during this project were constraints on both our time and the amount of
     hours we could each put into the project.  If this project was worked on for several months longer, the final product
     would be significantly more fleshed out with more features.  If this were more akin to a multi-semester project,
     we would have had the opportunity to add more starting datasets and add a more diverse set of models.
@@ -452,12 +455,15 @@
     As mentioned above, we have several opportunities for improvement that could be accomplished with future work
     into this project.  One major improvement that we could make to the project is the overhaul of the architecture of
     the project.  As mentioned previously, we had briefly considered using many model training nodes instead of a
-    centralized node.  Adding this to the project would make the project more decentralized and open up another opportunity
+    centralized node.  Adding this would make the project more decentralized and open up another opportunity
     for community contribution.  This would likely come in the form of users hosting training nodes and being rewarded for
     the quality of models that it produces.  Another potential improvement that could be introduced with future work is
     the addition of a greater variety of models or more example datasets.  Currently we only use neural networks to
     use for predictions.  In future work, we would like to add a more diverse set of models, such as decision trees or
-    more statistical models based off of Bayesian inference.
+    more statistical models based off of Bayesian inference.  Finally, we could make improvements to how our models are
+    trained, for instance, allowing users to prune off attributes from a dataset that they did not deem useful to the
+    trained model.  Adding these improvements may make PredictChain a more fleshed-out version of itself without changing
+    the core principles of our project.
 
     \pagebreak
     \bibliographystyle{abbrv}

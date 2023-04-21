@@ -386,7 +386,35 @@
 
     \subsection{End-To-End Testing}
 
-    \ldots
+    The final component of our testing was the end-to-end series of tests we performed.  The goal of these tests was to
+    give us a holistic picture of how well our project functioned and how well that functioning met our stated goals.
+    For all of these tests, we started with front end user interaction and ended with the response to those actions.
+
+    \paragraph{Price Queries}
+    The first, and most straightforward, set of operations that we tested were the three price query operations.
+    We performed this test by submitting query requests on the front end, then tracing the functions called by that operation
+    from the client to the oracle, the oracle getting the price, then back to the client.  We performed this test for all
+    three of our queries, testing different sets of inputs, both valid and invalid, seeing if they were handled properly,
+
+    \paragraph{Major Transactions}
+    The next set of tests we performed focused on our major transactions: \textit{Upload Dataset}, \textit{Train Model},
+    and \textit{Query Model}.  These tests were similar to those for the price queries.  As we performed these tests, we
+    noted that, while the operations did complete successfully, the user feedback and results were ambiguous.  Additionally,
+    we realized that it may be confusing for the user to remember the exact names of the models and datasets in order to
+    use them.  To address these issues, we made several additions.  To address the issue of users having to input the
+    exact names, we added a dropdown feature instead of a test input.  We now store a list of all current datasets and
+    models in the system.  This is updated upon the reloading of the page or when a user submits a transaction.  This
+    ensures the list if always updated for better seas of use.  To address the feedback issue, we added a feedback section
+    that periodically pinged the client to see if any new response transactions came in from the oracle.  If these
+    transactions did come in, we would display both the operation, the model or dataset name, and any extra data (like
+    the result of a query) to the user.  This way, the user would not have to manually check the transaction note on
+    the Algorand block explorer.
+
+    By performing these tests, we were able to both evaluate the quality of the project as a whole and make important
+    additions to improve the user experience.  Our transaction tests helped us to verify that the primary communication
+    protocol was working properly.  Our model tests helped us to confirm our previous assumptions about the nature of
+    our various models and which scenarios they are most useful in.  Finally, our end-to-end testing confirmed the
+    overall functioning of the project and inspired us to make some valuable improvements to the user experience.
 
     \section{Conclusion}
 

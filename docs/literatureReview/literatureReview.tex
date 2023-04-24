@@ -20,7 +20,7 @@
     Some of these relations were explicit, such as our work with, and utilization of, various types of neural
     network.  Others were implicit, like the relation that our project has to the many other implementations of
     blockchain-based predictive projects.  It is important to acknowledge the influences that other works have
-    has on our project, and it is equally important to analyze the similarities between our project and the
+    had on our project, and it is equally important to analyze the similarities between our project and the
     other papers that we have referenced here.  Through this, we hope to better understand the perspective of
     others on similar topics to our project and hopefully improve upon our work and techniques in the future.
 
@@ -30,7 +30,7 @@
     % However, your writing must follow a cohesive structure (i.e., it should not read like an annotated bibliography!).
     % But please include a table to compare specific attributes of the related work with your project.
     % Use the references.bib file to include the citations in biblatex format.
-    
+
     \subsection{Sharing Updatable Models}
 
     Decentralized \& Collaborative AI on Blockchain~\cite{sharingModels} is a great example of a project that combines
@@ -40,7 +40,7 @@
     the submission of high-quality data, they propose an incentive mechanism that rewards honest users, and punishes
     dishonest ones.  This model is trained off-chain on the client's machine.  All the logic involving the
     data submission and incentives are done within an Ethereum smart contract.
-    
+
     \paragraph{The Model}
     This system leaves the exact definition of the model flexible between different clients running the system.  They
     suggest that the specific class of model would be some type of neural network, giving examples of CRF-RNNs and
@@ -54,7 +54,7 @@
     specifications of this mechanism, however.  These examples fall into two categories: gamification and monetary
     incentives.  In the gamification strategy, they suggest that there should be no monetary incentive for contributing
     data.  This would create a system that encourages a collaborative effort in building a model for the common good.
-    In thi strategy, instead of money, they would have tokens or badges that are awarded to users for good data.  The
+    In this strategy, instead of money, they would have tokens or badges that are awarded to users for good data.  The
     contract would evaluate contributed data as 'good' if it increases the accuracy of the model on a testing set.
     For the monetary route, they suggest that users who choose to upload data may have to also submit some stake into
     the contract.  Using this stake as collateral, the contract uses a similar evaluation of 'goodness' to distribute
@@ -62,7 +62,7 @@
 
     \paragraph{Relation to Our Work}
     This paper shares a very large similarity with our project.  However, while the core ideas are quite similar, there
-    are some notable differences.  Both of the project involve creating a model, open to public query, and trained on
+    are some notable differences.  Both of the projects involve creating a model, open to public query, and trained on
     user-provided data.  Both of these projects have the goal of making machine learning predictions more accessible
     to more people.  In comparison, our project is more centralized and with a larger focus on incentives.  For
     example, in our project, models are trained on a special, central node instead of on a node managed by a client.
@@ -116,6 +116,46 @@
     user.  In this system, the private data owners must submit bids to the aggregator for the chance that their data
     gets included in a trained model.
 
+    \subsection{Blockchain Prediction Markets for Renewable Energy}
+
+    Towards the Use of Blockchain Prediction Markets on Forecasting Wind Power~\cite{windForcasting} is a paper that lays the
+    groundwork for a use-case of blockchain empowered prediction markets. Like blockchain technology, renewable energy has
+    ballooned in use recently. Many people are drawn to both of these innovations for some of the same reasons:
+    A promise of a new way of doing things that breaks from the old system. Like renewables replacing fossil fuels many see
+    blockchain replacing centralization as a necessary step to a better, freer, more sustainable future.
+
+    \paragraph{Motives}
+    A key problem with many forms of renewable energy sources are their unpredictable supply. Wind turbines need wind,
+    solar panels need sunshine. Being able to better forecast the output of these energy production methods at a various
+    time or place can help alleviate the pitfalls that prevent them from growing in market share.  At the time of publication
+    the authors, Shamsi and Cuffe, note that the use of blockchain based prediction markets in renewable energy forecasting
+    had not yet been explored.
+
+    \paragraph{The Oracle Problem}
+    Shamsi and Cuffe discuss various prior proposals that seek to take on this issue. One crowdsourcing proposal, they
+    say, lacks proper incentives. While another prediction market with decent incentives is centralized.
+    The authors discuss the \textit{Augur} Platform, an Ethereum based prediction market. The Augur system seeks to deal with a
+    key issue with decentralized prediction markets: The oracle problem. This is the problem of getting new outside data
+    into the platform. Augur gives a basis for "Independent participants [to] report, dispute and validate the data
+    through a decentralized set of smart contracts".  For their paper, the authors have based their framework off
+    of Augur's.  They hope to expand upon its proven reliability with their own improvements.
+
+    \paragraph{Relation To Our Work}
+    Both PredictChain and this paper enable user to gain access to better forecasting of events. In PredictChain users
+    are able to query pre-existing models as well as contribute their own data to train these models. This collaboration
+    improves performance and accessibility to predictive capabilities. In the predictive marketplace for renewable energy,
+    users can observe the spread prices on trades and calculate what the market clearing probabilities are for any such
+    event. The more contracts that are sold and bought on the marketplace the closer the spread price will be to the true
+    event probability or value.  In other ways, this paper differs from our project. In PredictChain, the oracle gathers
+    new data to determine the accuracy of model queries. More specifically, in stock market prediction for example, a
+    user may specify a model to query. That user can also provide the data to call the model on e.g. stock data for
+    \$AAPL from 4/17/2023-4/19/2023 if we assume this recurrent model is using a three-day window. The oracle would then
+    gather the true stock market price for the target date, 4/20/2023, and record the model's accuracy.  This is in contrast
+    to the decentralized nature of the Augur oracle that the authors use.  While our oracle is trusted, the nodes of
+    the Augur oracle are untrusted, with different oracles sometimes reporting conflicting events and disputing each other.
+    This choice represents a tradeoff between reliability with simplicity.
+
+
     \subsection{Table Comparison}
 
     As a summary, this chart illustrates the commonalities and differences between our project and these related works:
@@ -158,10 +198,24 @@
                     \tabitem Users can submit\\custom datasets\\
                     \tabitem Data from different\\users can be used for a\\common purpose\\
                 }\\\hline
+                \makecell[l]{Shamsi and Cuffe\\2020~\cite{windForcasting}} &
+                \makecell[l]{
+                    \tabitem Central Node reports \\ new data to the oracle. \\
+                    \tabitem Predictions from models \\ hosted on central node. \\
+                } &
+                \makecell[l]{
+                    \tabitem Users report new \\ data to the oracle \\ for contract-settling.  \\
+                    \tabitem Users manually submit \\ their predictions via \\ buying contracts. \\
+                } &
+                \makecell[l]{
+                    \tabitem Both systems allow \\ greater  access to \\ predictive capabilities \\
+                        through pooling data \\ and predictions from \\ different parties.
+                } \\\hline
             \end{tabular}
             \egroup
         \end{center}
     \end{table}
+
 
     \section{Background Knowledge}
 
@@ -180,9 +234,9 @@
     Before this paper, it was well known that traditional RNNs performed very poorly when given long time lagged
     datasets.   In this data, the time window that the input data is set in is several time steps ahead of the window
     that contains the target prediction.  This was so pronounced that, in another paper\cite{weightGuessing}, the authors
-    showed that other contemporary RNN algorithms can be outperformed my random guessing.  To show that their new
+    showed that other contemporary RNN algorithms can be outperformed by random guessing.  To show that their new
     architecture is superior in areas that RNNs fall short in, the authors devise a series of six experiments.
-    Through these experiments, hey show that LSTMs can outperform RNNs on long, minimal time lag data.  Through their
+    Through these experiments, they show that LSTMs can outperform RNNs on long, minimal time lag data.  Through their
     papers, the authors show that their new LSTMs can perform well in both short and long time lagged situations.
 
     \paragraph{Relation to Our Work}

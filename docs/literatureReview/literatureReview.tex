@@ -5,7 +5,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{makecell}
 \usepackage{booktabs}
-\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\newcommand{\tabitem}{\\~~\llap{\textbullet}~~}
 \title{Predict Chain}
 \author{Matthew Pisano, William Hawkins}
 \date{Spring 2023}
@@ -44,7 +44,7 @@
     \paragraph{The Model}
     This system leaves the exact definition of the model flexible between different clients running the system.  They
     suggest that the specific class of model would be some type of neural network, giving examples of CRF-RNNs and
-    Support Vector Machines.  Notable, both of these models are geared towards regression and series analysis as the
+    Support Vector Machines.  Notably, both of these models are geared towards regression and series analysis as the
     focus of this system is on predictive analysis.  Depending on the model that is used, the authors mention that the
     corresponding mechanism would change from model to model.
 
@@ -68,8 +68,8 @@
     example, in our project, models are trained on a special, central node instead of on a node managed by a client.
     Each model in our project has only one user-uploaded dataset as its source instead of each model being a collaborative
     effort from many users.  In PredictChain, there is a greater focus on costs and incentives than in the sharing models
-    project.  Specifically, our project is built around encouraging usage through the possibility of monetary reward,
-    but in the author's system, the usage is achieved by either gamification or a monetary incentive.  Additionally,
+    project.  Specifically, our project is built around encouraging usage through the possibility of monetary reward.
+    But, in the author's system, the usage is achieved by either gamification or a monetary incentive.  Additionally,
     queries are not free in PredictChain as they are in Decentralized \& Collaborative AI on Blockchain.  In both systems,
     individual users make contributions in the form of data, one initial user controls the model hyperparameters and
     which dataset the model will be trained on, and all users can query the publicly available models.
@@ -79,7 +79,7 @@
     Blockchain Enabled AI Marketplace: The Price You Pay For Trust~\cite{priceOfTrust} is another example of a marketplace
     that uses both AI and blockchain technologies effectively.  One of the main focuses of this project is on privacy.
     It explicitly gives examples of health or insurance entities needing models trained on confidential data.  The principles
-    that this project are \textit{trust}, \textit{fairness}, and \textit{auditability}.
+    that this project is built around are \textit{trust}, \textit{fairness}, and \textit{auditability}.
 
     \paragraph{Datasets}
     The datasets in this system are unique since the bulk of the data is not tied directly to any one training request.
@@ -97,9 +97,9 @@
     themselves are eventually shared with the requesting user along with the model results.
 
     \paragraph{Blockchain Communication}
-    Like other project, this implementation uses a significant off-chain component.  This component communicates
+    Like other projects, this implementation uses a significant off-chain component.  This component communicates
     with the private, permissioned blockchain that this system uses.  This is to allow for more complexities
-    in the training of the models ad on-chain training has significant speed and memory constraints.  Additionally,
+    in the training of the models as on-chain training has significant speed and memory constraints.  Additionally,
     the authors utilize Hyperledger Fabric to aid in the distribution of the data between the nodes and the aggregator.
     By using this bridge, data can be selectively distributed to only the nodes that need the data for training will
     have access to it.
@@ -120,9 +120,11 @@
 
     Towards the Use of Blockchain Prediction Markets on Forecasting Wind Power~\cite{windForcasting} is a paper that lays the
     groundwork for a use-case of blockchain empowered prediction markets. Like blockchain technology, renewable energy has
-    ballooned in use recently. Many people are drawn to both of these innovations for some of the same reasons:
-    A promise of a new way of doing things that breaks from the old system. Like renewables replacing fossil fuels many see
-    blockchain replacing centralization as a necessary step to a better, freer, more sustainable future.
+    recently ballooned in use. Many people are drawn to both of these innovations for some of the same reasons:
+    they desire a new way of utilizing technology that breaks from the old system and provides them with some benefit.
+    Like renewables replacing fossil fuels, many see blockchain replacing centralization as a necessary step to a better,
+    freer, more sustainable future.  This paper combines these two fields in a way that utilizes their combined utility
+    and benefits.
 
     \paragraph{Motives}
     A key problem with many forms of renewable energy sources are their unpredictable supply. Wind turbines need wind,
@@ -131,23 +133,30 @@
     the authors, Shamsi and Cuffe, note that the use of blockchain based prediction markets in renewable energy forecasting
     had not yet been explored.
 
+    \paragraph{Implementation}
+    On their platform, anyone can propose an event and request predictions for that event with the promise of providing
+    a reward.  Reporters then propose several predictions over the course of the seven-day window that the market is
+    active.  In this implementation, the hosts of this predictive market do not take responsibility for the training
+    and execution of the predictive models.  This is all done on the side of the reporters.  By using their framework,
+    reporters who provide correct data are rewarded and those who provide inconsistent data are punished.
+
     \paragraph{The Oracle Problem}
-    Shamsi and Cuffe discuss various prior proposals that seek to take on this issue. One crowdsourcing proposal, they
-    say, lacks proper incentives. While another prediction market with decent incentives is centralized.
-    The authors discuss the \textit{Augur} Platform, an Ethereum based prediction market. The Augur system seeks to deal with a
+    Shamsi and Cuffe discuss various frameworks that they can use to organize this system. One crowdsourcing proposal, they
+    say, lacks proper incentives. While another prediction market with acceptable incentives is too centralized. The authors
+    then discuss the \textit{Augur} Platform, an Ethereum based prediction market. The Augur system seeks to deal with a
     key issue with decentralized prediction markets: The oracle problem. This is the problem of getting new outside data
     into the platform. Augur gives a basis for "Independent participants [to] report, dispute and validate the data
     through a decentralized set of smart contracts".  For their paper, the authors have based their framework off
     of Augur's.  They hope to expand upon its proven reliability with their own improvements.
 
     \paragraph{Relation To Our Work}
-    Both PredictChain and this paper enable user to gain access to better forecasting of events. In PredictChain users
+    Both PredictChain and this paper enable users to gain access to better forecasting of events. In PredictChain, users
     are able to query pre-existing models as well as contribute their own data to train these models. This collaboration
     improves performance and accessibility to predictive capabilities. In the predictive marketplace for renewable energy,
     users can observe the spread prices on trades and calculate what the market clearing probabilities are for any such
-    event. The more contracts that are sold and bought on the marketplace the closer the spread price will be to the true
-    event probability or value.  In other ways, this paper differs from our project. In PredictChain, the oracle gathers
-    new data to determine the accuracy of model queries. More specifically, in stock market prediction for example, a
+    event. The more contracts that are sold and bought on the marketplace, the closer the spread price will be to the true
+    event probability or value.  In other ways, this paper differs from our project. In PredictChain, a central oracle
+    gathers new data to determine the accuracy of model queries. More specifically, in stock market prediction for example, a
     user may specify a model to query. That user can also provide the data to call the model on e.g. stock data for
     \$AAPL from 4/17/2023-4/19/2023 if we assume this recurrent model is using a three-day window. The oracle would then
     gather the true stock market price for the target date, 4/20/2023, and record the model's accuracy.  This is in contrast
@@ -155,6 +164,56 @@
     the Augur oracle are untrusted, with different oracles sometimes reporting conflicting events and disputing each other.
     This choice represents a tradeoff between reliability with simplicity.
 
+
+    \subsection{Stock Predictions}
+
+    This next paper is closely aligned with the example dataset that we are using for PredictChain.  They focus on
+    using big data to train predictive machine learning models to forecast the short-term future behavior of stocks
+    within the Chinese stock market~\cite{deepPrediction}.  Within their paper, they utilize several techniques; designed
+    to cut down on the noise that is inherent to the stock market to allow for better predictions.  In their paper,
+    they focus mainly on three methods that they use to accomplish this goal:
+
+    \begin{itemize}
+        \item Creating a new dataset, gathered primarily from the \textit{Tushare} API
+        \item Performing feature engineering on their dataset to ensure that it can be better used by their model
+        \item Customizing a Long Short-Term Memory model for the actual predictions
+    \end{itemize}
+
+    For their dataset, they had gathered the past performance of 3558 stocks from the Chinese stock market over
+    a period of two years.  Each entry in their dataset contains many attributes including the daily price of a
+    given stock and the ID of that stock.  In order to gather this data, they utilized the \textit{Tushare} API, along
+    with web-scraping from \textit{Sina Finance} and the \textit{SWS Research} website.
+
+    \paragraph{Feature Engineering}
+    As part of their feature engineering, they utilized three primary techniques.  First, they applied feature extension
+    to their dataset.  Through the use of this technique, they added additional meta-attributes to the entries, such
+    as polarizing or calculating the fluctuation percentage.  Adding this meta-data to the dataset helps to give the model
+    a more complex picture of the stock and how it performs over time.  Next, they eliminated some features by using the
+    Recursive Feature Elimination (RFE) algorithm.  This algorithm evaluated each feature based on the degree to which
+    that feature influenced the stock's performance.  By eliminating unnecessary features, they allow their model to
+    pay more attention to the most influential features, improving its predictive capabilities.
+
+    \paragraph{Predictive Models}
+    Finally, they developed their models.  They used a two layered LSTM model, with the model only having an input layer
+    and an output layer.  As for their output, they kept the output as simple as possible to make sure the model
+    was focussed only on predicting the movement of the stock.  The model either outputted a one for the stock going up at
+    a given time step, or a zero if the model believed the stock would go down.  Their hope is that this simplicity
+    will also simplify the complexity of the information that investors will have to interact with.
+
+    \paragraph{Relation to Our Work}
+    As mentioned previously, the general purpose of this work mirrors part of the functionality of our project.
+    The main difference here, being that it is much more focused on the predictive aspect.  Along with their
+    LSTM model, they test several other models on their dataset as a comparison.  Out of these models,
+    the LSTM performed the best, with the multi-layered perceptron and the other, non-neural network, algorithms
+    falling behind.  Their observed performance matches our initial assumption and the modifications we had made
+    after reviewing~\cite{recurrentModeling}. One notable feature that this paper has that our project has not fully implemented
+    is their complex preprocessing of the dataset.  At present, PredictChain leaves the majority of dataset preprocessing
+    up to the uploading user.  That is, our project does not perform any feature engineering before submitting the dataset
+    to models.  In place of this, we allow the user to split the dataset about the value of any given attribute.  The usage
+    of our $sub\_split\_attrib$ allows users to partially preprocess their data dynamically, similar to, but less complete
+    than, this paper's implementation.  A future improvement that we could make to our project is to give users the option
+    of having feature extension or elimination automatically applied to their dataset after submission.  This change may
+    result in yet better performance of our models after training on user-submitted datasets.
 
     \subsection{Table Comparison}
 
@@ -198,19 +257,36 @@
                     \tabitem Users can submit\\custom datasets\\
                     \tabitem Data from different\\users can be used for a\\common purpose\\
                 }\\\hline
-                \makecell[l]{Shamsi and Cuffe\\2020~\cite{windForcasting}} &
+                \makecell[l]{Shamsi et al.\\2020~\cite{windForcasting}} &
                 \makecell[l]{
-                    \tabitem Central Node reports \\ new data to the oracle. \\
-                    \tabitem Predictions from models \\ hosted on central node. \\
+                    \tabitem Central Node reports \\ new data to the oracle \\
+                    \tabitem Predictions from models \\ hosted on central node \\
+                    \tabitem Models are trained and\\managed by oracle\\
+                    \tabitem Flexible scope,\\generalizable to any domain\\
                 } &
                 \makecell[l]{
                     \tabitem Users report new \\ data to the oracle \\ for contract-settling.  \\
-                    \tabitem Users manually submit \\ their predictions via \\ buying contracts. \\
+                    \tabitem Users manually submit \\ their predictions via \\ buying contracts \\
+                    \tabitem Models are trained and\\managed by reporters\\
+                    \tabitem Scope constrained to\\predictions of renewable\\output
                 } &
                 \makecell[l]{
-                    \tabitem Both systems allow \\ greater  access to \\ predictive capabilities \\
-                        through pooling data \\ and predictions from \\ different parties.
+                    \tabitem Give users greater\\access to predictive\\capabilities \\
+                    \tabitem Users submit queries\\for predicting\\future events\\
                 } \\\hline
+                \makecell[l]{Shen et al.\\2020\cite{deepPrediction}} &
+                \makecell[l]{
+                    \tabitem Incorporation of\\blockchain to distribute\\predictions to users\\
+                    \tabitem Has limited options\\for dynamic preprocessing\\of data\\
+                } &
+                \makecell[l]{
+                    \tabitem Focus prmarily on\\predictions rather than\\accessibility\\
+                    \tabitem Has many options for\\preprocessing data before\\ being sent to models\\
+                } &
+                \makecell[l]{
+                    \tabitem Utilize various predicive\\models with different\\advantages and\\disadvantages\\
+                    \tabitem Focus on stock market\\predictive data in sample\\datasets\\
+                }\\\hline
             \end{tabular}
             \egroup
         \end{center}
@@ -221,7 +297,7 @@
 
     \subsection{Long Short-Term Memory Networks}
 
-    Long Short-Term Memory Networks\cite{LSTM} is one of the most influential, and useful, types of network that we work
+    Long Short-Term Memory Networks\cite{LSTM} are some of the most influential, and useful, types of network that we work
     with in our project.  These networks introduce several important improvements on classical backpropagation-through-time
     recurrent neural networks.  One of the most notable contributions of LSTMs is their resolution of the 'exploding
     and vanishing gradients' problem.  In RNNs, it is common, and often disruptive, to observe error signals either
@@ -269,8 +345,8 @@
     datasets from Ubisoft.  The design of their experiment is to compare the negative log probabilities of the models
     after they are given 20 consecutive samples of audio data and are then tasked to predict the next 10 consecutive
     samples.  In the results that they gathered, they concluded that, overall, the GRU unit outperformed the other
-    two evaluated models.  These results are amplified in the Ubisoft datasets, where GRU unis significantly
-    outperform the others in one of the test cases and have similar performance to LSTMs in the other.  Additionally,
+    two evaluated models.  These results are amplified in the Ubisoft datasets, where GRU units significantly
+    outperform the others in one of the test cases, and have similar performance to LSTMs in the other.  Additionally,
     in the Ubisoft Dataset B, the negative log-likelihood of the GRU model continues to shrink in a super-linear manner,
     whereas the other models become asymptotic.
 
@@ -281,7 +357,7 @@
     We denoted this perceived difference in output quality through the constant multiplier we applied to each of their
     $model\_complexity$ values.  After our analysis of this paper, we ran several tests to see if this paper's results
     also applied to our project.  In our tests, we noticed something very similar to the paper.  GRUs and LSTMs
-    has more similar performance than we initially thought.  Meanwhile, vanilla RNNs lagged behind.  Based off of
+    have more similar performances than we initially thought.  Meanwhile, vanilla RNNs lagged behind.  Based off of
     this evidence, we decided to update these values to better reflect the experimental performance of these models.
 
     \begin{table}[H]
@@ -304,55 +380,6 @@
     each other and to more traditional RNNs.  Overall, this paper has been important for our project as it has
     helped us to reflect upon our models and how to best evaluate them.
 
-    \subsection{Stock Predictions}
-
-    This next paper is closely aligned with the example dataset that we are using for PredictChain.  They focus on
-    using big data to train predictive machine learning models to forecast the short-term future behavior of stocks
-    within the Chinese stock market~\cite{deepPrediction}.  Within their paper, they utilize several techniques designed
-    to cut down on the noise that is inherent to the stock market to allow for better predictions.  In their paper,
-    they focus mainly on three methods that they use to accomplish this goal:
-
-    \begin{itemize}
-        \item Creating a new dataset, gathered primarily from the \textit{Tushare} API
-        \item Performing feature engineering on their dataset to ensure that it can be better used by their model
-        \item Customizing a Long Short-Term Memory model for the actual predictions
-    \end{itemize}
-
-    For their dataset, they had gathered the past performance of 3558 stocks from the Chinese stock market over
-    a period of two years.  Each entry in their dataset contains many attributes including the daily price of a
-    given stock and the ID of that stock.  In order to gather this data, they utilized the \textit{Tushare} API, along
-    with web-scraping from \textit{Sina Finance} and the \textit{SWS Research} website.
-
-    As part of their feature engineering, they utilized three primary techniques.  First, they applied feature extension
-    to their dataset.  Through the use of this technique, they added additional meta-attributes to the entries, such
-    as polarizing or calculating the fluctuation percentage.  Adding this meta-data to the dataset helps to give the model
-    a more complex picture of the stock and how it performs over time.  Next, they eliminated some features by using the
-    Recursive Feature Elimination (RFE) algorithm.  This algorithm evaluated each feature based on the degree to which
-    that feature influenced the stock's performance.  By eliminating unnecessary features, they allow their model to
-    pay more attention to the most influential features, improving its predictive capabilities.
-
-    Finally, they developed their models.  They used a two layered LSTM model, with the model only having an input layer
-    and an output layer.  As for their output, they kept the output as simple as possible to make sure the model
-    was focussed only on predicting the movement of the stock.  The model either outputted a one for the stock going up at
-    a given time step, or a zero if the model believed the stock would go down.  Their hope is that this simplicity
-    will also simplify the complexity of the information that investors will have to interact with.
-
-    \paragraph{Relation to Our Work}
-
-    As mentioned previously, the general purpose of this work mirrors part of the functionality of our project.
-    The main difference here, being that it is much more focused on the predictive aspect.  Along with their
-    LSTM model, they test several other models on their dataset as a comparison.  Out of these models,
-    the LSTM performed the best, with the multi-layered perceptron and the other, non-neural network, algorithms
-    falling behind.  Their observed performance matches our initial assumption and the modifications we had made
-    after reviewing~\cite{recurrentModeling}.
-
-    One notable feature that this paper has that our project implicitly lacks is their complex preprocessing of
-    the dataset.  At present, PredictChain leaves the majority of dataset preprocessing up to the uploading user.
-    That is, our project does not perform any feature engineering before submitting the dataset to models.  A future
-    improvement that we could make to our project is to give users the option of having feature extension or elimination
-    automatically applied to their dataset after submission.  This change may result in yet better performance of our
-    models after training on user-submitted datasets.
-
     \subsection{Table Comparison}
 
     As a summary, this chart illustrates the impact that each of the papers had on our work and our knowledge:
@@ -370,11 +397,7 @@
                     in datasets and expanding the degree to which users\\could customize the lookback windows}\\
                 \hline
                 \makecell{Chung et al. 2014\cite{recurrentModeling}} &
-                    \makecell{Helping us to better understand the relative performances\\ofRNNs, LSTMs, and GRU networks}\\
-                \hline
-                \makecell{Shen et al. 2020\cite{deepPrediction}} &
-                    \makecell{Inspiring possible future improvements to our dataset\\preprocessing and model training}\\
-
+                    \makecell{Helping us to better understand the relative performances\\of RNNs, LSTMs, and GRU networks}\\
             \end{tabular}
             \egroup
         \end{center}
@@ -384,21 +407,39 @@
 
     After researching and reading these relevant papers, we were able to gain valuable insight into projects similar to
     our own, implement relevant features, and take note of some features that could be added in future revisions of
-    PredictChain.  The knowledge that we have gained from these papers falls broadly into two categories: improvements
-    that we could make to our usage of artificial intelligence and improvements that we could make to our usage of
-    blockchain.
+    PredictChain.  Specifically, we were able to use some of these papers as background knowledge to improve upon
+    specific details of our implementation.  Through other, contemporary papers, we were able to use to investigate similar
+    projects and inspire possible future work on ours.
 
-    \subsection{AI Papers}
-    The papers that had focused on the AI component helped us to re-revaluate how we rate our models and how we can best
+    \paragraph{Related Papers}
+    Through our review, we have examined several papers that demonstrate similar ideas and architectures to our project
+    with slightly different implementations.~\cite{sharingModels} had many similarities to our project, implemented using
+    a more decentralized architecture.~\cite{priceOfTrust} takes some of the decentralization ideas of~\cite{sharingModels}
+    and expands upon it by structuring their project with security as another main focus.  ~\cite{windForcasting}
+    demonstrates a market, similar to ours, but using a more decentralized architecture with a more specific scope.
+    Finally, ~\cite{deepPrediction} helped us to better understand some of the future improvements that we could make
+    to both our dataset preprocessing and model training.
+
+    \paragraph{Background Papers}
+    The papers that we have used for background knowledge helped us to re-revaluate how we rate our models and how we can best
     improve the data processing and training aspects of the project.~\cite{LSTM}~and~\cite{recurrentModeling} helped
     us to better understand how we should rank the potential effectiveness of our models through our usage of
-    their $model\_complexity$ values.  Specifically, \cite{LSTM} encouraged us to expand the degree to
-    which users could customize the time lag that is present in the dataset upon model training.~\cite{deepPrediction}
-    helped us to better understand some of the future improvements that we could make to both our dataset preprocessing
-    and model training.
+    their $model\_complexity$ values.  Specifically,~\cite{LSTM} encouraged us to expand the degree to
+    which users could customize the time lag that is present in the dataset upon model training.
 
-    \subsection{Blockchain Papers}
-    The papers that had focused on blockchain instead
+    \paragraph{Future Work}
+    After both reading these papers and our own evaluations, we have identified some possible future work that may
+    benefit PredictChain.  One major change that we could make to the project is the overhaul of the architecture of
+    the project.  This would likely come in the form of some work that makes our project more decentralized in nature.
+    This could come in the form of utilizing multiple reporters that manage their own models like~\cite{windForcasting}
+    or by using a more decentralized form of dataset sourcing like~\cite{priceOfTrust}.  Adding these would open up more
+    opportunities for community contribution.  Another potential improvement that could be introduced with future work is
+    offloading more of our logic into smart contracts.  This idea was inspired by the contemporary papers as a whole, as
+    they all utilize smart contracts in some way.  This would make more of our logic transparent to users without them having
+    to look at our open-source code themselves.  We initially did not choose to do this due to some difficulties in using TEAL,
+    but in some future work, incorporating these into our design would make our project more open and decentralized.
+    Adding these improvements may make PredictChain a more fleshed-out version of itself without changing the core
+    principles of our project.
 
     \pagebreak
     \bibliographystyle{abbrv}

@@ -19,3 +19,4 @@ database.json
 *.log
 *.gz
 *.inv
+*.out

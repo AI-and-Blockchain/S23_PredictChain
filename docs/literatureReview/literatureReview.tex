@@ -438,10 +438,14 @@
     they all utilize smart contracts in some way.  This would make more of our logic transparent to users without them having
     to look at our open-source code themselves.  We initially did not choose to do this due to some difficulties in using TEAL,
     but in some future work, incorporating these into our design would make our project more open and decentralized.
-    Adding these improvements may make PredictChain a more fleshed-out version of itself without changing the core
-    principles of our project.
-
-    One way that smart contracts could be integrated into PredictChain is as a medium for holding competitions between different models hosted on PredictChain. A user could create a Competition and select some number of events to be part of that competition. Other users could then enter models in the Competition. These models would then compete for best performance over the selected events. Once the models and events are selected everything and all predictions can be run through PredictChain with payouts being settled by the smart contract. \cite{brierScore} discusses the Brier Score as a way of comparing binary probabilistic models. In their case discussed in the context of weather events. This provides an added functionality over traditional prediction markets. Models are not only judged on their predictions, but on the confidence of those predictions as well. This also gives users the ease of not having to manually enter predictions for each event allowing models to compete over many events over any period of time. 
+    One way that smart contracts could be integrated into PredictChain is as a medium for holding competitions between
+    different models hosted on PredictChain.  Users could select different models that they wish to compare, those
+    models would predict some selected event, and their performance, and confidence in that performance, could be evaluated
+    using the \textit{Brier} score.  This score is a way to qualitatively compare probabilistic models.  We could use this
+    score similarly to the authors of~\cite{brierScore}, where they use it to compare weather event predictions.
+    This logic could be handled by a smart contract, expanding our capabilities into an area that similar projects do not
+    implement.  Adding these improvements may make PredictChain a more fleshed-out version of itself without changing the
+    core principles of our project.
 
     \pagebreak
     \bibliographystyle{abbrv}

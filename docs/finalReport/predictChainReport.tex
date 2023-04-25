@@ -32,7 +32,7 @@
     is based off of the correctness of the prediction.  This encourages users to participate in contributing the
     resources needed for good predictions, while leaving a public record for other users to view.
 
-    \subsection{Background}
+    \subsection{Significance}
     % Why is this an important and relevant problem within the context of AI and Blockchain
 
     As the trend of ever-growing machine learning models continues, this problem becomes increasingly relevant.
@@ -57,7 +57,7 @@
     predictive models that will inform my investment strategies.
 
     \subsubsection*{User Story \#2}
-    \textit{Scenario:} As a stockbroker, I want to compare my dataset to another dataset against the same model so that
+    \textit{Scenario:} As a stockbroker, I want to compare my dataset to another dataset while using the same model so that
     I can get an idea as to which is better.
 
     \subsubsection*{Use Cases}
@@ -81,7 +81,7 @@
             \textbf{Event Flow:} &
             \begin{enumerate}
                 \item The user logs in properly into their account (or creates a new account)
-                \item The user checks to see how much it would cost to upload a dataset given the size of the dataset
+                \item The user checks to see how much it would cost to upload a dataset, given the size of the dataset
                 \item The user inputs a link to the dataset file in the upload dataset area
                 \item The user inputs a name corresponding to that dataset
                 \item The user enters in the size of the dataset file in bytes
@@ -110,7 +110,7 @@
             \hline
             \textbf{Actor(s):} & Site User \\
             \hline
-            \textbf{Precondition(s):} & PredictChain is set up properly (connected to the client which is connect to Oracle) \\
+            \textbf{Precondition(s):} & The user is ready with information concerning the model training parameters \\
             \hline
             \textbf{Event Flow:} &
             \begin{enumerate}
@@ -134,29 +134,6 @@
     % Provide details of how you implemented your solution. Please add as many diagrams as necessary and explain the
     % diagrams you added in the text. Any external libraries used and rationale for using them
     % Links to all the resources produced (GitHub source code, demo link, link to the recorded video of the demo, etc.)
-
-    The following table will provide links to the various resources relevant to our project and its evaluation:
-
-    \begin{table}[H]
-        \caption{{Project Resources}}
-        \label{tab:resources}
-        \centering
-        \begin{tabular}{|p{2cm}|p{13cm}|}
-            \hline
-            \textbf{Resource} & \textbf{Link}\\
-            \hline
-            GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
-            \hline
-            Python Documentation & \href{https://github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}{github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}
-            (Best viewed when opened locally with a web browser)\\
-            \hline
-            Overall Demo Video & \href{https://drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}{drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}\\
-            \hline
-            Technical Demo Video & \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}\\
-            \hline
-        \end{tabular}
-    \end{table}
-
 
     The structure of PredictChain is primarily broken up into two parts: the client and the oracle.  Both of these parts
     interact with each other through the blockchain.  The following diagram illustrates this relation:
@@ -189,10 +166,20 @@
     The client serves as a middleman between the front end user interface and the blockchain.  It is run as a server,
     serving UI content to the user, taking in requests from the UI, and parsing those requests into a form suitable for
     both the blockchain and for the oracle.  Additionally, the client constantly polls for updates coming from the oracle,
-    through the blockchain through its monitor.  These updates are queued and sent to the front end upon request. This
-    allows the user to both interact with the blockchain and to see the important updates that come from it.
+    through the blockchain, and then through its monitor.  These updates are queued and sent to the front end upon request.
+    This allows the user to both interact with the blockchain and to see the important updates that come from it.
 
     \subsection{The Oracle}
+
+    \begin{figure}[H]
+        \begin{center}
+            \begin{minipage}{0.6\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{../../img/oracleDiagram}
+            \caption{The architecture of the Oracle}\label{Fig:oracleDiagram}
+        \end{minipage}\hfill
+        \end{center}
+    \end{figure}
 
     The oracle accomplishes the majority of the other tasks that this project requires.  It constantly polls for updates
     coming from the client, through the blockchain by using its own monitor.  Upon receiving these updates, it begins
@@ -204,7 +191,7 @@
         \item Querying one of the trained models on user inputted data and comparing it to the real-world result
     \end{itemize}
 
-    After each of these operations, the oracle sends out several to the blockchain transactions.  These can be either
+    After each of these operations, the oracle sends out several blockchain transactions.  These can be either
     rewards to contributors of a model or confirmations/results of the operation that has been performed.
 
     When working with user-submitted datasets, the oracle uses a handler to manage the operations performed on that dataset.
@@ -267,14 +254,40 @@
     it would not benefit the accessibility or transparency of the project greatly if the exchanged transactions were
     dominated by simple '\textit{what is the price of \ldots}' requests.
     
-    \paragraph{Node Libraries}
+    \subsubsection*{Node Libraries}
+
     Additionally, the front end utilizes the React framework and firebase.  React was useful to us as it streamlined the process of making
     dynamic, modular code for the web interface.  Firebase was invaluable for handling administrative tasks such as keeping
     track of registered users and their associated metadata.
     
-    \paragraph{Redis}
+    \subsubsection*{Redis}
+
     For the recommended configuration of the project, we use Redis as well.  Redis helps to provide a reliable store for
     our metadata about models and datasets in a simple, persistent manner.
+
+    \subsection{Resource Links}
+
+    The following table will provide links to the various resources relevant to our project and its evaluation:
+
+    \begin{table}[H]
+        \caption{{Project Resources}}
+        \label{tab:resources}
+        \centering
+        \begin{tabular}{|p{2cm}|p{13cm}|}
+            \hline
+            \textbf{Resource} & \textbf{Link}\\
+            \hline
+            GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
+            \hline
+            Python Documentation & \href{https://github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}{github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}
+            (Best viewed when opened locally with a web browser)\\
+            \hline
+            Overall Demo Video & \href{https://drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}{drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}\\
+            \hline
+            Technical Demo Video & \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}\\
+            \hline
+        \end{tabular}
+    \end{table}
 
     \section{Evaluation}
 
@@ -288,7 +301,7 @@
     \subsection{Transactions}
 
     The usage of transactions is central to the communications protocol of PredictChain, so making sure the protocol
-    functions correctly is critical to the evaluation of the project.  Thanks to the SDK, There is little issue with encoding the
+    functions correctly is critical to the evaluation of the project.  Thanks to the SDK, we had no issue with encoding the
     notes and actually sending the transactions.  Where problems can potentially arise is within the
     client and oracle monitors.
 
@@ -335,7 +348,7 @@
                 \hline
                 \textit{training\_lookback} & 10 & The number of time steps that recurrent models receive as input\\
                 \hline
-                \textit{sub\_split\_value} & 0 & The integer id of the stock to predict, in this case its is \textit{AA} (Alcoa Corp)\\
+                \textit{sub\_split\_value} & 0 & The integer id of the stock to predict, in this case its is \textit{\$AA} (Alcoa Corp)\\
                 \hline
             \end{tabular}
             \egroup
@@ -395,8 +408,9 @@
     \paragraph{Price Queries}
     The first, and most straightforward, set of operations that we tested were the three price query operations.
     We performed this test by submitting query requests on the front end, then tracing the functions called by that operation
-    from the client to the oracle, the oracle getting the price, then back to the client.  We performed this test for all
-    three of our queries, testing different sets of inputs, both valid and invalid, seeing if they were handled properly,
+    from the client to the oracle, then to the oracle getting the price, then finally back to the client.  We performed
+    this test for all three of our queries, testing different sets of inputs, both valid and invalid, seeing if they
+    were handled properly.
 
     \paragraph{Major Transactions}
     The next set of tests we performed focused on our major transactions: \textit{Upload Dataset}, \textit{Train Model},

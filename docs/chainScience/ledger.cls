@@ -299,8 +299,11 @@
 \titleformat{\subsection}[runin]{\fontshape{it}\selectfont}{}{\parindent}{\thesubsection .\quad}[---]
 \titlespacing{\subsection}{0em}{0em}{0em}
 
-\titleformat{\subsubsection}[runin]{\fontshape{it}\selectfont}{}{\parindent}{}[---]
+\titleformat{\subsubsection}[runin]{\fontshape{it}\selectfont}{}{\parindent}{\thesubsubsection .\quad}[---]
 \titlespacing{\subsubsection}{0em}{0em}{0em}
+
+\titleformat{\paragraph}[runin]{\fontshape{it}\selectfont}{}{\parindent}{\quad}[~--~]
+\titlespacing{\paragraph}{0em}{0em}{0em}
 
 
 \def\ledgernotes{

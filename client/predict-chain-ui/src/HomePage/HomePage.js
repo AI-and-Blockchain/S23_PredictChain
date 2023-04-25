@@ -89,17 +89,7 @@ function HomePage() {
             textAlign: "center",
           }}
         >
-          Just a group of{" "}
-          <a href="https://www.rpi.edu" className="temp">
-            RPI
-          </a>{" "}
-          students in an AI & Blockchain class. This is our group project for
-          the Spring 2023 semester. More in-depth detail about us and who we are
-          located in our{" "}
-          <a href="/mtt" className="temp">
-            Meet The Team
-          </a>{" "}
-          page!
+          PredictChain
         </h4>
       </div>
       <br />

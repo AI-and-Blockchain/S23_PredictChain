@@ -24,14 +24,6 @@ function MTT() {
               style={{ width: "80%" }}
             />
             <div class="container">
-              <h2>William Hawkins</h2>
-              <p class="title">Group Member</p>
-              <p>Graduate CS student @ RPI</p>
-              <p>
-                <button class="button">
-                  <a href="mailto:hawkiw2@rpi.edu">Contact</a>
-                </button>
-              </p>
             </div>
           </div>
         </div>
@@ -44,14 +36,7 @@ function MTT() {
               style={{ width: "80%" }}
             />
             <div class="container">
-              <h2>Connor Patterson</h2>
-              <p class="title">Group Member</p>
-              <p>Undergraduate CS student @ RPI</p>
-              <p>
-                <button class="button">
-                  <a href="mailto:pattec3@rpi.edu">Contact</a>
-                </button>
-              </p>
+
             </div>
           </div>
         </div>
@@ -64,14 +49,6 @@ function MTT() {
               style={{ width: "80%" }}
             />
             <div class="container">
-              <h2>Matthew Pisano</h2>
-              <p class="title">Group Member</p>
-              <p>Graduate CS student @ RPI</p>
-              <p>
-                <button class="button">
-                  <a href="mailto:pisanm2@rpi.edu">Contact</a>
-                </button>
-              </p>
             </div>
           </div>
         </div>

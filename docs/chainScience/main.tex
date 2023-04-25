@@ -61,20 +61,20 @@ One of the main issues with artificial intelligence training and development tod
 individuals or groups possess data that they would wish to be used in predictive analysis. However, these people
 may not have access to the compute capacity to train predictive models on this data.  Additionally,yet other
 people have neither access to predictive training data, nor do they have access to adequate computational resources.
-Compounding this issue is the fact that the entities that \textit{do} have these computational resources often keep the results of
-trained models hidden from the public.  Due to this lack of accessibility, similar models are often trained on similar datasets,
-obtaining similar results.  This results in both a notable inefficiency, and the withholding of useful predictions from
-the majority of people.
+Compounding this issue is the fact that the entities that \textit{do} have these computational resources often keep the
+results of trained models hidden from the public.  Due to this lack of accessibility, similar models are often trained
+on similar datasets, obtaining similar results.  This results in both a notable inefficiency, and the withholding of
+useful predictions from the majority of people.
 
-To help to aid with this issue, we propose PredictChain, a blockchain-based marketplace for predictive AI models.
-Through PredictChain, users are able to upload datasets for training predictive models, request that train models
-be trained on any previously uploaded datasets, or submit queries to those trained models.
-These various models will be operated by a central node or nodes with computing resources available. A variety of
-models will be made available, ranging from cheap, fast, and simple to more expensive, slower, and more powerful.
-This will allow for a large variety of predictive abilities for both simple and complex patterns.  All the past predictions
-form these models will be stored on the blockchain for public viewing.
+\quad To help to aid with this issue, we propose PredictChain, a blockchain-based marketplace for predictive AI models.
+Through PredictChain, users are able to upload datasets for training predictive models, request to train models on any
+previously uploaded datasets, or submit queries to those trained models.  These various models will be operated by a
+central node with computing resources available. A variety of archetype models can be chosen from, ranging from cheap,
+fast, and simple to more expensive, slower, and more powerful.  This will allow for a large variety of predictive
+abilities for both simple and complex patterns.  All the past predictions form these models will be stored on the
+blockchain for public viewing.
 
-Given enough users, this project would have a notable impact on the state of machine learning usage.  Currently,
+\quad Given enough users, this project would have a notable impact on the state of machine learning usage.  Currently,
 the problem of accessibility prevents many people from utilizing machine learning themselves, often leaving them to
 turn to highly private and centralized tech giants.  This project would serve to open up this black-box of
 an industry and encourage the sharing of datasets and parameter configurations to create better models that are open
@@ -94,7 +94,7 @@ to the public for usage.
 
 \pagebreak
 
-\section{Project Description}
+\section{Introduction}
 
 \subsection{Problem Solved}
 
@@ -112,7 +112,6 @@ resources needed for good predictions, while leaving a public record for other u
 
 \subsection{Significance}
 
-
 As the trend of ever-growing machine learning models continues, this problem becomes increasingly relevant.
 As the scale and power of these models grow, the resources required to train them grow as well.  This makes the training
 of useful machine learning models unattainable for most people.  In order to get useful results from these models,
@@ -126,87 +125,131 @@ using Algos as a method of payment, instead of investment, it helps to, once aga
 effectively be used as a pure form of payment for useful services.  Of course, this is in addition to the many other
 services that use crypto in a similar manner, but adding one more project only helps the Algorand's notion of usefulness.
 
+\section{Background}
 
-\subsection{Use Cases and User Stories}
+Throughout our project, we have built upon, or have related to, the ideas of many other projects and papers.
+Some of these relations were explicit, such as our work with, and utilization of, various types of neural
+network.  Others were implicit, like our project's relation to the many other implementations of
+blockchain-based predictive projects.  It is important to acknowledge the influences that other works have
+had on our project, and it is equally important to analyze the similarities between our project and the
+other papers that we have referenced here.  Through this, we hope to better understand the perspective of
+others on similar topics to our project and hopefully improve upon our work and techniques in the future.
 
-The following use cases and user stories demonstrate our target audience and several of the core components of PredictChain.
+\subsection{Sharing Updatable Models}
 
-\paragraph{User Story \#1}
-\textit{Scenario:} As a data analyst, I want to have access to trends of various stock markets so that I can create
-predictive models that will inform my investment strategies.
+Decentralized \& Collaborative AI on Blockchain~\cite{sharingModels} is a great example of a project that combines
+both artificial intelligence and blockchain technologies in a similar manner to our own.  In this paper, Microsoft
+outlines a blockchain-based predictive marketplace that utilizes AI for predictive analysis.  In this system, there
+exists an initial model that is trained on the data collaboratively provided by multiple users.  To encourage
+the submission of high-quality data, they propose an incentive mechanism that rewards honest users, and punishes
+dishonest ones.  This model is trained off-chain on the client's machine.  All the logic involving the
+data submission and incentives are done within an Ethereum smart contract.
 
-\paragraph{User Story \#2}
-\textit{Scenario:} As a stockbroker, I want to compare my dataset to another dataset while using the same model so that
-I can get an idea as to which is better.
+\paragraph{The Model}
+This system leaves the exact definition of the model flexible between different clients running the system.  They
+suggest that the specific class of model would be some type of predictive model, giving examples of CRF-RNNs and
+Support Vector Machines.  Depending on the model that is used, the authors mention that the
+corresponding incentive mechanism would change from model to model.
 
-\paragraph{Use Cases}
-For the sake of space, we will only go over two simple use cases; one that allows the user to add a dataset and
-another where a user queries a prediction from an existing model.
+\paragraph{Incentives}
+Similarly to the models, the authors leave the incentive mechanism of the project also without an exact definition.
+This is to give end users flexibility in their individual implementations.  They do give several examples and
+specifications of this mechanism, however.  These examples fall into two categories: gamification and monetary
+incentives.  In the gamification strategy, they suggest that there should be no monetary incentive for contributing
+data, instead using tokens or badges.  For the monetary route, they suggest that users who choose to upload data may have
+to also submit some stake into the contract as collateral.
 
-\begin{table}[H]
-    \caption{Add Dataset}
-    \label{tab:add-ds}
-    \centering
-    \begin{tabular}{|p{3cm}|p{11cm}|}
-        \hline
-        \textbf{Identifier:} & UC1 \\
-        \hline
-        \textbf{Description:} & The user logs in to PredictChain and adds a dataset to their account\\
-        \hline
-        \textbf{Actor(s):} & Site User \\
-        \hline
-        \textbf{Precondition(s):} & The user has a publicly available link for the dataset\\
-        \hline
-        \textbf{Event Flow:} &
-        \begin{enumerate}
-            \item The user logs in properly into their account (or creates a new account)
-            \item The user checks to see how much it would cost to upload a dataset, given the size of the dataset
-            \item The user inputs a link to the dataset file in the upload dataset area
-            \item The user inputs a name corresponding to that dataset
-            \item The user enters in the size of the dataset file in bytes
-            \item The user presses "Submit"
-        \end{enumerate} \\
-        \hline
-        \textbf{Postcondition(s):} &
-        \begin{enumerate}
-            \item A dataset has been created and is stored in the oracle
-            \item The transaction has been stored on the blockchain
-            \item The website displays the information onto the dashboard corresponding to the outcome
-        \end{enumerate}\\
-        \hline
-    \end{tabular}
-\end{table}
+\subsection{The Price You Pay For Trust}
 
-\begin{table}[H]
-    \caption{Model Query}
-    \label{tab:model-query}
-    \centering
-    \begin{tabular}{|p{3cm}|p{11cm}|}
-        \hline
-        \textbf{Identifier:} & UC2 \\
-        \hline
-        \textbf{Description:} & The user logs in to PredictChain and queries a prediction from an existing model\\
-        \hline
-        \textbf{Actor(s):} & Site User \\
-        \hline
-        \textbf{Precondition(s):} & The user is ready with information concerning the model training parameters \\
-        \hline
-        \textbf{Event Flow:} &
-        \begin{enumerate}
-            \item The user logs in properly into their account (or creates a new account)
-            \item The user selects an existing model from the dropdown under the query model area
-            \item The user inputs a list of numbers corresponding to the input data of the model
-            \item The user submits their request using the submission button in that section
-        \end{enumerate} \\
-        \hline
-        \textbf{Postcondition(s):} &
-        \begin{enumerate}
-            \item The website displays the result of the query onto the dashboard
-            \item The result of the query is stored on the blockchain
-        \end{enumerate}\\
-        \hline
-    \end{tabular}
-\end{table}
+Blockchain Enabled AI Marketplace: The Price You Pay For Trust~\cite{priceOfTrust} is another example of a marketplace
+that uses both AI and blockchain technologies effectively.  One of the main focuses of this project is on privacy.
+It explicitly gives examples of health or insurance entities needing models trained on confidential data.  The principles
+that this project is built around are \textit{trust}, \textit{fairness}, and \textit{auditability}.
+
+\paragraph{Datasets}
+The datasets in this system are unique since the bulk of the data is not tied directly to any one training request.
+In this project, a user uploads only a small chunk of data.  This data will then be used as the validation set for
+the training.  The majority of the training data for this query is pulled from private sources.  This serves the purpose
+of only requiring users to upload a small portion of their data.  However, this has the disadvantage of requiring
+external data to train models.  To accommodate this, the authors implement several layers of security to protect private
+data sources.
+
+\paragraph{Models}
+The models that this paper targets are much less integrated than those of other papers.  Also unlike other implementations,
+these models are trained in a decentralized nature.  This training strategy is reflective of federated learning.  No
+one model is given all the data in bulk, it is only given sections with the confidential information stripped out.
+To add to their security, they also use hashing algorithms to further secure their data.  Additionally, the models
+themselves are eventually shared with the requesting user along with the model results.
+
+\paragraph{Blockchain Communication}
+Like other projects, this implementation uses a significant off-chain component.  This component communicates
+with the private, permissioned blockchain that this system uses.  This is to allow for more complexities
+in the training of the models as on-chain training has significant speed and memory constraints.  By using Hyperledger
+Fabric for data distribution, data can be selectively distributed to only the nodes that need the data for training will
+have access to it.
+
+\subsection{Blockchain Prediction Markets for Renewable Energy}
+
+Towards the Use of Blockchain Prediction Markets on Forecasting Wind Power~\cite{windForcasting} is a paper that lays the
+groundwork for a use-case of blockchain empowered prediction markets. Like blockchain technology, renewable energy has
+recently ballooned in use.  This paper combines these two fields in a way that utilizes their combined utility for
+aiding progress in the field of renewables.
+
+\paragraph{Motives}
+A key problem with many forms of renewable energy sources are their unpredictable supply. Wind turbines need wind,
+solar panels need sunshine. Being able to better forecast the output of these energy production methods at a various
+time or place can help alleviate the pitfalls that prevent them from growing in market share.
+
+\paragraph{Implementation}
+On their platform, anyone can propose an event and request predictions for that event with the promise of providing
+a reward.  Reporters then propose several predictions over the course of the seven-day window that the market is
+active.  In this implementation, the hosts of this predictive market do not take responsibility for the training
+and execution of the predictive models.  This is all done on the side of the reporters.  By using their framework,
+reporters who provide correct data are rewarded and those who provide inconsistent data are punished.
+
+\subsection{Stock Predictions}
+
+This next paper is closely aligned with the example dataset that we are using for PredictChain.  They focus on
+using big data to train predictive machine learning models to forecast the short-term future behavior of stocks
+within the Chinese stock market~\cite{deepPrediction}.  For their dataset, they had gathered the past performance of
+3558 stocks from the Chinese stock market over a period of two years.  In order to gather this data, they utilized
+the \textit{Tushare} API, along with web-scraping from \textit{Sina Finance} and the \textit{SWS Research} website.
+Within their paper, they utilize several techniques; designed to cut down on the noise that is inherent to the stock
+market to allow for better predictions.  Their primary method for doing this was through feature engineering.
+
+\paragraph{Feature Engineering}
+As part of their feature engineering, they utilized three primary techniques.  First, they applied feature extension
+to their dataset.  Through the use of this technique, they added additional meta-attributes to the entries, such
+as polarizing or calculating the fluctuation percentage.  Adding this meta-data to the dataset helps to give the model
+a more complex picture of the stock and how it performs over time.  Next, they eliminated some features, based on their
+influence, by using the Recursive Feature Elimination (RFE) algorithm.  By eliminating unnecessary features, they allow
+their model to pay more attention to the most influential features, improving its predictive capabilities.
+
+\paragraph{Predictive Models}
+For their testing, the authors used a two layered LSTM model, with the model only having an input layer
+and an output layer.  As for their output, they kept the output as simple as possible to make sure the model
+was focussed only on predicting the movement of the stock.  The model either outputted a $1$ for the stock going up at
+a given time step, or a $0$ if the model believed the stock would go down.
+
+\subsection{Evaluation and Analysis}
+
+Through this review, we examined several papers that demonstrate similar ideas and architectures to our project
+with slightly different implementations.  Harris and Waggoner (2019)~\cite{sharingModels} had many similarities to our
+project, but was implemented using a more decentralized architecture.  Sarpatwar, et al. (2019)~\cite{priceOfTrust} takes
+some of the decentralization ideas of Harris and Waggoner (2019)~\cite{sharingModels} and expands upon it by structuring
+their project with security as another main focus.  Shamsi and Cuffe (2020)~\cite{windForcasting} demonstrates a market,
+similar to ours, but using a more decentralized architecture and a more specific scope.  Finally, Shen and Shafiq
+(2020)~\cite{deepPrediction} helped us to better understand some of the future improvements that we could make
+to both our dataset preprocessing and model training.
+
+In our work, we have expanded upon these ideas and addressed some of their shortcomings.  PredictChain features a more
+centralized architecture than these papers, Sarpatwar, et al. (2019)~\cite{priceOfTrust} and Shamsi and Cuffe
+(2020)~\cite{windForcasting} in particular. Our aim with this strategy is to focus on simplicity and ease of use.  Without
+the requirement for a large network of oracles, our implementation allows anyone to quickly set up an oracle instance and
+begin connecting to clients.  Another design choice that we made was in our suite of built-in archetype models.  By giving
+each client a preset list of models to choose from, it is no longer the client's responsibility to train and implement
+the models, as in Harris and Waggoner (2019)~\cite{sharingModels}.  This helps to make setup and usage much cleaner and
+more accessible.  Overall, PredictChain aims to be more generalized and accessible to non-technical users at the cost of centralization.
 
 \section{Implementation Details}
 
@@ -246,6 +289,9 @@ This allows the user to both interact with the blockchain and to see the importa
 
 \subsection{The Oracle}
 
+The oracle accomplishes the majority of the other tasks that this project requires.  It constantly polls for updates
+coming from the client, through the blockchain by using its own monitor.
+
 \begin{figure}[H]
     \begin{center}
         \begin{minipage}{0.6\textwidth}
@@ -256,9 +302,7 @@ This allows the user to both interact with the blockchain and to see the importa
     \end{center}
 \end{figure}
 
-The oracle accomplishes the majority of the other tasks that this project requires.  It constantly polls for updates
-coming from the client, through the blockchain by using its own monitor.  Upon receiving these updates, it begins
-the execution of one of its three main operations.  These are:
+Upon receiving these updates, it begins the execution of one of its three main operations.  These are:
 
 \begin{itemize}
     \item Downloading a user-specified dataset and saving it
@@ -281,20 +325,22 @@ and load it back from a specified environment.  When creating and training a mod
 of archetype or template models.  These models can be a:
 
 \begin{itemize}
-    \item Multi-layered perceptron neural network
-    \item Recurrent neural network
-    \item Long short-term memory neural network
-    \item Gated recurrent unit neural network
+    \item Multi-layered perceptron neural network~\cite{preceptrons}
+    \item Recurrent neural network~\cite{RNN}
+    \item Long short-term memory neural network~\cite{LSTM}
+    \item Gated recurrent unit neural network~\cite{GRU}
 \end{itemize}
 
 Each of these models has a \textit{model\_complexity} attribute.  This is a simple float value, designed to give users
 a general idea of how performant a model can be once trained and serves as a method of calculating the cost of using
 or training that given model.  The attribute itself is calculated using the size of the network and a linear multiplier to
-account for more complex model architectures.  For models like GRUs or LSTMs, the complexity is higher as they are more complex and often
-better performing models.  For models like MLPs, the complexity is lower.  This gives the desired effect of faster, simpler
-models being cheaper than the slower, more complex models without any heavy calculations.   The interface abstracts most
-of the complexities of training, querying, and evaluating these models.  The only difference between them is the inclusion
-of several optional parameters.
+account for more complex model architectures.  For models like GRUs or LSTMs, the complexity is higher as they are more
+complex and often better performing models~\cite{recurrentModeling}.  For our RNN models, they have the ability to
+predict several time steps ahead, but their quality often degrades when a lag between evidence and prediction is
+introduced~\cite{weightGuessing}.  For these networks and our MLPs, the complexity is lower. This gives the desired
+effect of faster, simpler models being cheaper than the slower, more complex models without any heavy calculations.
+The interface abstracts most of the complexities of training, querying, and evaluating these models. The only difference
+between them is the inclusion of several optional parameters.
 
 \subsection{The Blockchain}
 
@@ -311,7 +357,9 @@ for specific datasets and what results those models have produced.
 
 \subsection{Software and Libraries}
 
-\subsubsection*{Python Libraries}
+To properly implement our project, we build upon several libraries, resources and SDKs.  These include:
+
+\subsubsection{Python Libraries}
 
 This project is primarily built in Python, using the Algorand SDK.  The SDK makes interacting with the blockchain
 very straightforward.  Through the tools provided by this library, we can easily read and write transactions from
@@ -327,15 +375,15 @@ the client and oracle nodes to function as servers.  The client would take in re
 requests to the oracle.  The oracle would then take in those requests and issue responses.  We chose to use Flask in
 client-oracle communication to cut down on the amount of trivial transactions that would otherwise be made.  For example,
 it would not benefit the accessibility or transparency of the project greatly if the exchanged transactions were
-dominated by simple '\textit{what is the price of \ldots}' requests.
+dominated by simple '\textit{what is the price of XXX}' requests.
 
-\subsubsection*{Node Libraries}
+\subsubsection{Node Libraries}
 
 Additionally, the front end utilizes the React framework and firebase.  React was useful to us as it streamlined the process of making
 dynamic, modular code for the web interface.  Firebase was invaluable for handling administrative tasks such as keeping
 track of registered users and their associated metadata.
 
-\subsubsection*{Redis}
+\subsubsection{Redis}
 
 For the recommended configuration of the project, we use Redis as well.  Redis helps to provide a reliable store for
 our metadata about models and datasets in a simple, persistent manner.
@@ -517,31 +565,29 @@ models are available, ranging from cheap, fast, and simple to more expensive, sl
 This will allow for a large variety of predictive abilities for both simple and complex patterns.  All the past predictions
 form these models will be stored on the blockchain for public viewing.
 
-\subsection{Limitations}
-
-A notable limitation that we experienced during this project were constraints on both our time and the amount of
-hours we could each put into the project.  If this project was worked on for several months longer, the final product
-would be significantly more fleshed out with more features.  If this were more akin to a multi-semester project,
-we would have had the opportunity to add more starting datasets and add a more diverse set of models.
-
-Another limitation that we had experienced was that we each had other commitments to other classes or activities.
-This limited the amount of hours per week we could each work on improving the project.  To compensate for this, we
-worked together to dynamically adjust our efforts by picking up the work of anyone that was unable to put as much
-time into the project. This strategy helped us to stay on track while maintaining our prior commitments.
-
-Despite, or perhaps aided by, these limitations, were able to budget our time and distribute the work in such a way
-that out final project is in a functioning state that fulfils our initial objective: to create a prototype for a
-accessible and transparent marketplace for machine learning training and predictions.
+% \subsection{Limitations}
+%
+% A notable limitation that we experienced during this project were constraints on both our time and the amount of
+% hours we could each put into the project.  If this project was worked on for several months longer, the final product
+% would be significantly more fleshed out with more features.  If this were more akin to a multi-semester project,
+% we would have had the opportunity to add more starting datasets and add a more diverse set of models.
+%
+% Another limitation that we had experienced was that we each had other commitments to other classes or activities.
+% This limited the amount of hours per week we could each work on improving the project.  To compensate for this, we
+% worked together to dynamically adjust our efforts by picking up the work of anyone that was unable to put as much
+% time into the project. This strategy helped us to stay on track while maintaining our prior commitments.
+%
+% Despite, or perhaps aided by, these limitations, were able to budget our time and distribute the work in such a way
+% that out final project is in a functioning state that fulfils our initial objective: to create a prototype for a
+% accessible and transparent marketplace for machine learning training and predictions.
 
 \subsection{Future Work}
 
 As mentioned above, we have several opportunities for improvement that could be accomplished with future work
-into this project.  One major improvement that we could make to the project is the overhaul of the architecture of
-the project.  As mentioned previously, we had briefly considered using many model training nodes instead of a
-centralized node.  Adding this would make the project more decentralized and open up another opportunity
-for community contribution.  This would likely come in the form of users hosting training nodes and being rewarded for
-the quality of models that it produces.  Another potential improvement that could be introduced with future work is
-the addition of a greater variety of models or more example datasets.  Currently we only use neural networks to
+into this project.  One major improvement that we could make to the project is giving users who upload datasets greater
+flexibility in how their data is preprocessed.  This may come in the form of some feature engineering, similar to
+that found in Shen and Shafiq(2020)~\cite{deepPrediction}.  Another potential improvement that could be introduced with future work is
+the addition of a greater variety of models or more example datasets.  Currently, we only use neural networks to
 use for predictions.  In future work, we would like to add a more diverse set of models, such as decision trees or
 more statistical models based off of Bayesian inference.  Finally, we could make improvements to how our models are
 trained, for instance, allowing users to prune off attributes from a dataset that they did not deem useful to the
@@ -567,6 +613,8 @@ CJP worked, primarily, with the front end and user interface along with importan
 %\theendnotes
 
 %AUTHOR: please read ledgerbib.bst usage notes by opening it in a text editor. We have modified it to include the use of the @misc item type for the proper formatting of online sources.
+
+\pagebreak
 
 \bibliographystyle{ledgerbib}
 \bibliography{main}
@@ -605,10 +653,6 @@ CJP worked, primarily, with the front end and user interface along with importan
 
 
 \thispagestyle{pagelast}
-
-
-
-
 
 %\theendnotes
 

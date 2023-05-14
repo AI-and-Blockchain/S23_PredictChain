@@ -146,7 +146,7 @@ on the dashboard.  Simply input any request information and the front end will c
 which will calculate the pricing and send it back to you.  After this, you will be able to upload a dataset, 
 request that a model be trained, and query trained models to check their responses.  It is suggested that 
 you upload our testing dataset for the best results.  It can be found 
-[here](https://matthew-misc-bucket.s3.amazonaws.com/datasets/dow_jones_index.csv).
+[here](https://archive.ics.uci.edu/ml/machine-learning-databases/00312/dow_jones_index.zip).
 
 
 ## User Actions

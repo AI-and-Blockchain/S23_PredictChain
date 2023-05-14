@@ -320,7 +320,7 @@ function Dashboard() {
             Docs
           </a>
           <a
-            href="https://github.com/AI-and-Blockchain/S23_PredictChain"
+            href="https://anonymous.4open.science/r/predict-chain"
             target="_blank"
             style={{ marginLeft: "200px" }} rel="noreferrer"
           >
@@ -714,7 +714,7 @@ function Dashboard() {
             Docs
           </a>
           <a
-            href="https://github.com/AI-and-Blockchain/S23_PredictChain"
+            href="https://anonymous.4open.science/r/predict-chain"
             target="_blank"
             style={{ marginLeft: "150px" }} rel="noreferrer"
           >

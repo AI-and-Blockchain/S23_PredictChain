@@ -58,12 +58,12 @@ A Blockchain-based Predictive Marketplace}
 
 \begin{abstract}
 The accessibility of resources for artificial intelligence (AI) model training and development is a significant issue
-in research. Limited access to computing resources and predictive training data impedes individuals and groups from
+in research. Limited access to computing resources and predictive training data impedes individuals and groups when
 training predictive models on their data. The entities with the required computational resources often keep the results
 of their trained models private, which results in inefficiency and the withholding of useful predictions from the
 general public. Despite the existence of many pre-trained and open source models, it is likely that these few, available
-models will not fit someone's particular needs. To address these issues, we propose a blockchain-based marketplace called
-PredictChain for predictive AI models. Users can upload datasets to train predictive models, request to train models on
+models will not fit someone's particular needs. To address these issues, we propose a blockchain-based marketplace for
+predictive AI models, called PredictChain. Users can upload datasets for training predictive models, request to train models on
 previously uploaded datasets or submit queries to trained models. A central node with available computing resources will
 operate these models with varying archetype models, from cheap, fast, and simple to more expensive, slower, and more
 powerful. This central-node architecture will simplify the process of gathering the compute needed for operating this
@@ -103,12 +103,12 @@ centralized approach to AI development and training. We propose a blockchain-bas
 ``PredictChain,'' that aims to democratize access to AI models and training data.
 
 PredictChain helps to solve one of the main issues that involve AI models today: accessibility.
-Oftentimes, individuals or groups pose data that they would wish to be used in predictive analysis.
+Oftentimes, individuals or groups possess data that they would wish to be used in predictive analysis.
 However, these people may not have access to the computing capacity needed to train predictive models on this data.
 Additionally, other people have neither access to predictive training data nor do they have access to computational resources.
 When users upload their datasets to PredictChain, they allow a model to be trained on the datasets uploaded.  To avoid \
 restrictions data is not stored on the blockchain directly, rather in other locations, outlined in the
-\hyperref[subsec:oracle]{Oracle} subsection below. Higher-quality datasets will produce higher-quality models.
+\hyperref[subsec:oracle]{\underline{Oracle}} subsection below. Higher-quality datasets will produce higher-quality models.
 When users submit parameters for training, they allow the model that their parameters produce to be used publicly.
 Both of these users are rewarded for their work when a model is queried.  The amount of this reward is based on the
 correctness of the prediction.  This encourages users to participate in contributing the resources needed for good
@@ -414,7 +414,7 @@ those models have produced.
 
 In PredictChain, the medium of exchange is exclusively ALGO tokens.  This helps to simplify the transaction process as
 users will not be required to pay into yet another token, hoping that it's value does not fluctuate.  Our hope is that
-users will also feel more secure, as the lack of a separate token would make `rug-pull' scams much more difficult to
+users will also feel more secure, as the lack of a separate token would make `rug-pull' deceptions much more difficult to
 execute. Our usage of ALGO also makes the process of paying into, or out of, PredictChain more streamlined.
 
 \subsection{Data Sharing and Rewards}
@@ -472,7 +472,14 @@ The following table will provide links to the various resources relevant to our 
         \hline
         \textbf{Resource} & \textbf{Link}\\
         \hline
-        Anonymous GitHub & \href{https://anonymous.4open.science/r/predict-chain}{anonymous.4open.science/r/predict-chain}\\
+        GitHub & \href{https://github.com/AI-and-Blockchain/S23_PredictChain}{github.com/AI-and-Blockchain/S23\_PredictChain}\\
+        \hline
+        Python Documentation & \href{https://github.com/AI-and-Blockchain/S23\_PredictChain/blob/main/docs/sphinx/index.html}{
+        [Our GitHub]/docs/sphinx/index.html}\\
+        \hline
+        Overall Demo Video & \href{https://drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3/view?resourcekey}{drive.google.com/file/d/1vv3BEMC5ru3oa1HLSEXGNvjdFcZbCas3}\\
+        \hline
+        Technical Demo Video & \href{https://www.youtube.com/watch?v=icWc1qvhsgY}{www.youtube.com/watch?v=icWc1qvhsgY}\\
         \hline
     \end{tabular}
 \end{table}

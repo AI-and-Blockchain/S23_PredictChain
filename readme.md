@@ -15,6 +15,20 @@ These include dataset creation, model training, model queries, and the results o
 
 [PredictChain Demo Video](https://matthew-misc-bucket.s3.amazonaws.com/predictChain.mp4)
 
+## Citation
+
+If you use this GitHub Code, please cite our work in the following way:
+
+@inproceedings{pisano2023predictchain,
+  title={PredictChain: Empowering Collaboration and Data Accessibility for AI in a Decentralized Blockchain-based Marketplace
+},
+  author={Matthew Pisano, Connor Patterson and Oshani Seneviratne},
+  year={2023},
+  publisher={Ledger Journal},
+  booktitle={ChainScience 2023}
+}
+
+
 ## Sphinx Documentation
 
 In addition to this readme, we have also created some Sphinx documentation for our python code.  This details the
@@ -239,17 +253,3 @@ that trained model makes a correct prediction.
 ![UIWireframe](img/PredictChainLanding.png)
 
 ![UIWireframe](img/PredictChainDashboard.png)
-
-## Citation
-
-If you use this GitHub Code, please cite our work in the following way:
-
-@inproceedings{pisano2023predictchain,
-  title={PredictChain: Empowering Collaboration and Data Accessibility for AI in a Decentralized Blockchain-based Marketplace
-},
-  author={Matthew Pisano, Connor Patterson and Oshani Seneviratne},
-  year={2023},
-  publisher={Ledger Journal},
-  booktitle={ChainScience 2023}
-}
-

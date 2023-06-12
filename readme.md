@@ -13,7 +13,7 @@ These include dataset creation, model training, model queries, and the results o
 
 ## Demo
 
-[![PredictChain Demo Video]({https://matthew-misc-bucket.s3.amazonaws.com/predictChain.mp4})]({https://matthew-misc-bucket.s3.amazonaws.com/predictChain.mp4} "PredictChain Demo Video")
+[![PredictChain Demo Video]({https://matthew-misc-bucket.s3.amazonaws.com/predictChain.mp4})
 
 ## Sphinx Documentation
 

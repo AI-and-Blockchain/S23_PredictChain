@@ -132,7 +132,7 @@ class Pricing:
         if not cls.mult_cache.get(mul_op):
             db_mul = dataManager.database.get("<PRICE>" + mul_op)
             if not db_mul:
-                db_mul = {"mul": 1, "txn_id": "0txn"}
+                db_mul = {"mul": 0.1, "txn_id": "0txn"}
             cls.mult_cache[mul_op] = db_mul
 
         return cls.mult_cache[mul_op]["mul"], cls.mult_cache[mul_op]["txn_id"]

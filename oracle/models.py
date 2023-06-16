@@ -253,7 +253,7 @@ class RNN(BaseNN):
     # https://www.kaggle.com/code/kanncaa1/recurrent-neural-network-with-pytorch
 
     BASE_MODEL_NAME = "RNN"
-    COMPLEXITY_MULTIPLIER = 1.7
+    COMPLEXITY_MULTIPLIER = 0.000017
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
                  loss_fn_name="mae", time_lag=1, training_lookback=2, **_):
@@ -336,7 +336,7 @@ class GRU(RNN):
     # https://blog.floydhub.com/gru-with-pytorch/
 
     BASE_MODEL_NAME = "GRU"
-    COMPLEXITY_MULTIPLIER = 2.4
+    COMPLEXITY_MULTIPLIER = 0.000024
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
                  loss_fn_name="mae", time_lag=1, training_lookback=2, drop_prob=0.0, **_):
@@ -390,7 +390,7 @@ class LSTM(RNN):
     # https://blog.floydhub.com/gru-with-pytorch/
 
     BASE_MODEL_NAME = "LSTM"
-    COMPLEXITY_MULTIPLIER = 2.2
+    COMPLEXITY_MULTIPLIER = 0.000022
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int,
                  loss_fn_name="mae", time_lag=1, training_lookback=2, drop_prob=0.0, **_):
@@ -443,7 +443,7 @@ class MLP(BaseNN):
     """Multi-layered perceptron implementation"""
 
     BASE_MODEL_NAME = "MLP"
-    COMPLEXITY_MULTIPLIER = 1
+    COMPLEXITY_MULTIPLIER = 0.00001
 
     def __init__(self, model_name: str, data_handler: datasets.DataHandler, hidden_dim: int, num_hidden_layers: int, loss_fn_name: str = "mae", **_):
         """Multi-layered perceptron implementation

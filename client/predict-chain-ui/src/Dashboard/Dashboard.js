@@ -356,12 +356,12 @@ function Dashboard() {
             </h2>
             {user?.email}
           </div>
-          <div className="credentials__txt">
+          {/*<div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline", marginTop: "20px"}}>
               Private Key:
             </h2>
             <div>{pk}</div>
-          </div>
+          </div>*/}
           <div className="credentials__txt">
             <h2 style={{ marginRight: "10px", textDecoration: "underline", marginTop: "20px" }}>
               Address:
@@ -407,7 +407,7 @@ function Dashboard() {
               {datasetUploadPrice >= 0 && (
                 <div>
                   <h3 style={{ marginTop: "-5px" }}>
-                    Price: {datasetUploadPrice}
+                    Price: {datasetUploadPrice} Algo
                   </h3>
                 </div>
               )}
@@ -455,7 +455,7 @@ function Dashboard() {
               <br />
               {modelTrainPrice >= 0 && (
                 <div>
-                  <h3 style={{ marginTop: "5px" }}>Price: {modelTrainPrice}</h3>
+                  <h3 style={{ marginTop: "5px" }}>Price: {modelTrainPrice} Algo</h3>
                 </div>
               )}
             </div>
@@ -488,7 +488,7 @@ function Dashboard() {
               {queryPriceModel >= 0 && (
                 <div>
                   <h3 style={{ marginTop: "-5px"}}>
-                    Price: {queryPriceModel}
+                    Price: {queryPriceModel} Algo
                   </h3>
                 </div>
               )}
